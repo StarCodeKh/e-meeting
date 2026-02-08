@@ -14,13 +14,19 @@
         
         <div class="row g-0">
             <div class="col-6 pe-5">
-            <div class="column-title khmer-font text-center text-muted mb-5">ព្រឹក</div>
+            <div class="column-title khmer-font text-center fw-bold text-muted mb-5">ព្រឹក</div>
             
             <div v-for="m in morningMeetings" :key="m.id" class="meeting-entry left-side mb-5">
                 <div class="timeline-card shadow-sm border" @click="$emit('select', m)">
-                    <div class="time-floating-box shadow-sm" :class="m.colorClass">
-                        <div class="val">{{ m.time }}</div>
-                        <div class="p khmer-font">{{ m.period }}</div>
+                    <div class="time-floating-box shadow-sm d-flex flex-column align-items-center justify-content-center" :class="m.colorClass">
+                        
+                        <div class="val fw-bold lh-1 text-white fs-4">
+                            {{ m.time }}
+                        </div>
+
+                        <span class="badge bg-white bg-opacity-25 rounded-1 fw-normal px-2 py-1 small lh-1 khmer-font mt-2">
+                            {{ m.period }}
+                        </span>
                     </div>
                     
                     <div class="card-body ps-5 py-3">
@@ -33,20 +39,26 @@
             </div>
 
             <div class="col-6 ps-5">
-            <div class="column-title khmer-font text-center text-muted mb-5">រសៀល</div>
+           
+            <div class="column-title khmer-font text-center fw-bold text-muted mb-5">រសៀល</div>
             
             <div v-for="(m, idx) in afternoonMeetings" :key="m.id" class="meeting-entry right-side mb-5" :style="{ marginTop: idx === 0 ? '70px' : '0px' }">
                 <div class="timeline-card shadow-sm border" @click="$emit('select', m)">
-                <div class="time-floating-box shadow-sm" :class="m.colorClass">
-                    <div class="val">{{ m.time }}</div>
-                    <div class="p khmer-font">{{ m.period }}</div>
-                </div>
-                
-                <div class="card-body ps-5 py-3">
-                    <h6 class="khmer-font fw-bold text-dark mb-1">{{ m.title }}</h6>
-                    <p class="khmer-font text-muted x-small mb-3">{{ m.description }}</p>
-                    <div class="tag-video-conf khmer-font">VIDEO CONFERENCE</div>
-                </div>
+                    <div class="time-floating-box shadow-sm d-flex flex-column align-items-center justify-content-center" :class="m.colorClass">
+                        <div class="val fw-bold lh-1 text-white fs-4">
+                            {{ m.time }}
+                        </div>
+
+                        <span class="badge bg-white bg-opacity-25 rounded-1 fw-normal px-2 py-1 small lh-1 khmer-font mt-2">
+                            {{ m.period }}
+                        </span>
+                    </div>
+                    
+                    <div class="card-body ps-5 py-3">
+                        <h6 class="khmer-font fw-bold text-dark mb-1">{{ m.title }}</h6>
+                        <p class="khmer-font text-muted x-small mb-3">{{ m.description }}</p>
+                        <div class="tag-video-conf khmer-font">VIDEO CONFERENCE</div>
+                    </div>
                 </div>
             </div>
             </div>
@@ -118,7 +130,7 @@
     }
 
     .timeline-card:hover {
-        transform: scale(1.05); /* Zoom animation from video */
+        transform: scale(1.05); 
         border-color: #3498db !important;
         box-shadow: 0 10px 25px rgba(0,0,0,0.08) !important;
     }
@@ -126,10 +138,10 @@
     /* 4. TIME BADGES */
         .time-floating-box {
         position: absolute;
-        left: -25px;
-        top: 15px;
-        width: 62px;
-        height: 62px;
+        left: -35px;
+        top: -30px;
+        width: 75px;
+        height: 65px;
         border-radius: 12px;
         color: white;
         display: flex;
@@ -162,7 +174,7 @@
         .col-6 { width: 100%; padding: 0 1rem !important; }
         .timeline-card::after { display: none; }
         .meeting-entry { margin-top: 0 !important; }
-        .time-floating-box { left: 10px; top: -15px; height: auto; width: auto; flex-direction: row; padding: 4px 12px; gap: 8px; }
+        .time-floating-box { left: -35px; top: -35px; height: auto; width: auto; flex-direction: row; padding: 4px 12px; gap: 8px; }
         .timeline-card .card-body { padding-top: 30px !important; }
     }
 </style>
