@@ -1,0 +1,130 @@
+/* ==========================================================================
+   1. DESIGN TOKENS (Variables)
+   ========================================================================== */
+:root {
+    --coral: #e76f51;
+    --sky: #3498db;
+    --success: #10b981;
+    --danger: #f15a42;
+    --warning: #f39c12;
+    --bg-app: #f1f5f9;
+    --bg-card: #ffffff;
+    --border-light: #edf2f7;
+    --text-dark: #1a202c;
+    --text-muted: #718096;
+    --header-h: 72px;
+    --radius-lg: 18px;
+    --radius-md: 12px;
+    --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+/* ==========================================================================
+   2. GLOBAL RESET & BASE
+   ========================================================================== */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Noto Sans Khmer', sans-serif;
+    background-color: var(--bg-app);
+    color: var(--text-dark);
+    min-height: 100vh;
+    line-height: 1.5;
+}
+
+.khmer-font { font-family: 'Kantumruy Pro', sans-serif !important; }
+
+/* ==========================================================================
+   3. LAYOUT STRUCTURE (Responsive Fix)
+   ========================================================================== */
+.app-layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.app-header {
+    height: var(--header-h);
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-light);
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.app-content {
+    flex: 1;
+    padding: 1rem;
+    width: 100%;
+}
+
+/* ==========================================================================
+   4. COMPONENTS
+   ========================================================================== */
+
+.stat-pill {
+    padding: 1.25rem;
+    border-radius: var(--radius-md);
+    border-left: 5px solid;
+    transition: transform 0.2s ease;
+    margin-bottom: 1rem;
+}
+.stat-pill.coral { background: #fff5f2; border-color: var(--coral); color: var(--coral); }
+.stat-pill.sky { background: #f0f9ff; border-color: var(--sky); color: var(--sky); }
+
+.nav-square-btn {
+    width: 42px; height: 42px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bg-card); border-radius: var(--radius-md);
+    color: var(--text-muted); cursor: pointer;
+    border: 1px solid var(--border-light);
+}
+
+.active-red {
+    background-color: var(--coral) !important;
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(231, 111, 81, 0.3);
+}
+.active-border { 
+    border-left: 6px solid var(--coral); 
+    background: linear-gradient(90deg, #fffcfb 0%, #ffffff 100%); 
+}
+
+.upcoming-border { border-left: 6px solid var(--sky); }
+
+/* ==========================================================================
+   5. CLOCK & TYPOGRAPHY
+   ========================================================================== */
+.display-time {
+    font-size: clamp(2.5rem, 8vw, 3.5rem); /* Responsive font size */
+    font-weight: 800;
+    letter-spacing: -2px;
+    font-variant-numeric: tabular-nums;
+}
+
+.seconds-digit {
+    font-size: 0.45em;
+    color: var(--coral);
+    margin-left: 6px;
+    vertical-align: middle;
+}
+
+.fs-tiny { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.5px; }
+
+/* ==========================================================================
+   6. ANIMATIONS & UTILITIES
+   ========================================================================== */
+.dot-pulse {
+    width: 10px; height: 10px;
+    background-color: var(--success);
+    border-radius: 50%;
+    animation: pulse-ring 2s infinite;
+}
+
+@keyframes pulse-ring {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+    70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}

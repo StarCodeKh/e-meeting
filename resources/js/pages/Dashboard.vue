@@ -39,23 +39,23 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import DashboardLayout from '../components/layouts/DashboardLayout.vue'
-import HeaderBar from '@/components/HeaderBar.vue'
-import LeftPanel from '@/components/LeftPanel.vue'
-import Timeline from '@/components/Timeline.vue'
-import MeetingCard from '@/components/MeetingCard.vue'
+    import { ref, computed } from 'vue'
+    import DashboardLayout from '../components/layouts/DashboardLayout.vue'
+    import HeaderBar from '@/components/HeaderBar.vue'
+    import LeftPanel from '@/components/LeftPanel.vue'
+    import Timeline from '@/components/Timeline.vue'
+    import MeetingCard from '@/components/MeetingCard.vue'
 
-// DYNAMIC DATA
-const meetings = ref([
-  { id: 1, time: '8:00 ព្រឹក', type: 'morning', color: 'red', title: 'កិច្ចប្រជុំផែនការថវិកាប្រចាំឆ្នាំ២០២៦', desc: 'ក្រោមអធិបតីភាពដ៏ខ្ពង់ខ្ពស់...' },
-  { id: 2, time: '10:00 ព្រឹក', type: 'morning', color: 'yellow', title: 'ពិភាក្សាបច្ចេកទេសប្រព័ន្ធ', desc: 'ការរៀបចំប្រព័ន្ធគ្រប់គ្រង...' },
-  { id: 3, time: '2:00 រសៀល', type: 'afternoon', color: 'yellow', title: 'កិច្ចប្រជុំផ្ទៃក្នុងប្រចាំខែ', desc: 'ត្រួតពិនិត្យវឌ្ឍនភាពការងារ...' }
-])
+    // DYNAMIC DATA
+    const meetings = ref([
+    { id: 1, time: '8:00 ព្រឹក', type: 'morning', color: 'red', title: 'កិច្ចប្រជុំផែនការថវិកាប្រចាំឆ្នាំ២០២៦', desc: 'ក្រោមអធិបតីភាពដ៏ខ្ពង់ខ្ពស់...' },
+    { id: 2, time: '10:00 ព្រឹក', type: 'morning', color: 'yellow', title: 'ពិភាក្សាបច្ចេកទេសប្រព័ន្ធ', desc: 'ការរៀបចំប្រព័ន្ធគ្រប់គ្រង...' },
+    { id: 3, time: '2:00 រសៀល', type: 'afternoon', color: 'yellow', title: 'កិច្ចប្រជុំផ្ទៃក្នុងប្រចាំខែ', desc: 'ត្រួតពិនិត្យវឌ្ឍនភាពការងារ...' }
+    ])
 
-const totalMeetings = computed(() => meetings.value.length)
-const morningList = computed(() => meetings.value.filter(m => m.type === 'morning'))
-const afternoonList = computed(() => meetings.value.filter(m => m.type === 'afternoon'))
+    const totalMeetings = computed(() => meetings.value.length)
+    const morningList = computed(() => meetings.value.filter(m => m.type === 'morning'))
+    const afternoonList = computed(() => meetings.value.filter(m => m.type === 'afternoon'))
 </script>
 
 <style scoped>
