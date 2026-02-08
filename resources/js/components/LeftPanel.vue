@@ -4,7 +4,9 @@
 			<div class="time-header">
 				<div class="d-flex justify-content-between align-items-center">
 					<h1 class="display-time mb-0">{{ eventData.time }}</h1>
-					<span class="period-badge">{{ eventData.period }}</span>
+					<span class="badge bg-white bg-opacity-25 rounded-2 fw-normal px-2 py-1 fs-6 small">
+						{{ eventData.period }}
+					</span>
 				</div>
 			</div>
 
@@ -122,7 +124,6 @@
 }
 
 .display-time { font-size: 3rem; font-weight: 700; letter-spacing: -2px; }
-.period-badge { background: rgba(255,255,255,0.2); padding: 2px 10px; border-radius: 6px; font-size: 0.9rem; }
 
 .leader-name { color: #2d3748; line-height: 1.3; }
 .description-text { font-size: 0.88rem; line-height: 1.5; }
