@@ -10,59 +10,54 @@
         </div>
 
         <div class="timeline-body p-5 position-relative">
-        <div class="vertical-spine"></div>
-        
-        <div class="row g-0">
-            <div class="col-6 pe-5">
-            <div class="column-title khmer-font text-center fw-bold text-muted mb-5">ព្រឹក</div>
-            
-            <div v-for="m in morningMeetings" :key="m.id" class="meeting-entry left-side mb-5">
-                <div class="timeline-card shadow-sm border" @click="$emit('select', m)">
-                    <div class="time-floating-box shadow-sm d-flex flex-column align-items-center justify-content-center" :class="m.colorClass">
-                        
-                        <div class="val fw-bold lh-1 text-white fs-4">
-                            {{ m.time }}
-                        </div>
-
-                        <span class="badge bg-white bg-opacity-25 rounded-1 fw-normal px-2 py-1 small lh-1 khmer-font mt-2">
-                            {{ m.period }}
-                        </span>
-                    </div>
+            <div class="vertical-spine"></div>
+            <div class="row g-0">
+                <div class="col-6 pe-5">
+                    <div class="column-title khmer-font text-center fw-bold text-muted mb-5">ព្រឹក</div>
                     
-                    <div class="card-body ps-5 py-3">
-                        <h6 class="khmer-font fw-bold text-dark mb-1">{{ m.title }}</h6>
-                        <p class="khmer-font text-muted x-small mb-3">{{ m.description }}</p>
-                        <div class="tag-video-conf khmer-font">VIDEO CONFERENCE</div>
+                    <div v-for="m in morningMeetings" :key="m.id" class="meeting-entry left-side mb-5">
+                        <div class="timeline-card shadow-sm border-start border-3 rounded-3" :class="getDynamicBorder(m.colorClass)" @click="$emit('select', m)">
+                            <div class="time-floating-box shadow-sm d-flex flex-column align-items-center justify-content-center" :class="m.colorClass">
+                                <div class="val fw-bold lh-1 text-white fs-4">
+                                    {{ m.time }}
+                                </div>
+                                <span class="badge bg-white bg-opacity-25 rounded-1 fw-normal px-2 py-1 small lh-1 khmer-font mt-2">
+                                    {{ m.period }}
+                                </span>
+                            </div>
+                            
+                            <div class="card-body ps-5 py-3">
+                                <h6 class="khmer-font fw-bold text-dark mb-1">{{ m.title }}</h6>
+                                <p class="khmer-font text-muted x-small mb-3">{{ m.description }}</p>
+                                <div class="tag-video-conf khmer-font">VIDEO CONFERENCE</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6 ps-5">
+            
+                <div class="column-title khmer-font text-center fw-bold text-muted mb-5">រសៀល</div>
+                    <div v-for="(m, idx) in afternoonMeetings" :key="m.id" class="meeting-entry right-side mb-5" :style="{ marginTop: idx === 0 ? '70px' : '0px' }" >
+                        <div class="timeline-card shadow-sm border-start border-3 rounded-3" :class="getDynamicBorder(m.colorClass)" @click="$emit('select', m)">
+                            <div class="time-floating-box shadow-sm d-flex flex-column align-items-center justify-content-center" :class="m.colorClass">
+                                <div class="val fw-bold lh-1 text-white fs-4">
+                                    {{ m.time }}
+                                </div>
+                                <span class="badge bg-white bg-opacity-25 rounded-1 fw-normal px-2 py-1 small lh-1 khmer-font mt-2">
+                                    {{ m.period }}
+                                </span>
+                            </div>
+                            
+                            <div class="card-body ps-5 py-3">
+                                <h6 class="khmer-font fw-bold text-dark mb-1">{{ m.title }}</h6>
+                                <p class="khmer-font text-muted x-small mb-3">{{ m.description }}</p>
+                                <div class="tag-video-conf khmer-font">VIDEO CONFERENCE</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            </div>
-
-            <div class="col-6 ps-5">
-           
-            <div class="column-title khmer-font text-center fw-bold text-muted mb-5">រសៀល</div>
-            
-            <div v-for="(m, idx) in afternoonMeetings" :key="m.id" class="meeting-entry right-side mb-5" :style="{ marginTop: idx === 0 ? '70px' : '0px' }">
-                <div class="timeline-card shadow-sm border" @click="$emit('select', m)">
-                    <div class="time-floating-box shadow-sm d-flex flex-column align-items-center justify-content-center" :class="m.colorClass">
-                        <div class="val fw-bold lh-1 text-white fs-4">
-                            {{ m.time }}
-                        </div>
-
-                        <span class="badge bg-white bg-opacity-25 rounded-1 fw-normal px-2 py-1 small lh-1 khmer-font mt-2">
-                            {{ m.period }}
-                        </span>
-                    </div>
-                    
-                    <div class="card-body ps-5 py-3">
-                        <h6 class="khmer-font fw-bold text-dark mb-1">{{ m.title }}</h6>
-                        <p class="khmer-font text-muted x-small mb-3">{{ m.description }}</p>
-                        <div class="tag-video-conf khmer-font">VIDEO CONFERENCE</div>
-                    </div>
-                </div>
-            </div>
-            </div>
-        </div>
         </div>
     </div>
 </template>
@@ -81,9 +76,21 @@
             { id: 3, time: '2:00', period: 'រសៀល', session: 'afternoon', colorClass: 'bg-orange', title: 'ពិភាក្សាសេចក្ដីសំខាន់សម្រាប់ការអភិវឌ្ឍគម្រោង', description: 'កិច្ចប្រជុំ និងពិភាក្សាសេចក្ដីសំខាន់សម្រាប់ការអភិវឌ្ឍគម្រោង និងការបំពេញតាមកាលវិភាគដែលបានកំណត់។' },
             { id: 4, time: '3:30', period: 'រសៀល', session: 'afternoon', colorClass: 'bg-orange', title: 'ពិភាក្សាសេចក្ដីសំខាន់សម្រាប់ការអភិវឌ្ឍគម្រោង', description: 'កិច្ចប្រជុំ និងពិភាក្សាសេចក្ដីសំខាន់សម្រាប់ការអភិវឌ្ឍគម្រោង និងការបំពេញតាមកាលវិភាគដែលបានកំណត់។' },
             { id: 5, time: '4:30', period: 'រសៀល', session: 'afternoon', colorClass: 'bg-orange', title: 'ពិភាក្សាសេចក្ដីសំខាន់សម្រាប់ការអភិវឌ្ឍគម្រោង', description: 'កិច្ចប្រជុំ និងពិភាក្សាសេចក្ដីសំខាន់សម្រាប់ការអភិវឌ្ឍគម្រោង និងការបំពេញតាមកាលវិភាគដែលបានកំណត់។' },
+            { id: 6, time: '5:00', period: 'រសៀល', session: 'afternoon', colorClass: 'bg-orange', title: 'ពិភាក្សាសេចក្ដីសំខាន់សម្រាប់ការអភិវឌ្ឍគម្រោង', description: 'កិច្ចប្រជុំ និងពិភាក្សាសេចក្ដីសំខាន់សម្រាប់ការអភិវឌ្ឍគម្រោង និងការបំពេញតាមកាលវិភាគដែលបានកំណត់។' },
+            { id: 7, time: '11:00', period: 'ព្រឹក', session: 'morning', colorClass: 'bg-success', title: 'ពិភាក្សាសេចក្ដីសំខាន់សម្រាប់ការអភិវឌ្ឍគម្រោង', description: 'កិច្ចប្រជុំ និងពិភាក្សាសេចក្ដីសំខាន់សម្រាប់ការអភិវឌ្ឍគម្រោង និងការបំពេញតាមកាលវិភាគដែលបានកំណត់។' },
             ]
         }
     });
+
+    const getDynamicBorder = (colorClass) => {
+        const map = {
+            'bg-coral': 'border-danger',
+            'bg-orange': 'border-warning',
+            'bg-success': 'border-success',
+            'bg-sky': 'border-primary'
+        };
+        return map[colorClass] || 'border-secondary';
+    };
 
     const morningMeetings = computed(() => props.meetings.filter(m => m.session === 'morning'));
     const afternoonMeetings = computed(() => props.meetings.filter(m => m.session === 'afternoon'));
@@ -105,6 +112,7 @@
         background: #3498db;
         transform: translateX(-50%);
         z-index: 1;
+        mask-image: linear-gradient(to bottom, black 90%, transparent 100%);
     }
 
     /* Horizontal connectors */
