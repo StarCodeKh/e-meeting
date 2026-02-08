@@ -1,0 +1,70 @@
+export default [
+  /* PERMISSIONS */
+  {
+    path: '/permissions',
+    name: 'permissions.index',
+    component: () => import('@/pages/permissions/PermissionList.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/permissions/create',
+    name: 'permissions.create',
+    component: () => import('@/pages/permissions/CreatePermission.vue'),
+    meta: { requiresAuth: true }
+  },
+
+  /* ROLES */
+  {
+    path: '/roles',
+    name: 'roles.index',
+    component: () => import('@/pages/roles/RoleList.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/roles/create',
+    name: 'roles.create',
+    component: () => import('@/pages/roles/CreateRole.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/roles/edit/:id',
+    name: 'roles.edit',
+    component: () => import('@/pages/roles/EditRole.vue'),
+    meta: { requiresAuth: true }
+  },
+
+  /* 🔐 ROLE & PERMISSION MANAGEMENT (NEW) */
+  {
+    path: '/role-permissions',
+    name: 'role.permissions',
+    component: () => import('@/pages/rolepermission/RolePermission.vue'),
+    meta: { requiresAuth: true }
+  },
+  /* MODULES */
+  {
+    path: '/modules',
+    name: 'modules.index',
+    component: () => import('@/pages/modules/ModuleList.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/modules/create',
+    name: 'modules.create',
+    component: () => import('@/pages/modules/CreateModule.vue'),
+    meta: { requiresAuth: true }
+  },
+
+  /* ACTIONS */
+  {
+    path: '/actions',
+    name: 'actions.index',
+    component: () => import('@/pages/actions/ActionList.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/actions/create',
+    name: 'actions.create',
+    component: () => import('@/pages/actions/CreateAction.vue'),
+    meta: { requiresAuth: true }
+  },
+]
