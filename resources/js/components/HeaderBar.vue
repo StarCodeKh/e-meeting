@@ -87,7 +87,7 @@ const user = reactive({ name: 'យើត វីណែល' })
 const navigationTabs = [
     { id: 'home', icon: 'bi-house-fill', path: '/' },
     { id: 'calendar', icon: 'bi-calendar3', path: '/calendar' },
-    { id: 'display', icon: 'bi-display', path: '/display' }
+    { id: 'meeting-monitor', icon: 'bi-display', path: '/meeting-monitor' }
 ]
 
 const handleLogout = async () => {

@@ -6,6 +6,13 @@ export default [
     component: () => import('@/pages/CalendarWidget.vue'),
     meta: { requiresAuth: true, title: 'Calendar' }
   },
+  /* --- Calendar --- */
+  {
+    path: '/meeting-monitor',
+    name: 'meeting-monitor',
+    component: () => import('@/pages/MeetingMonitor.vue'),
+    meta: { requiresAuth: true, title: 'Meeting Monitor' }
+  },
 
   /* --- 🔐 ACCESS CONTROL (Roles & Permissions) --- */
   {

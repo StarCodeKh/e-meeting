@@ -4,7 +4,7 @@
             <slot name="header" />
         </header>
 
-        <main class="app-content">
+        <main class="app-content p-4">
             <slot />
         </main>
     </div>
@@ -22,6 +22,13 @@
         box-sizing: border-box;
     }
 
+    /* Design Tokens */
+    :host {
+        --coral: #e76f51;
+        --sky: #3498db;
+        --bg-light: #f8fafc;
+    }
+
     html, body {
         margin: 0;
         height: 100%;
@@ -36,7 +43,7 @@
     }
 
     /* Sticky Header */
-        .app-header {
+    .app-header {
         position: sticky;
         top: 0;
         z-index: 50;
@@ -51,4 +58,7 @@
         padding: 1rem;
         scroll-behavior: smooth;
     }
+
+    .khmer-font { font-family: 'Kantumruy Pro', sans-serif !important; }
+
 </style>
