@@ -1,5 +1,5 @@
 export default [
-  /* --- 📅 DASHBOARD FEATURES --- */
+  /* --- Calendar --- */
   {
     path: '/calendar',
     name: 'calendar',
