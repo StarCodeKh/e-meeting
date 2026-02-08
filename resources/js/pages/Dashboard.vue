@@ -1,46 +1,43 @@
 <template>
-  <DashboardLayout>
-    <template #header>
-      <HeaderBar />
-    </template>
+    <DashboardLayout>
+        <template #header>
+            <HeaderBar />
+        </template>
 
-    <div class="row g-3 h-100">
-      
-      <div class="col-lg-3 d-flex flex-column h-100">
-        <LeftPanel 
-          :featuredTime="'7:30'" 
-          leaderName="ឯកឧត្តម យើត វីណែល" 
-        />
-      </div>
+        <div class="row g-3 h-100">
+        
+            <div class="col-lg-3 d-flex flex-column h-100">
+                <LeftPanel :featuredTime="'7:30'" leaderName="ឯកឧត្តម យើត វីណែល" />
+            </div>
 
-      <div class="col-lg-9 d-flex flex-column h-100">
+            <div class="col-lg-9 d-flex flex-column h-100">
 
-        <Timeline :redLineTop="62">
-          <template #morning>
-            <MeetingCard 
-              v-for="meeting in morningList" 
-              :key="meeting.id"
-              :variant="meeting.color"
-              :time="meeting.time"
-              :title="meeting.title"
-              :desc="meeting.desc"
-            />
-          </template>
+                <Timeline :redLineTop="62">
+                    <template #morning>
+                        <MeetingCard 
+                        v-for="meeting in morningList" 
+                        :key="meeting.id"
+                        :variant="meeting.color"
+                        :time="meeting.time"
+                        :title="meeting.title"
+                        :desc="meeting.desc"
+                        />
+                    </template>
 
-          <template #afternoon>
-            <MeetingCard 
-              v-for="meeting in afternoonList" 
-              :key="meeting.id"
-              :variant="meeting.color"
-              :time="meeting.time"
-              :title="meeting.title"
-              :desc="meeting.desc"
-            />
-          </template>
-        </Timeline>
-      </div>
-    </div>
-  </DashboardLayout>
+                    <template #afternoon>
+                        <MeetingCard 
+                        v-for="meeting in afternoonList" 
+                        :key="meeting.id"
+                        :variant="meeting.color"
+                        :time="meeting.time"
+                        :title="meeting.title"
+                        :desc="meeting.desc"
+                        />
+                    </template>
+                </Timeline>
+            </div>
+        </div>
+    </DashboardLayout>
 </template>
 
 <script setup>
