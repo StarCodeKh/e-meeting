@@ -1,5 +1,13 @@
 export default [
-  /* PERMISSIONS */
+  /* --- 📅 DASHBOARD FEATURES --- */
+  {
+    path: '/calendar',
+    name: 'calendar',
+    component: () => import('@/pages/CalendarWidget.vue'),
+    meta: { requiresAuth: true, title: 'Calendar' }
+  },
+
+  /* --- 🔐 ACCESS CONTROL (Roles & Permissions) --- */
   {
     path: '/permissions',
     name: 'permissions.index',
@@ -33,14 +41,15 @@ export default [
     meta: { requiresAuth: true }
   },
 
-  /* 🔐 ROLE & PERMISSION MANAGEMENT (NEW) */
+  /* ROLE & PERMISSION ASSIGNMENT */
   {
     path: '/role-permissions',
     name: 'role.permissions',
     component: () => import('@/pages/rolepermission/RolePermission.vue'),
     meta: { requiresAuth: true }
   },
-  /* MODULES */
+
+  /* --- ⚙️ SYSTEM CONFIGURATION (Modules & Actions) --- */
   {
     path: '/modules',
     name: 'modules.index',

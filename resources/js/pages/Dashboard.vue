@@ -5,7 +5,6 @@
         </template>
 
         <div class="row g-3 h-100">
-        
             <div class="col-lg-3 d-flex flex-column h-100">
                 <LeftPanel :featuredTime="'7:30'" leaderName="ឯកឧត្តម យើត វីណែល" />
             </div>

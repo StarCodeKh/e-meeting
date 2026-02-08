@@ -72,11 +72,19 @@
     import CreateEventModal from '../pages/forms/SchedulerForm.vue'
 
     const router = useRouter()
-    const activeTab = ref('calendar')
+    const activeTab = ref('home')
     const showModal = ref(false)
     const isDropdownOpen = ref(false)
     const isLoggingOut = ref(false)
     const user = reactive({ name: 'យើត វីណែល' })
+
+
+    // Define tabs as a standard data array
+    const navigationTabs = [
+        { id: 'home', icon: 'bi-house-fill', activeClass: 'active-home' },
+        { id: 'calendar', icon: 'bi-calendar3', activeClass: 'active-tab' },
+        { id: 'display', icon: 'bi-display', activeClass: 'active-tab' }
+    ];
 
     const handleLogout = async () => {
     if (isLoggingOut.value) return;
