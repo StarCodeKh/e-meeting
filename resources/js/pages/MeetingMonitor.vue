@@ -1,7 +1,7 @@
 <template>
     <DashboardLayout>
         <template #header><HeaderBar /></template>
-        <div class="row g-3 h-100 min-vh-100 p-2">
+        <div class="row g-3 h-100">
             <aside class="col-xl-3 col-lg-4 d-flex flex-column gap-3">
                 <div class="card border-0 shadow-sm rounded-4 p-4 text-center h-100">
                     

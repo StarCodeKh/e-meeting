@@ -128,49 +128,49 @@
     const referenceDate = ref(new Date())
     const daysOfWeek = ['អាទិត្យ', 'ចន្ទ', 'អង្គារ', 'ពុធ', 'ព្រហស្បតិ៍', 'សុក្រ', 'សៅរ៍']
     const viewOptions = [
-    { id: 'today', label: 'ថ្ងៃនេះ' },
-    { id: 'week', label: 'សប្តាហ៍' },
-    { id: 'month', label: 'ខែ' }
+        { id: 'today', label: 'ថ្ងៃនេះ' },
+        { id: 'week', label: 'សប្តាហ៍' },
+        { id: 'month', label: 'ខែ' }
     ]
 
     // --- Mock API Data ---
     const mockEvents = [
-    { id: 101, date: new Date().toISOString().split('T')[0], title: 'ប្រជុំក្រុមបច្ចេកទេសប្រចាំសប្តាហ៍', time: '09:00 - 10:30', theme: 'border-primary bg-primary-subtle', dotColor: 'bg-primary', locationType: 'Zoom' },
-    { id: 102, date: new Date().toISOString().split('T')[0], title: 'ពិនិត្យរបាយការណ៍ហិរញ្ញវត្ថុ', time: '14:00 - 15:30', theme: 'border-danger bg-danger-subtle', dotColor: 'bg-danger', locationType: 'Office' }
+        { id: 101, date: new Date().toISOString().split('T')[0], title: 'ប្រជុំក្រុមបច្ចេកទេសប្រចាំសប្តាហ៍', time: '09:00 - 10:30', theme: 'border-primary bg-primary-subtle', dotColor: 'bg-primary', locationType: 'Zoom' },
+        { id: 102, date: new Date().toISOString().split('T')[0], title: 'ពិនិត្យរបាយការណ៍ហិរញ្ញវត្ថុ', time: '14:00 - 15:30', theme: 'border-danger bg-danger-subtle', dotColor: 'bg-danger', locationType: 'Office' }
     ]
 
     // --- Computed Values ---
     const viewTitle = computed(() => {
-    return referenceDate.value.toLocaleDateString('km-KH', { month: 'long', year: 'numeric' })
+        return referenceDate.value.toLocaleDateString('km-KH', { month: 'long', year: 'numeric' })
     })
 
     const currentRangeLabel = computed(() => {
-    if (currentView.value === 'today') return referenceDate.value.toLocaleDateString('km-KH', { weekday: 'long', day: 'numeric', month: 'long' })
-    return 'តារាងពេលវេលាកិច្ចប្រជុំ'
+        if (currentView.value === 'today') return referenceDate.value.toLocaleDateString('km-KH', { weekday: 'long', day: 'numeric', month: 'long' })
+        return 'តារាងពេលវេលាកិច្ចប្រជុំ'
     })
 
     // Logic for Month Grid
     const paddingDays = computed(() => {
-    const d = new Date(referenceDate.value.getFullYear(), referenceDate.value.getMonth(), 1)
-    return d.getDay()
+        const d = new Date(referenceDate.value.getFullYear(), referenceDate.value.getMonth(), 1)
+        return d.getDay()
     })
 
     const monthDays = computed(() => {
-    const year = referenceDate.value.getFullYear()
-    const month = referenceDate.value.getMonth()
-    const lastDay = new Date(year, month + 1, 0).getDate()
-    
-    return Array.from({ length: lastDay }, (_, i) => {
-        const d = new Date(year, month, i + 1)
-        const dateStr = d.toISOString().split('T')[0]
-        return {
-        date: i + 1,
-        dateObj: d,
-        dateString: dateStr,
-        isToday: new Date().toDateString() === d.toDateString(),
-        events: mockEvents.filter(e => e.date === dateStr)
-        }
-    })
+        const year = referenceDate.value.getFullYear()
+        const month = referenceDate.value.getMonth()
+        const lastDay = new Date(year, month + 1, 0).getDate()
+        
+        return Array.from({ length: lastDay }, (_, i) => {
+            const d = new Date(year, month, i + 1)
+            const dateStr = d.toISOString().split('T')[0]
+            return {
+            date: i + 1,
+            dateObj: d,
+            dateString: dateStr,
+            isToday: new Date().toDateString() === d.toDateString(),
+            events: mockEvents.filter(e => e.date === dateStr)
+            }
+        })
     })
 
     // Logic for Timeline (Today/Week)
@@ -181,44 +181,43 @@
     const count = currentView.value === 'today' ? 1 : 7
     if (currentView.value === 'week') tempDate.setDate(tempDate.getDate() - tempDate.getDay())
 
-    for (let i = 0; i < count; i++) {
-        const d = new Date(tempDate)
-        d.setDate(d.getDate() + i)
-        const dateStr = d.toISOString().split('T')[0]
-        dates.push({
-        dateString: dateStr,
-        dayNumber: d.getDate(),
-        dayName: daysOfWeek[d.getDay()],
-        monthShort: d.toLocaleDateString('en-US', { month: 'short' }),
-        events: mockEvents.filter(e => e.date === dateStr)
-        })
-    }
-    return dates
+        for (let i = 0; i < count; i++) {
+            const d = new Date(tempDate)
+            d.setDate(d.getDate() + i)
+            const dateStr = d.toISOString().split('T')[0]
+            dates.push({
+            dateString: dateStr,
+            dayNumber: d.getDate(),
+            dayName: daysOfWeek[d.getDay()],
+            monthShort: d.toLocaleDateString('en-US', { month: 'short' }),
+            events: mockEvents.filter(e => e.date === dateStr)
+            })
+        }
+        return dates
     })
 
     // --- Methods ---
     const navigate = (step) => {
     const d = new Date(referenceDate.value)
-    if (currentView.value === 'month') d.setMonth(d.getMonth() + step)
-    else if (currentView.value === 'week') d.setDate(d.getDate() + (step * 7))
-    else d.setDate(d.getDate() + step)
-    referenceDate.value = d
+        if (currentView.value === 'month') d.setMonth(d.getMonth() + step)
+        else if (currentView.value === 'week') d.setDate(d.getDate() + (step * 7))
+        else d.setDate(d.getDate() + step)
+        referenceDate.value = d
     }
 
     const handleDateSelection = (date) => {
-    referenceDate.value = date
-    currentView.value = 'today' // Standard UX: Jump to day details on click
+        referenceDate.value = date
+        currentView.value = 'today' // Standard UX: Jump to day details on click
     }
 
     const goToToday = () => {
-    referenceDate.value = new Date()
+        referenceDate.value = new Date()
     }
 
     const isSelected = (date) => referenceDate.value.toDateString() === date.toDateString()
 </script>
 
 <style scoped>
-.khmer-font { font-family: 'Kantumruy Pro', sans-serif !important; }
 
 /* Grid Layout */
 .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
