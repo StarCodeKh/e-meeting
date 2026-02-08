@@ -124,7 +124,7 @@ const handleLogout = async () => {
 
 /* UNIFIED RED ACTIVE COLOR */
 .active-red { 
-    background-color: #e76f51 !important; 
+    background-color: #e15b44 !important; 
     color: white !important; 
     box-shadow: 0 4px 10px rgba(231, 111, 81, 0.25);
 }
