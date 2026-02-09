@@ -10,31 +10,33 @@
                     <div class="p-2">
                          <h5 class="khmer-font fw-bold mb-4 text-dark opacity-75 px-2">ការកំណត់ប្រព័ន្ធ</h5>
                     </div>
-                    <div class="nav flex-column gap-2">
+                    <nav class="nav flex-column gap-2">
                         <button 
-                            v-for="tab in tabs" :key="tab.id"
-                            @click="currentTab = tab.id"
-                            :class="['nav-pill-custom khmer-font', { active: currentTab === tab.id }]"
+                            v-for="tab in tabs" 
+                            :key="tab.id"
+                            @click="currentTabId = tab.id"
+                            :class="['nav-pill-custom khmer-font', { active: currentTabId === tab.id }]"
+                            type="button"
                         >
                             <div class="d-flex align-items-center gap-3">
                                 <i :class="[tab.icon, 'fs-5']"></i>
                                 <span>{{ tab.label }}</span>
                             </div>
                         </button>
-                    </div>
+                    </nav>
                 </div>
             </aside>
 
             <main class="col-xl-9 col-lg-8">
                 <div class="card border-0 shadow-sm rounded-4 bg-white h-100 p-4 p-md-5">
                     <transition name="fade-slide" mode="out-in">
-                        <div :key="currentTab">
+                        <div v-if="activeTab" :key="currentTabId">
                             <div class="mb-4">
-                                <h4 class="khmer-font fw-bold text-primary">{{ activeTabData.label }}</h4>
+                                <h4 class="khmer-font fw-bold text-primary">{{ activeTab.label }}</h4>
                                 <p class="text-muted small khmer-font">សូមពិនិត្យ និងកែប្រែព័ត៌មានរបស់អ្នកនៅទីនេះ</p>
                                 <hr class="opacity-10">
                             </div>
-                            <component :is="activeTabData.component" />
+                            <component :is="activeTab.component" />
                         </div>
                     </transition>
                 </div>
@@ -44,21 +46,45 @@
 </template>
 
 <script setup>
-    import { ref, computed } from 'vue'
+    import { ref, computed, markRaw } from 'vue'
     import DashboardLayout from '@/components/layouts/DashboardLayout.vue'
     import HeaderBar from '@/components/HeaderBar.vue'
+    
+    // Tab Component Imports
     import ProfileTab from './tabs/ProfileTab.vue'
     import SecurityTab from './tabs/SecurityTab.vue'
     import ThemeTab from './tabs/ThemeTab.vue'
 
-    const currentTab = ref('profile')
+    // 1. Manage current selection by ID
+    const currentTabId = ref('profile')
+
+    // 2. The "Source of Truth" Data Array
+    // markRaw tells Vue: "Don't observe this as a reactive object, just use it as a component."
     const tabs = [
-        { id: 'profile', label: 'ព័ត៌មានគណនី', icon: 'bi bi-person-circle', component: ProfileTab },
-        { id: 'security', label: 'សុវត្ថិភាព', icon: 'bi bi-shield-lock', component: SecurityTab },
-        { id: 'theme', label: 'ប្រភេទរចនាប័ណ្ណ', icon: 'bi bi-palette', component: ThemeTab }
+        { 
+            id: 'profile', 
+            label: 'ព័ត៌មានគណនី', 
+            icon: 'bi bi-person-circle', 
+            component: markRaw(ProfileTab) 
+        },
+        { 
+            id: 'security', 
+            label: 'សុវត្ថិភាព', 
+            icon: 'bi bi-shield-lock', 
+            component: markRaw(SecurityTab) 
+        },
+        { 
+            id: 'theme', 
+            label: 'ប្រភេទរចនាប័ណ្ណ', 
+            icon: 'bi bi-palette', 
+            component: markRaw(ThemeTab) 
+        }
     ]
 
-    const activeTabData = computed(() => tabs.find(t => t.id === currentTab.value))
+    // 3. Logic: Find active data based on selection
+    const activeTab = computed(() => {
+        return tabs.find(t => t.id === currentTabId.value) || tabs[0]
+    })
 </script>
 
 <style scoped>
