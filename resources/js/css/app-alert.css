@@ -1,0 +1,101 @@
+.alert-toast {
+    position: fixed;
+    top: 1.5rem;
+    right: 1.5rem;
+    z-index: 10000;
+    display: flex;
+    align-items: flex-start;
+    min-width: 320px;
+    max-width: 420px;
+    padding: 1rem;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    border-left: 5px solid transparent;
+    overflow: hidden;
+}
+
+    /* Icon Styling */
+    .alert-icon-wrapper {
+        font-size: 1.25rem;
+        margin-right: 12px;
+        padding-top: 2px;
+    }
+
+    /* Typography */
+        .alert-content {
+        flex-grow: 1;
+    }
+
+    .alert-title {
+        margin: 0 0 2px 0;
+        font-weight: 700;
+        font-size: 0.95rem;
+    }
+
+    .alert-message {
+        margin: 0;
+        font-size: 0.85rem;
+        color: #6c757d;
+        line-height: 1.4;
+    }
+
+    /* Close Button */
+    .alert-close {
+        background: none;
+        border: none;
+        color: #adb5bd;
+        font-size: 1.4rem;
+        padding: 0;
+        margin-left: 10px;
+        cursor: pointer;
+        line-height: 1;
+        transition: color 0.2s;
+    }
+
+    .alert-close:hover {
+        color: #495057;
+    }
+
+    /* Progress Bar Logic */
+    .alert-progress {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 3px;
+        width: 100%;
+        opacity: 0.6;
+    }
+
+    /* Type Variations (Industry Standard Colors) */
+    .success { border-left-color: #28a745; }
+    .success .alert-icon-wrapper, .success .alert-title { color: #28a745; }
+
+    .error { border-left-color: #dc3545; }
+    .error .alert-icon-wrapper, .error .alert-title { color: #dc3545; }
+
+    .info { border-left-color: #17a2b8; }
+    .info .alert-icon-wrapper, .info .alert-title { color: #17a2b8; }
+
+    /* Standard Toast Animation */
+    .toast-fade-enter-active {
+        animation: toast-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .toast-fade-leave-active {
+        transition: all 0.3s ease;
+    }
+    .toast-fade-leave-to {
+        opacity: 0;
+        transform: translateX(100px);
+    }
+
+    @keyframes toast-in {
+        from {
+            opacity: 0;
+            transform: translateX(100%) scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+        }
+    }

@@ -137,6 +137,6 @@
 </script>
 
 <style scoped>
-  /* Use @ to start from resources/js/ */
-  @import "@/css/scheduler-form.css";
+    /* Use @ to start from resources/js/ */
+    @import "@/css/scheduler-form.css";
 </style>
