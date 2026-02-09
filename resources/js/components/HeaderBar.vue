@@ -71,91 +71,149 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import CreateEventModal from '../pages/forms/SchedulerForm.vue'
+    import { ref, reactive } from 'vue'
+    import { useRouter, useRoute } from 'vue-router'
+    import CreateEventModal from '../pages/forms/SchedulerForm.vue'
 
-const router = useRouter()
-const route = useRoute()
+    const router = useRouter()
+    const route = useRoute()
 
-const showModal = ref(false)
-const isDropdownOpen = ref(false)
-const isLoggingOut = ref(false)
-const user = reactive({ name: 'យើត វីណែល' })
+    const showModal = ref(false)
+    const isDropdownOpen = ref(false)
+    const isLoggingOut = ref(false)
+    const user = reactive({ name: 'យើត វីណែល' })
 
-// Standard Tabs with path-matching
-const navigationTabs = [
-    { id: 'home', icon: 'bi-house-fill', path: '/' },
-    { id: 'calendar', icon: 'bi-calendar3', path: '/calendar' },
-    { id: 'meeting-monitor', icon: 'bi-display', path: '/meeting-monitor' }
-]
+    // Standard Tabs with path-matching
+    const navigationTabs = [
+        { id: 'home', icon: 'bi-house-fill', path: '/' },
+        { id: 'calendar', icon: 'bi-calendar3', path: '/calendar' },
+        { id: 'meeting-monitor', icon: 'bi-display', path: '/meeting-monitor' }
+    ]
 
-const handleLogout = async () => {
-    if (isLoggingOut.value) return
-    isLoggingOut.value = true
-    setTimeout(() => {
-        localStorage.clear()
-        router.push('/login')
-    }, 800)
-}
+    const handleLogout = async () => {
+        if (isLoggingOut.value) return
+        isLoggingOut.value = true
+        setTimeout(() => {
+            localStorage.clear()
+            router.push('/login')
+        }, 800)
+    }
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;600;700&display=swap');
 
-.khmer-font { font-family: 'Kantumruy Pro', sans-serif !important; }
-.header-bar { height: 72px; background-color: #f0f2f5; border-bottom: 1px solid #dee2e6; z-index: 1050; }
+    .khmer-font {
+        font-family: 'Kantumruy Pro', sans-serif !important;
+    }
 
-/* Squircle Buttons */
-.nav-square-btn {
-    width: 42px; height: 42px;
-    display: flex; align-items: center; justify-content: center;
-    background-color: #ffffff; border-radius: 12px;
-    cursor: pointer; color: #5f6368;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
+    .header-bar {
+        height: 72px;
+        background-color: #f0f2f5;
+        border-bottom: 1px solid #dee2e6;
+        z-index: 1050;
+    }
 
-/* Capsule Nav */
-.bg-white-capsule { background-color: #ffffff; border-radius: 14px; }
-.nav-tab-box { 
-    width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; 
-    border-radius: 10px; cursor: pointer; transition: 0.25s ease; color: #94a3b8;
-}
+    /* Squircle Buttons */
+    .nav-square-btn {
+        width: 42px;
+        height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #ffffff;
+        border-radius: 12px;
+        cursor: pointer;
+        color: #5f6368;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-/* UNIFIED RED ACTIVE COLOR */
-.active-red { 
-    background-color: #e15b44 !important; 
-    color: white !important; 
-    box-shadow: 0 4px 10px rgba(231, 111, 81, 0.25);
-}
+    /* Capsule Nav */
+    .bg-white-capsule {
+        background-color: #ffffff;
+        border-radius: 14px;
+    }
 
-/* Create Button */
-.btn-create-meeting { 
-    background-color: #3498db; color: white; border-radius: 12px; 
-    height: 42px; transition: 0.2s; 
-}
+    .nav-tab-box {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: 0.25s ease;
+        color: #94a3b8;
+    }
 
-.custom-dropdown-menu {
-    position: absolute;
-    top: 100%; right: 0;
-    margin-top: 10px;
-    min-width: 210px;
-    background: white;
-    z-index: 1100;
-    list-style: none;
-}
+    .active-red {
+        background-color: #e15b44 !important;
+        color: white !important;
+        box-shadow: 0 4px 10px rgba(231, 111, 81, 0.25);
+    }
 
-/* Transitions */
-.dropdown-fade-enter-active { transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-.dropdown-fade-leave-active { transition: all 0.2s ease-in; }
-.dropdown-fade-enter-from, .dropdown-fade-leave-to { transform: translateY(15px) scale(0.95); opacity: 0; }
+    .btn-create-meeting {
+        background-color: #3498db;
+        color: white;
+        border-radius: 12px;
+        height: 42px;
+        transition: 0.2s;
+    }
 
-.dropdown-item { transition: 0.2s; cursor: pointer; }
-.dropdown-item:hover { background-color: #f1f3f5; }
-.dropdown-backdrop { position: fixed; inset: 0; z-index: 1090; }
+    .custom-dropdown-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        margin-top: 10px;
+        min-width: 210px;
+        background: white;
+        z-index: 1100;
+        list-style: none;
+    }
 
-.text-coral { color: #e76f51; }
-.text-sky { color: #3498db; }
-.small-text { font-size: 0.75rem; }
-.cursor-pointer { cursor: pointer; }
+    .dropdown-fade-enter-active {
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .dropdown-fade-leave-active {
+        transition: all 0.2s ease-in;
+    }
+
+    .dropdown-fade-enter-from,
+    .dropdown-fade-leave-to {
+        transform: translateY(15px) scale(0.95);
+        opacity: 0;
+    }
+
+    .dropdown-item {
+        transition: 0.2s;
+        cursor: pointer;
+    }
+
+    .dropdown-item:hover {
+        background-color: #f1f3f5;
+        padding: 0.375rem 0.5rem;
+    }
+
+    .dropdown-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 1090;
+    }
+
+    .text-coral {
+        color: #e76f51;
+    }
+
+    .text-sky {
+        color: #3498db;
+    }
+
+    .small-text {
+        font-size: 0.75rem;
+    }
+
+    .cursor-pointer {
+        cursor: pointer;
+    }
 </style>
