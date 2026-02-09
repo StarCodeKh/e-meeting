@@ -1,0 +1,56 @@
+/* resources/css/settings.css */
+.settings-card {
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.04);
+}
+
+.nav-pill-custom {
+    border-radius: 12px;
+    padding: 12px 18px;
+    border: none;
+    background: transparent;
+    color: #6c757d;
+    transition: all 0.2s ease;
+    text-align: left;
+    display: flex;
+    align-items: center;
+}
+
+.form-control-pill:focus {
+    background: #fff;
+    border-color: #4285f4;
+    box-shadow: 0 4px 15px rgba(66, 133, 244, 0.05);
+}
+
+.nav-pill-custom {
+    border: none;
+    background: transparent;
+    padding: 12px 16px;
+    border-radius: 12px;
+    color: #6c757d;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    text-align: left;
+    width: 100%;
+}
+
+.nav-pill-custom:hover {
+    background-color: #f8f9fa;
+    color: #4285f4;
+}
+
+.nav-pill-custom.active {
+    background-color: #eef4ff;
+    color: #4285f4 !important;
+    font-weight: 700;
+    box-shadow: inset 4px 0 0 #4285f4; 
+    border-radius: 8px 12px 12px 8px;
+}
+
+.form-control-pill {
+    border-radius: 10px;
+    padding: 12px 15px;
+    background-color: #f8f9fa;
+    border: 2px solid transparent;
+    transition: var(--transition-snappy);
+}

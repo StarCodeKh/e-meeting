@@ -83,4 +83,15 @@ export default [
     component: () => import('@/pages/actions/CreateAction.vue'),
     meta: { requiresAuth: true }
   },
+
+  /* --- ⚙️ SETTINGS --- */
+  {
+    path: '/settings',
+    name: 'settings',
+    component: () => import('@/pages/settings/SettingsView.vue'),
+    meta: { 
+      requiresAuth: true, 
+      title: 'Settings' 
+    }
+  }
 ]
