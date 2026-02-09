@@ -1,7 +1,6 @@
 <template>
     <header class="header-bar px-3 shadow-sm sticky-top">
         <div class="header-container d-flex align-items-center justify-content-between h-100">
-            
             <div class="d-flex align-items-center gap-2">
                 <div class="nav-square-btn shadow-sm" @click="$emit('toggle-sidebar')" role="button">
                     <i class="bi bi-list fs-5"></i>
