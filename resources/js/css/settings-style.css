@@ -1,4 +1,6 @@
 /* resources/css/settings.css */
+@import url('../assets/css/style.css');
+
 .settings-card {
     border: none;
     border-radius: 20px;

@@ -1,8 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;600;700&display=swap');
-
-.khmer-font {
-    font-family: 'Kantumruy Pro', sans-serif !important;
-}
+@import url('../assets/css/style.css');
 
 .header-bar {
     height: 72px;

@@ -40,7 +40,7 @@
 
 <script setup>
     import { ref, computed } from 'vue'
-    import DashboardLayout from '../components/layouts/DashboardLayout.vue'
+    import DashboardLayout from '@/components/layouts/DashboardLayout.vue'
     import HeaderBar from '@/components/HeaderBar.vue'
     import LeftPanel from '@/components/LeftPanel.vue'
     import Timeline from '@/components/Timeline.vue'

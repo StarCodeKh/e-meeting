@@ -21,6 +21,8 @@
 /* ==========================================================================
    2. GLOBAL RESET & BASE
    ========================================================================== */
+@import url('../assets/css/style.css');
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
@@ -30,8 +32,6 @@ body {
     min-height: 100vh;
     line-height: 1.5;
 }
-
-.khmer-font { font-family: 'Kantumruy Pro', sans-serif !important; }
 
 /* ==========================================================================
    3. LAYOUT STRUCTURE (Responsive Fix)

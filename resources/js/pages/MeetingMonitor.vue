@@ -136,6 +136,7 @@
 </script>
 
 <style scoped>
+    @import url('../assets/css/style.css');
     .custom-scrollbar::-webkit-scrollbar { width: 6px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
 

@@ -211,7 +211,7 @@
 </script>
 
 <style scoped>
-
+    @import url('../assets/css/style.css');
     /* Grid Layout */
     .calendar-grid {
         display: grid;

@@ -16,6 +16,7 @@ defineProps(['time', 'title', 'desc', 'variant'])
 </script>
 
 <style scoped>
+@import url('../assets/css/style.css');
 .meeting-card { display: flex; border-radius: 10px; overflow: hidden; height: 90px; z-index: 10; border: 1px solid #eee; }
 .time-strip { width: 130px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 .red { background: #f15a42; color: white; }

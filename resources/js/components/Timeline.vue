@@ -97,8 +97,7 @@
 </script>
 
 <style scoped>
-    .khmer-font { font-family: 'Kantumruy Pro', sans-serif !important; }
-
+    @import url('../assets/css/style.css');
     /* 1. HEADER */
     .timeline-blue-header { background: #3498db; }
 

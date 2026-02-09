@@ -1,28 +1,28 @@
 /* Sidebar Left Styles */
+@import url('../assets/css/style.css');
 .app-wrapper {
-        background-color: #f8fafc;
-        min-height: 100vh;
-    }
+    background-color: #f8fafc;
+    min-height: 100vh;
+}
 
-    .layout-header {
-        height: 72px;
-        background: rgba(255, 255, 255, 0.85);
-        backdrop-filter: blur(10px);
-        z-index: 1060;
-    }
+.layout-header {
+    height: 72px;
+    background: rgba(255, 255, 255, 0.85);
+    z-index: 1060;
+}
 
-    .sidebar-drawer {
-        width: 280px;
-        background: white;
-        height: 100vh;
-        position: fixed;
-        top: 0;
-        left: -280px;
-        display: flex;
-        flex-direction: column;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        z-index: 1100;
-    }
+.sidebar-drawer {
+    width: 280px;
+    background: white;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: -280px;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1100;
+}
 
 .sidebar-active .sidebar-drawer {
     left: 0;

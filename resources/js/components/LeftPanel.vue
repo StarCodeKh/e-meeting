@@ -99,7 +99,7 @@
 </script>
 
 <style scoped>
-
+	@import url('../assets/css/style.css');
 	.side-panel-container {
 		font-family: 'Kantumruy Pro', sans-serif;
 		max-width: 380px;
