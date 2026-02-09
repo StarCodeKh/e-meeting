@@ -44,21 +44,21 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import DashboardLayout from '@/components/layouts/DashboardLayout.vue'
-import HeaderBar from '@/components/HeaderBar.vue'
-import ProfileTab from './tabs/ProfileTab.vue'
-import SecurityTab from './tabs/SecurityTab.vue'
-import ThemeTab from './tabs/ThemeTab.vue'
+    import { ref, computed } from 'vue'
+    import DashboardLayout from '@/components/layouts/DashboardLayout.vue'
+    import HeaderBar from '@/components/HeaderBar.vue'
+    import ProfileTab from './tabs/ProfileTab.vue'
+    import SecurityTab from './tabs/SecurityTab.vue'
+    import ThemeTab from './tabs/ThemeTab.vue'
 
-const currentTab = ref('profile')
-const tabs = [
-  { id: 'profile', label: 'ព័ត៌មានគណនី', icon: 'bi bi-person-circle', component: ProfileTab },
-  { id: 'security', label: 'សុវត្ថិភាព', icon: 'bi bi-shield-lock', component: SecurityTab },
-  { id: 'theme', label: 'ប្រភេទរចនាប័ណ្ណ', icon: 'bi bi-palette', component: ThemeTab }
-]
+    const currentTab = ref('profile')
+    const tabs = [
+        { id: 'profile', label: 'ព័ត៌មានគណនី', icon: 'bi bi-person-circle', component: ProfileTab },
+        { id: 'security', label: 'សុវត្ថិភាព', icon: 'bi bi-shield-lock', component: SecurityTab },
+        { id: 'theme', label: 'ប្រភេទរចនាប័ណ្ណ', icon: 'bi bi-palette', component: ThemeTab }
+    ]
 
-const activeTabData = computed(() => tabs.find(t => t.id === currentTab.value))
+    const activeTabData = computed(() => tabs.find(t => t.id === currentTab.value))
 </script>
 
 <style scoped>

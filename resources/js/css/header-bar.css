@@ -1,0 +1,142 @@
+@import url('https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;600;700&display=swap');
+
+.khmer-font {
+    font-family: 'Kantumruy Pro', sans-serif !important;
+}
+
+.header-bar {
+    height: 72px;
+    background-color: #f0f2f5;
+    border-bottom: 1px solid #dee2e6;
+    z-index: 1050;
+}
+
+.nav-square-btn {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ffffff;
+    border-radius: 12px;
+    cursor: pointer;
+    color: #5f6368;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Capsule Nav */
+.bg-white-capsule {
+    background-color: #ffffff;
+    border-radius: 14px;
+}
+
+.nav-tab-box {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.25s ease;
+    color: #94a3b8;
+}
+
+.active-red {
+    background-color: #e15b44 !important;
+    color: white !important;
+    box-shadow: 0 4px 10px rgba(231, 111, 81, 0.25);
+}
+
+.btn-create-meeting {
+    background-color: #3498db;
+    color: white;
+    border-radius: 12px;
+    height: 42px;
+    transition: 0.2s;
+}
+
+.custom-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 10px;
+    min-width: 210px;
+    background: white;
+    z-index: 1100;
+    list-style: none;
+}
+
+.nav-tab-box {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    color: #94a3b8;
+    transition: all 0.25s ease;
+}
+
+.nav-tab-box:hover {
+    color: #e15b44;
+    background-color: rgba(225, 91, 68, 0.05);
+}
+
+.active-capsule {
+    background-color: #e15b44 !important;
+    color: white !important;
+    box-shadow: 0 4px 10px rgba(231, 111, 81, 0.25);
+}
+
+.nav-square-btn {
+    color: #5f6368;
+    background-color: #ffffff;
+    border: 1px solid #eee;
+    transition: all 0.2s ease;
+}
+
+.active-nav-btn {
+    background-color: #3498db !important;
+    color: white !important;
+    border-color: #3498db !important;
+    box-shadow: 0 4px 10px rgba(52, 152, 219, 0.2);
+}
+
+.dropdown-fade-enter-active {
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.dropdown-fade-leave-active {
+    transition: all 0.2s ease-in;
+}
+
+.dropdown-fade-enter-from,
+.dropdown-fade-leave-to {
+    transform: translateY(15px) scale(0.95);
+    opacity: 0;
+}
+
+.dropdown-item {
+    transition: 0.2s;
+    cursor: pointer;
+}
+
+.dropdown-item:hover {
+    background-color: #f1f3f5;
+    padding: 0.375rem 0.5rem;
+}
+
+.dropdown-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1090;
+}
+
+.text-coral {
+    color: #e76f51;
+}
+
+.text-sky {
+    color: #3498db;
+}

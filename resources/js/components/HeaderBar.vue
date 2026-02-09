@@ -1,18 +1,18 @@
 <template>
     <header class="header-bar px-3 shadow-sm sticky-top">
         <div class="header-container d-flex align-items-center justify-content-between h-100">
-        
+            
             <div class="d-flex align-items-center gap-2">
                 <div class="nav-square-btn shadow-sm" @click="$emit('toggle-sidebar')" role="button">
                     <i class="bi bi-list fs-5"></i>
                 </div>
                 <div class="d-flex align-items-center gap-2 ms-md-2">
-                    <div class="nav-square-btn shadow-sm text-coral" role="button" @click="$router.back()">
+                    <button class="nav-square-btn shadow-sm border-0 text-coral" @click="$router.back()">
                         <i class="bi bi-arrow-left"></i>
-                    </div>
-                    <div class="nav-square-btn shadow-sm text-sky" role="button" @click="$router.forward()">
+                    </button>
+                    <button class="nav-square-btn shadow-sm border-0 text-sky" @click="$router.forward()">
                         <i class="bi bi-arrow-right"></i>
-                    </div>
+                    </button>
                 </div>
             </div>
 
@@ -22,7 +22,7 @@
                     :key="tab.id"
                     :to="tab.path"
                     class="nav-tab-box text-decoration-none"
-                    :class="{ 'active-red': $route.path === tab.path }"
+                    active-class="active-capsule"
                 >
                     <i class="bi" :class="tab.icon"></i>
                 </router-link>
@@ -34,26 +34,34 @@
                     <span class="ms-2 d-none d-md-inline fw-semibold khmer-font">បង្កើតកិច្ចប្រជុំថ្មី</span>
                 </button>
 
-                <div class="nav-square-btn shadow-sm d-none d-sm-flex" role="button">
-                    <i class="bi bi-gear-fill"></i>
-                </div>
+                <router-link 
+                    v-for="tab in navigationTabsSitting" 
+                    :key="tab.id"
+                    :to="tab.path"
+                    class="nav-square-btn shadow-sm d-none d-sm-flex text-decoration-none"
+                    active-class="active-nav-btn"
+                >
+                    <i :class="['bi', tab.icon]"></i>
+                </router-link>
 
                 <div class="position-relative">
-                    <div class="nav-square-btn shadow-sm" @click="isDropdownOpen = !isDropdownOpen" role="button">
+                    <div class="nav-square-btn shadow-sm" :class="{ 'active-nav-btn': isDropdownOpen }" @click="isDropdownOpen = !isDropdownOpen" role="button">
                         <i class="bi bi-person-fill"></i>
                     </div>
 
                     <transition name="dropdown-fade">
                         <ul v-if="isDropdownOpen" class="custom-dropdown-menu shadow border-0 rounded-4 p-2 show">
-                            <li class="px-3 py-2 border-bottom mb-1">
+                            <li class="px-3 py-2 border-bottom mb-1 text-center">
                                 <div class="fw-bold text-dark khmer-font lh-1">{{ user.name }}</div>
-                                <small class="text-muted small-text">Administrator</small>
+                                <small class="text-muted">Administrator</small>
                             </li>
-                            <li><a class="dropdown-item rounded-3 khmer-font py-2" href="#"><i class="bi bi-person me-2"></i> កម្រងព័ត៌មាន</a></li>
-                            <li><a class="dropdown-item rounded-3 khmer-font py-2" href="#"><i class="bi bi-shield-lock me-2"></i> សុវត្ថិភាព</a></li>
-                            <li><hr class="dropdown-divider opacity-50"></li>
                             <li>
-                                <a class="dropdown-item rounded-3 text-danger khmer-font py-2 d-flex align-items-center cursor-pointer" @click.prevent="handleLogout">
+                                <router-link to="/settings" class="dropdown-item rounded-3 khmer-font py-2" @click="isDropdownOpen = false">
+                                    <i class="bi bi-person me-2"></i> កម្រងព័ត៌មាន
+                                </router-link>
+                            </li>
+                            <li>
+                                <a class="dropdown-item rounded-3 text-danger khmer-font py-2 d-flex align-items-center" @click.prevent="handleLogout">
                                     <span v-if="isLoggingOut" class="spinner-border spinner-border-sm me-2"></span>
                                     <i v-else class="bi bi-box-arrow-right me-2"></i>
                                     <span>ចាកចេញ</span>
@@ -71,149 +79,55 @@
 </template>
 
 <script setup>
-    import { ref, reactive } from 'vue'
+    import { ref, reactive, computed } from 'vue'
     import { useRouter, useRoute } from 'vue-router'
     import CreateEventModal from '../pages/forms/SchedulerForm.vue'
 
+    // 1. Core Utilities
     const router = useRouter()
     const route = useRoute()
 
+    // 2. Component States
     const showModal = ref(false)
     const isDropdownOpen = ref(false)
     const isLoggingOut = ref(false)
-    const user = reactive({ name: 'យើត វីណែល' })
 
-    // Standard Tabs with path-matching
+    // 3. Reactive Data
+    const user = reactive({ 
+        name: 'យើត វីណែល',
+        role: 'Administrator',
+        avatar: null 
+    })
+
     const navigationTabs = [
         { id: 'home', icon: 'bi-house-fill', path: '/' },
         { id: 'calendar', icon: 'bi-calendar3', path: '/calendar' },
-        { id: 'meeting-monitor', icon: 'bi-display', path: '/meeting-monitor' }
+        { id: 'meeting-monitor', icon: 'bi-display', path: '/meeting-monitor' },
+    ]
+
+    const navigationTabsSitting = [
+        { id: 'settings', icon: 'bi-gear-fill', path: '/settings' }
     ]
 
     const handleLogout = async () => {
         if (isLoggingOut.value) return
+        
         isLoggingOut.value = true
-        setTimeout(() => {
+        
+        try {
+            // In a real app, you would call: await api.logout()
+            await new Promise(resolve => setTimeout(resolve, 1000))
+            
             localStorage.clear()
             router.push('/login')
-        }, 800)
+        } catch (error) {
+            console.error('Logout failed:', error)
+            isLoggingOut.value = false
+        }
     }
+    const currentPath = computed(() => route.path)
 </script>
 
 <style scoped>
-    @import url('https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;600;700&display=swap');
-
-    .khmer-font {
-        font-family: 'Kantumruy Pro', sans-serif !important;
-    }
-
-    .header-bar {
-        height: 72px;
-        background-color: #f0f2f5;
-        border-bottom: 1px solid #dee2e6;
-        z-index: 1050;
-    }
-
-    /* Squircle Buttons */
-    .nav-square-btn {
-        width: 42px;
-        height: 42px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: #ffffff;
-        border-radius: 12px;
-        cursor: pointer;
-        color: #5f6368;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    /* Capsule Nav */
-    .bg-white-capsule {
-        background-color: #ffffff;
-        border-radius: 14px;
-    }
-
-    .nav-tab-box {
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 10px;
-        cursor: pointer;
-        transition: 0.25s ease;
-        color: #94a3b8;
-    }
-
-    .active-red {
-        background-color: #e15b44 !important;
-        color: white !important;
-        box-shadow: 0 4px 10px rgba(231, 111, 81, 0.25);
-    }
-
-    .btn-create-meeting {
-        background-color: #3498db;
-        color: white;
-        border-radius: 12px;
-        height: 42px;
-        transition: 0.2s;
-    }
-
-    .custom-dropdown-menu {
-        position: absolute;
-        top: 100%;
-        right: 0;
-        margin-top: 10px;
-        min-width: 210px;
-        background: white;
-        z-index: 1100;
-        list-style: none;
-    }
-
-    .dropdown-fade-enter-active {
-        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-
-    .dropdown-fade-leave-active {
-        transition: all 0.2s ease-in;
-    }
-
-    .dropdown-fade-enter-from,
-    .dropdown-fade-leave-to {
-        transform: translateY(15px) scale(0.95);
-        opacity: 0;
-    }
-
-    .dropdown-item {
-        transition: 0.2s;
-        cursor: pointer;
-    }
-
-    .dropdown-item:hover {
-        background-color: #f1f3f5;
-        padding: 0.375rem 0.5rem;
-    }
-
-    .dropdown-backdrop {
-        position: fixed;
-        inset: 0;
-        z-index: 1090;
-    }
-
-    .text-coral {
-        color: #e76f51;
-    }
-
-    .text-sky {
-        color: #3498db;
-    }
-
-    .small-text {
-        font-size: 0.75rem;
-    }
-
-    .cursor-pointer {
-        cursor: pointer;
-    }
+    @import "@/css/header-bar.css";
 </style>
