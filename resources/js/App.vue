@@ -1,8 +1,8 @@
 <template>
-  <AppAlert />
-  <router-view />
+    <AppAlert />
+    <router-view />
 </template>
 
 <script setup>
-    import AppAlert from '@/components/AppAlert.vue'
+    import AppAlert from '@/components/ui/GlobalAlert.vue'
 </script>
