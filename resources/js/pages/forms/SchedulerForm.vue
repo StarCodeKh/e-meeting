@@ -33,9 +33,7 @@
                                         <input v-model="form.start_time" type="time" class="time-field-inline" />
                                         <span class="ampm-text">{{ getAMPM(form.start_time) }}</span>
                                     </div>
-                                    
                                     <span class="separator">-</span>
-
                                     <div class="time-box">
                                         <input v-model="form.end_time" type="time" class="time-field-inline" />
                                         <span class="ampm-text">{{ getAMPM(form.end_time) }}</span>
@@ -46,12 +44,40 @@
 
                         <div class="form-row" v-if="form.type !== 'task'">
                             <i class="bi bi-people icon-gray"></i>
-                            <input v-model="form.participants" type="text" placeholder="អ្នកចូលរួម..." class="pill-input w-100" />
+                            <div class="position-relative flex-grow-1">
+                                <div class="pill-multiselect-header d-flex justify-content-between align-items-center" @click="showUserDropdown = !showUserDropdown">
+                                    <span class="selected-text text-truncate khmer-font">
+                                        {{ selectedUsers.length > 0 ? selectedUsers.map(u => u.name).join(', ') : 'ជ្រើសរើសអ្នកចូលរួម...' }}
+                                    </span>
+                                    <i class="bi bi-chevron-down small opacity-50"></i>
+                                </div>
+
+                                <div v-if="showUserDropdown" class="multiselect-dropdown-card shadow-lg border">
+                                    <div class="search-container p-2 border-bottom">
+                                        <div class="search-box-inner d-flex align-items-center px-2">
+                                            <i class="bi bi-search opacity-50 me-2"></i>
+                                            <input v-model="userSearch" type="text" placeholder="ស្វែងរកឈ្មោះ..." class="search-input-none flex-grow-1" />
+                                        </div>
+                                    </div>
+                                    <div class="options-list" style="max-height: 200px; overflow-y: auto;">
+                                        <div v-for="user in filteredUsers" :key="user.email" class="option-row d-flex align-items-center" @click="toggleUser(user)">
+                                            <div class="checkbox-box me-3" :class="{ 'checked': isUserSelected(user) }">
+                                                <i v-if="isUserSelected(user)" class="bi bi-check text-white"></i>
+                                            </div>
+                                            <div class="d-flex flex-column">
+                                                <span class="option-name khmer-font" style="font-size: 14px;">{{ user.name }}</span>
+                                                <span class="text-muted" style="font-size: 11px;">{{ user.email }}</span>
+                                            </div>
+                                        </div>
+                                        <div v-if="filteredUsers.length === 0" class="p-3 text-center text-muted small khmer-font">មិនមានទិន្នន័យ</div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="form-row">
                             <i class="bi bi-geo-alt icon-gray"></i>
-                            <div class="pill-group w-100">
+                            <div class="pill-group w-100 d-flex gap-2">
                                 <input v-model="form.location" type="text" placeholder="ទីតាំង" class="pill-input flex-grow-1" />
                                 <input v-if="form.type === 'meeting'" v-model="form.room" type="text" placeholder="បន្ទប់" class="pill-input w-25" />
                             </div>
@@ -66,27 +92,13 @@
                             <i class="bi bi-link-45deg icon-gray"></i>
                             <input v-model="form.link" type="url" placeholder="លីងតំណភ្ជាប់..." class="pill-input w-100" />
                         </div>
-
-                        <div class="mt-4">
-                            <label class="khmer-font small text-muted mb-2 d-block">កម្រិតអាទិភាព</label>
-                            <div class="color-row-container">
-                                <div v-for="color in COLOR_OPTIONS" :key="color.id" class="color-option" @click="form.color = color.id">
-                                    <div class="color-bubble" :style="{ backgroundColor: color.hex }" :class="{ 'selected': form.color === color.id }">
-                                        <i v-if="form.color === color.id" class="bi bi-check-lg text-white"></i>
-                                    </div>
-                                    <span class="color-text khmer-font">{{ color.label }}</span>
-                                </div>
-                            </div>
-                        </div>
                     </div>
-
 
                     <div class="modal-footer-custom d-flex justify-content-between mt-5 pt-3 border-top">
                         <button type="button" class="btn-cancel khmer-font d-flex align-items-center" @click="closeModal">
                             <i class="bi bi-x-circle me-2"></i> បោះបង់
                         </button>
-
-                        <button type="submit" class="btn-save-dynamic khmer-font d-flex align-items-center" :disabled="loading" :style="{ background: activeGradient }">
+                        <button type="submit" class="btn-save-dynamic khmer-font d-flex align-items-center text-white border-0 shadow-sm" :disabled="loading" :style="{ background: activeGradient }">
                             <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>
                             <i v-else class="bi bi-check2-circle me-2"></i> 
                             {{ loading ? 'កំពុងរក្សាទុក...' : 'រក្សាទុកទិន្នន័យ' }}
@@ -99,25 +111,21 @@
 </template>
 
 <script setup>
-    import { ref, reactive, computed, watch } from 'vue'
+    import { ref, reactive, computed, onMounted } from 'vue'
     import { DatePicker } from 'v-calendar';
     import 'v-calendar/dist/style.css';
-
     import api from '@/api/axios'
     import { alertStore } from '@/stores/alert'
 
-    const VDatePicker = DatePicker;
-
     const props = defineProps({ modelValue: Boolean })
     const emit = defineEmits(['update:modelValue', 'refresh'])
-    const loading = ref(false)
 
-    // Function សម្រាប់ឆែក AM ឬ PM ភ្លាមៗ
-    const getAMPM = (timeStr) => {
-        if (!timeStr) return '--';
-        const hour = parseInt(timeStr.split(':')[0]);
-        return hour >= 12 ? 'PM' : 'AM';
-    }
+    // --- State ---
+    const loading = ref(false)
+    const showUserDropdown = ref(false)
+    const userSearch = ref('')
+    const users = ref([]) 
+    const selectedUsers = ref([]) 
 
     const getCurrentTime = (addHours = 0) => {
         const now = new Date();
@@ -141,9 +149,49 @@
 
     const form = reactive(getInitialForm())
 
-    const resetForm = () => {
-        Object.assign(form, getInitialForm())
+    // --- API Methods ---
+    const fetchUsers = async () => {
+        try {
+            const res = await api.get('/users?per_page=100');
+            users.value = res.data.data.map(u => ({
+                name: u.name,
+                email: u.email
+            }));
+        } catch (err) {
+            console.error("Fetch users error:", err);
+        }
     }
+
+    onMounted(() => {
+        fetchUsers();
+    });
+
+    // --- Helpers ---
+    const getAMPM = (timeStr) => {
+        if (!timeStr) return '--';
+        const hour = parseInt(timeStr.split(':')[0]);
+        return hour >= 12 ? 'PM' : 'AM';
+    }
+
+    const toggleUser = (user) => {
+        const index = selectedUsers.value.findIndex(u => u.email === user.email);
+        if (index === -1) { 
+            selectedUsers.value.push(user); 
+        } else { 
+            selectedUsers.value.splice(index, 1); 
+        }
+        // Update form ឱ្យមានតែ Array នៃ Email
+        form.participants = selectedUsers.value.map(u => u.email);
+    }
+
+    const isUserSelected = (user) => selectedUsers.value.some(u => u.email === user.email);
+
+    const filteredUsers = computed(() => {
+        const s = userSearch.value.toLowerCase();
+        return users.value.filter(u => 
+            u.name.toLowerCase().includes(s) || u.email.toLowerCase().includes(s)
+        );
+    })
 
     const TABS = [
         { id: 'meeting', label: 'កិច្ចប្រជុំ', theme: '#e54d42', gradient: 'linear-gradient(135deg, #ff6b6b, #e54d42)', icon: 'bi bi-camera-video' },
@@ -151,43 +199,30 @@
         { id: 'task', label: 'ការងារ', theme: '#34a853', gradient: 'linear-gradient(135deg, #51cf66, #34a853)', icon: 'bi bi-check2-circle' }
     ]
 
-    const COLOR_OPTIONS = [
-        { id: 'red', hex: '#ff6b6b', label: 'បន្ទាន់' },
-        { id: 'yellow', hex: '#fcc419', label: 'មធ្យម' },
-        { id: 'green', hex: '#51cf66', label: 'ធម្មតា' }
-    ]
-
-    watch(() => form.type, (val) => {
-        if (val !== 'meeting') form.room = '';
-        if (val === 'task') form.participants = '';
-    });
-
     const activeTab = computed(() => TABS.find(t => t.id === form.type) || TABS[0])
     const activeTheme = computed(() => activeTab.value.theme)
     const activeGradient = computed(() => activeTab.value.gradient)
 
-    const closeModal = () => emit('update:modelValue', false)
+    const closeModal = () => {
+        showUserDropdown.value = false;
+        emit('update:modelValue', false);
+    }
 
     const handleSave = async () => {
-        if (form.start_time >= form.end_time) {
-            return alertStore.show('ម៉ោងបញ្ចប់ត្រូវធំជាងម៉ោងចាប់ផ្តើម', 'error');
-        }
-
         loading.value = true;
         try {
-            const payload = { 
+            const payload = {
                 ...form,
-                color_id: form.color,
-                participants: form.participants ? form.participants.split(',').map(p => p.trim()) : null,
-                room: form.type === 'meeting' ? form.room : null,
-                description: form.description || null
+                date: form.date instanceof Date ? form.date.toISOString().split('T')[0] : form.date,
             };
 
             await api.post('/schedules', payload);
             alertStore.show('រក្សាទុកជោគជ័យ', 'success');
-            resetForm();
             emit('refresh');
             closeModal();
+            // Reset state
+            Object.assign(form, getInitialForm());
+            selectedUsers.value = [];
         } catch (err) {
             alertStore.show('បរាជ័យក្នុងការរក្សាទុក', 'error');
         } finally {
@@ -216,4 +251,5 @@
         min-width: 35px;
         text-align: center;
     }
+
 </style>

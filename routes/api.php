@@ -5,7 +5,7 @@ use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\API\ScheduleController;
-use App\Http\Controllers\API\UserManagementController;
+use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\Api\RolePermissionController;
 use App\Http\Controllers\Api\ModuleController;
 use App\Http\Controllers\Api\ActionController;
@@ -29,7 +29,7 @@ use App\Http\Controllers\Api\ActionController;
 
     Route::middleware('auth:api')->group(function () {
         // User Management API
-        Route::apiResource('users', UserManagementController::class)->except(['create', 'edit']);
+        Route::apiResource('users', UserController::class);
         // Schedule API
         Route::apiResource('schedules', ScheduleController::class);
 
