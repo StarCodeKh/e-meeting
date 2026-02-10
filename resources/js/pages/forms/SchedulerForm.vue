@@ -92,6 +92,19 @@
                             <i class="bi bi-link-45deg icon-gray"></i>
                             <input v-model="form.link" type="url" placeholder="លីងតំណភ្ជាប់..." class="pill-input w-100" />
                         </div>
+
+                        <div class="mt-3">
+                            <label class="khmer-font small text-muted mb-2 d-block">កម្រិតអាទិភាព</label>
+                            <div class="color-row-container">
+                                <div v-for="color in COLOR_OPTIONS" :key="color.id" class="color-option" @click="form.color = color.id">
+                                    <div class="color-bubble" :style="{ backgroundColor: color.hex }" :class="{ 'selected': form.color === color.id }">
+                                        <i v-if="form.color === color.id" class="bi bi-check-lg text-white"></i>
+                                    </div>
+                                    <span class="color-text khmer-font">{{ color.label }}</span>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
 
                     <div class="modal-footer-custom d-flex justify-content-between mt-5 pt-3 border-top">
@@ -197,6 +210,12 @@
         { id: 'meeting', label: 'កិច្ចប្រជុំ', theme: '#e54d42', gradient: 'linear-gradient(135deg, #ff6b6b, #e54d42)', icon: 'bi bi-camera-video' },
         { id: 'appointment', label: 'ការណាត់', theme: '#4285f4', gradient: 'linear-gradient(135deg, #6ab0ff, #4285f4)', icon: 'bi bi-calendar-event' },
         { id: 'task', label: 'ការងារ', theme: '#34a853', gradient: 'linear-gradient(135deg, #51cf66, #34a853)', icon: 'bi bi-check2-circle' }
+    ]
+
+    const COLOR_OPTIONS = [
+        { id: 'red', hex: '#ff6b6b', label: 'បន្ទាន់' },
+        { id: 'yellow', hex: '#fcc419', label: 'មធ្យម' },
+        { id: 'green', hex: '#51cf66', label: 'ធម្មតា' }
     ]
 
     const activeTab = computed(() => TABS.find(t => t.id === form.type) || TABS[0])

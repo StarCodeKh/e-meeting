@@ -19,7 +19,7 @@ class ScheduleController extends Controller
         $schedules = Schedule::whereDate('date', Carbon::today())
             ->whereJsonContains('participants', $userEmail)
             ->orderBy('start_time', 'asc')
-            ->paginate(10);
+            ->get();
 
         return ScheduleResource::collection($schedules);
     }
