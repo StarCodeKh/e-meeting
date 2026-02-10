@@ -1,25 +1,22 @@
 <?php
 
+// app/Models/Schedule.php
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Schedule extends Model {
+class Schedule extends Model
+{
+    use SoftDeletes;
+
     protected $fillable = [
-        'created_by',
-        'title',
-        'description',
-        'start_at',
-        'end_at',
-        'priority'
+        'type', 'title', 'date', 'start_time', 'end_time', 
+        'participants', 'location', 'room', 'color_id', 'user_id'
     ];
 
-    public function creator() { 
-        return $this->belongsTo(User::class, 'created_by'); 
-    }
-
-    public function tasks() { 
-        return $this->hasMany(Task::class); 
-    }
+    protected $casts = [
+        'participants' => 'array',
+        'date' => 'date:Y-m-d',
+    ];
 }

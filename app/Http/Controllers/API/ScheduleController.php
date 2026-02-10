@@ -3,71 +3,55 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Models\Schedule;
-use App\Http\Requests\ScheduleStoreRequest;
-use App\Http\Requests\ScheduleUpdateRequest;
+use App\Http\Requests\ScheduleRequest;
 use App\Http\Resources\ScheduleResource;
 use Illuminate\Http\Request;
+use App\Models\Schedule;
 
 class ScheduleController extends Controller
 {
-    // GET /api/schedules
-    public function index(Request $request)
+    // ១. ទាញយកទិន្នន័យទាំងអស់ (Index)
+    public function index()
     {
-        $query = Schedule::with('tasks')
-            ->where('created_by', auth()->id());
-
-        if ($request->from) {
-            $query->where('start_at', '>=', $request->from);
-        }
-
-        if ($request->to) {
-            $query->where('end_at', '<=', $request->to);
-        }
-
-        return ScheduleResource::collection(
-            $query->paginate(20)
-        );
+        $schedules = Schedule::where('user_id', auth()->id())->latest()->paginate(10);
+        return ScheduleResource::collection($schedules);
     }
 
-    // POST /api/schedules
-    public function store(ScheduleStoreRequest $request)
+    // ២. រក្សាទុកទិន្នន័យថ្មី (Store)
+    public function store(ScheduleRequest $request)
     {
         $data = $request->validated();
-        $data['created_by'] = auth()->id();
+        $data['user_id'] = auth()->id();
 
         $schedule = Schedule::create($data);
 
-        return new ScheduleResource($schedule);
+        return response()->json([
+            'message' => 'រក្សាទុកបានជោគជ័យ!',
+            'data'    => new ScheduleResource($schedule)
+        ], 210);
     }
 
-    // GET /api/schedules/{schedule}
+    // ៣. បង្ហាញទិន្នន័យមួយ (Show)
     public function show(Schedule $schedule)
     {
-        $this->authorize('view', $schedule);
-
-        return new ScheduleResource(
-            $schedule->load('tasks')
-        );
-    }
-
-    // PUT /api/schedules/{schedule}
-    public function update(ScheduleUpdateRequest $request, Schedule $schedule)
-    {
-        $this->authorize('update', $schedule);
-
-        $schedule->update($request->validated());
-
         return new ScheduleResource($schedule);
     }
 
-    // DELETE /api/schedules/{schedule}
+    // ៤. កែប្រែទិន្នន័យ (Update)
+    public function update(ScheduleRequest $request, Schedule $schedule)
+    {
+        $schedule->update($request->validated());
+
+        return response()->json([
+            'message' => 'កែប្រែបានជោគជ័យ!',
+            'data'    => new ScheduleResource($schedule)
+        ]);
+    }
+
+    // ៥. លុបទិន្នន័យ (Destroy)
     public function destroy(Schedule $schedule)
     {
-        $this->authorize('delete', $schedule);
-
         $schedule->delete();
-
-        return response()->json(null, 204);
+        return response()->json(['message' => 'លុបទិន្នន័យរួចរាល់!']);
     }
 }

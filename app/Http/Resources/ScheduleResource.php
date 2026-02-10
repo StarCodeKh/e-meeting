@@ -1,22 +1,26 @@
 <?php
 
 namespace App\Http\Resources;
+
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\Request; 
 
 class ScheduleResource extends JsonResource
 {
-    public function toArray($request)
+    public function toArray(Request $request): array
     {
         return [
-            'id'          => $this->id,
-            'title'       => $this->title,
-            'description' => $this->description,
-            'start_at'    => $this->start_at,
-            'end_at'      => $this->end_at,
-            'repeat_rule' => $this->repeat_rule,
-            'created_by'  => $this->created_by,
-            'created_at'  => $this->created_at,
-            'updated_at'  => $this->updated_at,
+            'id'           => $this->id,
+            'type'         => $this->type,
+            'title'        => $this->title,
+            'date'         => $this->date,
+            'start_time'   => $this->start_time,
+            'end_time'     => $this->end_time,
+            'participants' => $this->participants,
+            'location'     => $this->location,
+            'room'         => $this->room,
+            'color_id'     => $this->color_id,
+            'created_at'   => $this->created_at->format('Y-m-d H:i:s'),
         ];
     }
 }

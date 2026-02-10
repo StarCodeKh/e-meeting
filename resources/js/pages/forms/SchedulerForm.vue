@@ -5,28 +5,14 @@
             <div class="custom-modal shadow-lg" :style="{ borderColor: activeTheme }">
             
                 <div class="modal-tabs">
-                    <button 
-                    v-for="tab in TABS" 
-                    :key="tab.id"
-                    class="tab-item khmer-font"
-                    :style="form.type === tab.id ? { background: tab.theme, color: 'white' } : {}"
-                    :class="{ active: form.type === tab.id }"
-                    @click="form.type = tab.id"
-                    >
+                    <button v-for="tab in TABS" :key="tab.id" class="tab-item khmer-font" :style="form.type === tab.id ? { background: tab.theme, color: 'white' } : {}" :class="{ active: form.type === tab.id }" @click="form.type = tab.id">
                     <i :class="tab.icon" class="me-1"></i> {{ tab.label }}
                     </button>
                 </div>
 
                 <form @submit.prevent="handleSave" class="modal-inner">
                     <div class="title-section mb-4">
-                    <input 
-                        v-model="form.title" 
-                        type="text" 
-                        placeholder="បញ្ចូលចំណងជើង..." 
-                        class="title-input khmer-font"
-                        :style="{ borderBottomColor: activeTheme }"
-                        required
-                    />
+                        <input v-model="form.title" type="text" placeholder="បញ្ចូលចំណងជើង..." class="title-input khmer-font" :style="{ borderBottomColor: activeTheme }" required />
                     </div>
 
                     <div class="form-content">
@@ -90,7 +76,7 @@
     </Transition>
 </template>
 
-<script setup>
+<!-- <script setup>
     import { ref, reactive, computed } from 'vue'
     import api from '@/api/axios'
     import { alertStore } from '@/stores/alert'
@@ -130,6 +116,68 @@
             emit('refresh'); closeModal()
         } catch (err) {
             alertStore.show('បរាជ័យ', 'error')
+        } finally {
+            loading.value = false
+        }
+    }
+</script> -->
+
+
+  <script setup>
+    import { ref, reactive, computed } from 'vue'
+    import api from '@/api/axios'
+    import { alertStore } from '@/stores/alert'
+
+    const props = defineProps({ modelValue: Boolean })
+    const emit = defineEmits(['update:modelValue', 'refresh'])
+    const loading = ref(false)
+
+    const TABS = [
+        { id: 'meeting', label: 'កិច្ចប្រជុំ', theme: '#e54d42', gradient: 'linear-gradient(135deg, #ff6b6b, #e54d42)', icon: 'bi bi-camera-video' },
+        { id: 'appointment', label: 'ការណាត់', theme: '#4285f4', gradient: 'linear-gradient(135deg, #6ab0ff, #4285f4)', icon: 'bi bi-calendar-event' },
+        { id: 'task', label: 'ការងារ', theme: '#34a853', gradient: 'linear-gradient(135deg, #51cf66, #34a853)', icon: 'bi bi-check2-circle' }
+    ]
+
+    const COLOR_OPTIONS = [
+        { id: 'red', hex: '#ff6b6b', label: 'បន្ទាន់' },
+        { id: 'yellow', hex: '#fcc419', label: 'មធ្យម' },
+        { id: 'green', hex: '#51cf66', label: 'ធម្មតា' }
+    ]
+
+    const form = reactive({
+        type: 'meeting', 
+        title: '', 
+        date: new Date().toISOString().split('T')[0],
+        start_time: '08:00', 
+        end_time: '09:00', 
+        participants: '', // ទទួលជាអក្សរពី Input
+        location: '', 
+        room: '', 
+        color: 'green'
+    })
+
+    const activeTab = computed(() => TABS.find(t => t.id === form.type))
+    const activeTheme = computed(() => activeTab.value.theme)
+    const activeGradient = computed(() => activeTab.value.gradient)
+
+    const closeModal = () => emit('update:modelValue', false)
+
+    const handleSave = async () => {
+        loading.value = true
+        try {
+            // បំប្លែង Participants ពី String ទៅជា Array មុនផ្ញើទៅ Backend (Standard & Dynamic)
+            const payload = {
+                ...form,
+                participants: form.participants.split(',').map(p => p.trim()).filter(p => p !== "")
+            }
+            
+            await api.post('/schedules', payload)
+            alertStore.show('រក្សាទុកបានជោគជ័យ', 'success')
+            emit('refresh')
+            closeModal()
+        } catch (err) {
+            const errorMsg = err.response?.data?.message || 'មានបញ្ហាក្នុងការរក្សាទុក'
+            alertStore.show(errorMsg, 'error')
         } finally {
             loading.value = false
         }

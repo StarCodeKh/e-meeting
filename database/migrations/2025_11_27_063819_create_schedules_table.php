@@ -13,13 +13,18 @@ return new class extends Migration
     {
         Schema::create('schedules', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('created_by')->constrained('users')->cascadeOnDelete();
+            $table->string('type'); 
             $table->string('title');
-            $table->text('description')->nullable();
-            $table->timestamp('start_at');
-            $table->timestamp('end_at')->nullable();
-            $table->enum('priority',['low','medium','high'])->default('medium');
+            $table->date('date');
+            $table->time('start_time');
+            $table->time('end_time');
+            $table->json('participants')->nullable(); 
+            $table->string('location')->nullable();
+            $table->string('room')->nullable();
+            $table->string('color_id')->nullable(); 
+            $table->foreignId('user_id')->constrained() ->cascadeOnDelete(); 
             $table->timestamps();
+            $table->softDeletes(); 
         });
     }
 
