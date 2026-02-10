@@ -82,10 +82,32 @@
     const emit = defineEmits(['update:modelValue', 'refresh'])
     const loading = ref(false)
 
+    // ១. កំណត់តម្លៃដើម (Initial State)
+    const getInitialForm = () => ({
+        type: 'meeting', 
+        title: '', 
+        date: new Date().toISOString().split('T')[0],
+        start_time: getCurrentTime(), 
+        end_time: getCurrentTime(1),
+        participants: '', 
+        location: '', 
+        room: '', 
+        link: '', 
+        color: 'green'
+    })
+
     const getCurrentTime = (addHours = 0) => {
         const now = new Date();
         now.setHours(now.getHours() + addHours);
         return now.toTimeString().slice(0, 5);
+    }
+
+    // ២. បង្កើត Form ចេញពី Initial State
+    const form = reactive(getInitialForm())
+
+    // មុខងារសម្រាប់សម្អាតទិន្នន័យក្នុង Form ឱ្យទៅជាដើមវិញ
+    const resetForm = () => {
+        Object.assign(form, getInitialForm())
     }
 
     const TABS = [
@@ -100,13 +122,6 @@
         { id: 'green', hex: '#51cf66', label: 'ធម្មតា' }
     ]
 
-    const form = reactive({
-        type: 'meeting', title: '', date: new Date().toISOString().split('T')[0],
-        start_time: getCurrentTime(), end_time: getCurrentTime(1),
-        participants: '', location: '', room: '', link: '', color: 'green'
-    })
-
-    // Dynamic: Reset field មិនចាំបាច់តាមប្រភេទ Tab
     watch(() => form.type, (val) => {
         if (val !== 'meeting') form.room = '';
         if (val === 'task') form.participants = '';
@@ -116,7 +131,9 @@
     const activeTheme = computed(() => activeTab.value.theme)
     const activeGradient = computed(() => activeTab.value.gradient)
 
-    const closeModal = () => emit('update:modelValue', false)
+    const closeModal = () => {
+        emit('update:modelValue', false)
+    }
 
     const handleSave = async () => {
         if (form.start_time >= form.end_time) {
@@ -125,7 +142,6 @@
 
         loading.value = true;
         try {
-            // បង្កើត Payload ស្អាត (Standard Payload)
             const payload = { 
                 type: form.type,
                 title: form.title,
@@ -141,12 +157,15 @@
 
             await api.post('/schedules', payload);
             alertStore.show('រក្សាទុកជោគជ័យ', 'success');
+            
+            // ៣. ចំណុចសំខាន់៖ សម្អាត Form ក្រោយ Save ជោគជ័យ
+            resetForm(); 
+            
             emit('refresh');
             closeModal();
         } catch (err) {
             const msg = err.response?.data?.message || 'បរាជ័យក្នុងការ Insert';
             alertStore.show(msg, 'error');
-            console.error("Insert Error:", err.response?.data);
         } finally {
             loading.value = false;
         }
