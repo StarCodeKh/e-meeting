@@ -1,13 +1,13 @@
 /* scheduler-form.css */
 @import url('../assets/css/style.css');
 
-/* Container & Overlay */
+/* =========================================
+   1. MODAL STRUCTURE & OVERLAY
+   ========================================= */
 .modal-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
     background: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(4px);
     display: flex;
@@ -18,15 +18,18 @@
 
 .custom-modal {
     background: #ffffff;
-    width: 100%;
+    width: 95%;
     max-width: 550px;
     border-radius: 24px;
-    border-top: 6px solid;
+    border-top: 6px solid; /* Color dynamic via :style */
     overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
     animation: modalSlideUp 0.3s ease-out;
 }
 
-/* Tabs Styling */
+/* =========================================
+   2. TABS & TITLE
+   ========================================= */
 .modal-tabs {
     display: flex;
     background: #f8f9fa;
@@ -38,14 +41,14 @@
     flex: 1;
     border: none;
     padding: 10px;
-    border-radius: 14px;
+    border-radius: 12px;
     font-size: 14px;
+    font-weight: 500;
     transition: all 0.2s;
     background: transparent;
     color: #6c757d;
 }
 
-/* Form Sections */
 .modal-inner {
     padding: 25px;
 }
@@ -59,35 +62,41 @@
     outline: none;
     font-weight: 600;
     transition: border-color 0.3s;
+    color: #212529;
 }
 
+/* =========================================
+   3. FORM ELEMENTS (PILL STYLE)
+   ========================================= */
 .form-content {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 16px;
 }
 
 .form-row {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 12px;
 }
 
 .icon-gray {
     font-size: 20px;
     color: #adb5bd;
     width: 24px;
+    text-align: center;
 }
 
-/* Pill Inputs */
+/* Standard Pill Input */
 .pill-input {
     background: #f1f3f5;
     border: 1px solid #e9ecef;
-    padding: 10px 18px;
+    padding: 10px 16px;
     border-radius: 14px;
     outline: none;
     font-size: 14px;
-    transition: all 0.2s;
+    width: 100%;
+    transition: all 0.2s ease;
 }
 
 .pill-input:focus {
@@ -96,64 +105,85 @@
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
+/* Pill Group (Split Inputs) */
 .pill-group {
     display: flex;
     background: #f1f3f5;
     border-radius: 14px;
     padding: 2px;
+    width: 100%;
+    border: 1px solid #e9ecef;
 }
 
 .pill-group input {
     background: transparent;
     border: none;
-    padding: 8px 15px;
+    padding: 8px 16px;
     outline: none;
+    font-size: 14px;
 }
 
-/* Time Picker Section */
-.time-picker-group {
+/* =========================================
+   4. DATETIME PICKER (COMBINED STYLE)
+   ========================================= */
+.datetime-pill-container {
     display: flex;
     align-items: center;
     background: #f1f3f5;
-    padding: 5px 15px;
-    border-radius: 14px;
     border: 1px solid #e9ecef;
+    border-radius: 14px;
+    padding: 8px 16px;
+    width: 100%;
+    transition: all 0.2s ease-in-out;
 }
 
-.time-input-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
 
-.time-field {
+
+.date-input-clean {
     border: none;
     background: transparent;
-    font-size: 14px;
     outline: none;
-    width: 85px;
+    cursor: pointer;
+    color: #495057;
+    font-size: 14px;
+    flex-grow: 1;
 }
 
+/* Time Picker Section */
+.time-box {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.time-field-inline {
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 14px;
+    font-weight: 600;
+    width: 45px; 
+    text-align: center;
+}
+
+/* Hide default AM/PM field inside the input */
 input[type="time"]::-webkit-datetime-edit-ampm-field {
     display: none;
 }
 
-.ampm-badge {
-    font-size: 10px;
-    font-weight: 800;
-    color: #495057;
-    background: #dee2e6;
-    padding: 2px 6px;
-    border-radius: 5px;
-    min-width: 35px;
-    text-align: center;
+.separator {
+    color: #adb5bd;
+    margin: 0 6px;
+    font-size: 12px;
 }
 
-/* Priority Colors */
+/* =========================================
+   5. PRIORITY & FOOTER
+   ========================================= */
 .color-row-container {
     display: flex;
-    gap: 20px;
-    padding: 10px 5px;
+    gap: 16px;
+    padding: 5px 0;
 }
 
 .color-option {
@@ -164,8 +194,8 @@ input[type="time"]::-webkit-datetime-edit-ampm-field {
 }
 
 .color-bubble {
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -178,56 +208,59 @@ input[type="time"]::-webkit-datetime-edit-ampm-field {
     box-shadow: 0 0 0 3px rgba(0,0,0,0.1);
 }
 
-.color-text {
-    font-size: 13px;
-    color: #495057;
+.modal-footer-custom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
 }
 
-/* Footer Buttons */
 .btn-cancel {
     background: transparent;
     border: none;
     color: #6c757d;
-    padding: 10px 25px;
     font-weight: 500;
+    cursor: pointer;
 }
 
 .btn-save-dynamic {
     border: none;
     color: white;
-    padding: 10px 40px;
+    padding: 12px 40px;
     border-radius: 14px;
     font-weight: 600;
+    cursor: pointer;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    transition: transform 0.2s, opacity 0.2s;
+    transition: all 0.2s;
+}
+
+.btn-save-dynamic:hover:not(:disabled) {
+    opacity: 0.9;
+    transform: translateY(-1px);
 }
 
 .btn-save-dynamic:active {
-    transform: scale(0.96);
+    transform: scale(0.98);
 }
 
-.btn-save-dynamic:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-/* Animations */
+/* =========================================
+   6. ANIMATIONS & RESPONSIVE
+   ========================================= */
 @keyframes modalSlideUp {
-    from { transform: translateY(30px); opacity: 0; }
+    from { transform: translateY(20px); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
 }
 
-.modal-bounce-enter-active { animation: modalSlideUp 0.3s ease-out; }
-.modal-bounce-leave-active { animation: modalSlideUp 0.3s ease-in reverse; }
-
-/* Responsive */
 @media (max-width: 576px) {
-    .custom-modal {
-        max-width: 92%;
-        border-radius: 20px;
+    .modal-inner { padding: 20px; }
+    .datetime-pill-container {
+        flex-direction: column;
+        align-items: flex-start;
+        border-radius: 18px;
+        gap: 10px;
     }
-    .time-picker-group {
-        width: 100%;
-        justify-content: space-between;
-    }
+    .date-input-clean { width: 100%; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+    .btn-save-dynamic { padding: 12px 25px; width: 60%; }
 }

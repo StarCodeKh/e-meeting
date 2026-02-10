@@ -19,17 +19,26 @@
                     <div class="form-content">
                         <div class="form-row">
                             <i class="bi bi-calendar3 icon-gray"></i>
-                            <div class="d-flex flex-column flex-md-row gap-2 w-100">
-                                <input v-model="form.date" type="date" class="pill-input flex-grow-1" />
-                                <div class="time-picker-group">
-                                    <div class="time-input-wrapper">
-                                        <input v-model="form.start_time" type="time" class="time-field" />
-                                        <span class="ampm-badge">{{ getAMPM(form.start_time) }}</span>
+                            <div class="datetime-pill-container d-flex align-items-center flex-grow-1">
+                                <DatePicker v-model="form.date" :popover="{ visibility: 'click' }" color="blue">
+                                    <template #default="{ inputValue, inputEvents }">
+                                        <input class="date-input-clean khmer-font" :value="inputValue" v-on="inputEvents" readonly placeholder="ជ្រើសរើសថ្ងៃ..." />
+                                    </template>
+                                </DatePicker>
+
+                                <div class="vr mx-2 opacity-25" style="height: 20px;"></div>
+
+                                <div class="time-picker-minimal d-flex align-items-center">
+                                    <div class="time-box">
+                                        <input v-model="form.start_time" type="time" class="time-field-inline" />
+                                        <span class="ampm-text">{{ getAMPM(form.start_time) }}</span>
                                     </div>
-                                    <span class="mx-1">-</span>
-                                    <div class="time-input-wrapper">
-                                        <input v-model="form.end_time" type="time" class="time-field" />
-                                        <span class="ampm-badge">{{ getAMPM(form.end_time) }}</span>
+                                    
+                                    <span class="separator">-</span>
+
+                                    <div class="time-box">
+                                        <input v-model="form.end_time" type="time" class="time-field-inline" />
+                                        <span class="ampm-text">{{ getAMPM(form.end_time) }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -71,6 +80,7 @@
                         </div>
                     </div>
 
+
                     <div class="modal-footer-custom d-flex justify-content-between mt-5 pt-3 border-top">
                         <button type="button" class="btn-cancel khmer-font d-flex align-items-center" @click="closeModal">
                             <i class="bi bi-x-circle me-2"></i> បោះបង់
@@ -90,8 +100,13 @@
 
 <script setup>
     import { ref, reactive, computed, watch } from 'vue'
+    import { DatePicker } from 'v-calendar';
+    import 'v-calendar/dist/style.css';
+
     import api from '@/api/axios'
     import { alertStore } from '@/stores/alert'
+
+    const VDatePicker = DatePicker;
 
     const props = defineProps({ modelValue: Boolean })
     const emit = defineEmits(['update:modelValue', 'refresh'])
@@ -184,4 +199,21 @@
 <style scoped>
     /* Use @ to start from resources/js/ */
     @import "@/css/scheduler-form.css";
+
+    .datetime-pill-container:focus-within {
+        background: #ffffff;
+        border-color: v-bind(activeTheme);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    .ampm-text {
+        font-size: 10px;
+        font-weight: 800;
+        color: white;
+        background: v-bind(activeTheme); 
+        padding: 4px 10px;
+        border-radius: 5px;
+        text-transform: uppercase;
+        min-width: 35px;
+        text-align: center;
+    }
 </style>
