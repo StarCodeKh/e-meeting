@@ -51,7 +51,8 @@ class ScheduleController extends Controller
     // ៥. លុបទិន្នន័យ (Destroy)
     public function destroy(Schedule $schedule)
     {
-        $schedule->delete();
+        $schedule->forceDelete(); 
         return response()->json(['message' => 'លុបទិន្នន័យរួចរាល់!']);
     }
+
 }
