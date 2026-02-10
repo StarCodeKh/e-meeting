@@ -1,6 +1,6 @@
 import api from '@/api/axios';
 
-export const MeetingService = {
+export const MeetingDashboard = {
     async getMeetingsByDate(date) {
         try {
             const response = await api.get(`/schedules`, { params: { date } });
