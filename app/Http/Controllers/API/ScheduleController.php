@@ -7,13 +7,20 @@ use App\Http\Requests\ScheduleRequest;
 use App\Http\Resources\ScheduleResource;
 use Illuminate\Http\Request;
 use App\Models\Schedule;
+use Carbon\Carbon;
+
 
 class ScheduleController extends Controller
 {
     // ១. ទាញយកទិន្នន័យទាំងអស់ (Index)
-    public function index()
+   public function index()
     {
-        $schedules = Schedule::where('user_id', auth()->id())->latest()->paginate(10);
+        $userEmail = auth()->user()->email;
+        $schedules = Schedule::whereDate('date', Carbon::today())
+            ->whereJsonContains('participants', $userEmail)
+            ->orderBy('start_time', 'asc')
+            ->paginate(10);
+
         return ScheduleResource::collection($schedules);
     }
 
