@@ -29,7 +29,9 @@
                             <div class="card-body ps-5 py-3">
                                 <h6 class="khmer-font fw-bold text-dark mb-1">{{ m.title }}</h6>
                                 <p class="khmer-font text-muted x-small mb-3">{{ m.description }}</p>
-                                <div class="tag-video-conf khmer-font">VIDEO CONFERENCE</div>
+                                <div :class="['tag-video-conf khmer-font', m.tagClass]">
+                                    VIDEO CONFERENCE
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -52,7 +54,9 @@
                             <div class="card-body ps-5 py-3">
                                 <h6 class="khmer-font fw-bold text-dark mb-1">{{ m.title }}</h6>
                                 <p class="khmer-font text-muted x-small mb-3">{{ m.description }}</p>
-                                <div class="tag-video-conf khmer-font">VIDEO CONFERENCE</div>
+                                <div :class="['tag-video-conf khmer-font', m.tagClass]">
+                                    VIDEO CONFERENCE
+                                </div>
                             </div>
                         </div>
                     </div>

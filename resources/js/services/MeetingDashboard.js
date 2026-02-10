@@ -21,6 +21,12 @@ export const MeetingDashboard = {
                     'green': 'bg-success',
                 };
 
+                const tagMap = {
+                    'red': 'tag-red',
+                    'yellow': 'tag-yellow',
+                    'green': 'tag-green',
+                };
+
                 return {
                     id: item.id,
                     title: item.title,
@@ -28,6 +34,7 @@ export const MeetingDashboard = {
                     period: period,
                     session: session,
                     colorClass: colorMap[item.color_id] || 'bg-coral',
+                    tagClass: tagMap[item.color_id] || 'tag-red',
                     description: item.description,
                     location: item.location,
                     room: item.room,
