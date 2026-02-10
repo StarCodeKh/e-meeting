@@ -13,7 +13,7 @@ use Carbon\Carbon;
 class ScheduleController extends Controller
 {
     // ១. ទាញយកទិន្នន័យទាំងអស់ (Index)
-   public function index()
+    public function index()
     {
         $userEmail = auth()->user()->email;
         $schedules = Schedule::whereDate('date', Carbon::today())
