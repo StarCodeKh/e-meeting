@@ -157,7 +157,7 @@
         location: '', 
         room: '', 
         link: '', 
-        color: 'green'
+        color_id: 'green'
     })
 
     const form = reactive(getInitialForm())
