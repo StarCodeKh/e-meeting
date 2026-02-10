@@ -21,6 +21,7 @@ return new class extends Migration
             $table->json('participants')->nullable(); 
             $table->string('location')->nullable();
             $table->string('room')->nullable();
+            $table->text('link')->nullable();
             $table->string('color_id')->nullable(); 
             $table->foreignId('user_id')->constrained() ->cascadeOnDelete(); 
             $table->timestamps();

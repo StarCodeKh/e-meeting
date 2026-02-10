@@ -19,6 +19,7 @@ class ScheduleRequest extends FormRequest
         return [
             'type'         => 'required|string|in:meeting,personal,task',
             'title'        => 'required|string|max:255',
+            'link'         => 'nullable|url',
             'date'         => 'required|date',
             'start_time'   => 'required',
             'end_time'     => 'required|after:start_time',
