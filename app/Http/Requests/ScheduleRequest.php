@@ -26,6 +26,7 @@ class ScheduleRequest extends FormRequest
             'participants' => 'nullable|array',
             'location'     => 'nullable|string',
             'room'         => 'nullable|string',
+            'description'  => 'nullable|string',
             'color_id'     => 'nullable|string',
         ];
     }

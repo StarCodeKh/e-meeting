@@ -21,17 +21,23 @@
                             <i class="bi bi-calendar3 icon-gray"></i>
                             <div class="d-flex flex-column flex-md-row gap-2 w-100">
                                 <input v-model="form.date" type="date" class="pill-input flex-grow-1" />
-                                <div class="time-container">
-                                    <input v-model="form.start_time" type="time" class="time-input-inline" />
-                                    <span class="mx-1 text-muted">-</span>
-                                    <input v-model="form.end_time" type="time" class="time-input-inline" /> 
+                                <div class="time-picker-group">
+                                    <div class="time-input-wrapper">
+                                        <input v-model="form.start_time" type="time" class="time-field" />
+                                        <span class="ampm-badge">{{ getAMPM(form.start_time) }}</span>
+                                    </div>
+                                    <span class="mx-1">-</span>
+                                    <div class="time-input-wrapper">
+                                        <input v-model="form.end_time" type="time" class="time-field" />
+                                        <span class="ampm-badge">{{ getAMPM(form.end_time) }}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="form-row" v-if="form.type !== 'task'">
                             <i class="bi bi-people icon-gray"></i>
-                            <input v-model="form.participants" type="text" placeholder="អ្នកចូលរួម" class="pill-input w-100" />
+                            <input v-model="form.participants" type="text" placeholder="អ្នកចូលរួម..." class="pill-input w-100" />
                         </div>
 
                         <div class="form-row">
@@ -42,8 +48,13 @@
                             </div>
                         </div>
 
+                        <div class="form-row align-items-start">
+                            <i class="bi bi-card-text icon-gray mt-2"></i>
+                            <textarea v-model="form.description" rows="2" placeholder="ពណ៌នាការងារលម្អិត..." class="pill-input khmer-font w-100 py-2"></textarea>
+                        </div>
+
                         <div class="form-row">
-                            <i class="bi bi-globe2 icon-gray"></i>
+                            <i class="bi bi-link-45deg icon-gray"></i>
                             <input v-model="form.link" type="url" placeholder="លីងតំណភ្ជាប់..." class="pill-input w-100" />
                         </div>
 
@@ -60,10 +71,14 @@
                         </div>
                     </div>
 
-                    <div class="modal-footer-custom d-flex justify-content-between mt-4 pt-3 border-top">
-                        <button type="button" class="btn-cancel khmer-font" @click="closeModal">បោះបង់</button>
-                        <button type="submit" class="btn-save-dynamic khmer-font" :disabled="loading" :style="{ background: activeGradient }">
+                    <div class="modal-footer-custom d-flex justify-content-between mt-5 pt-3 border-top">
+                        <button type="button" class="btn-cancel khmer-font d-flex align-items-center" @click="closeModal">
+                            <i class="bi bi-x-circle me-2"></i> បោះបង់
+                        </button>
+
+                        <button type="submit" class="btn-save-dynamic khmer-font d-flex align-items-center" :disabled="loading" :style="{ background: activeGradient }">
                             <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>
+                            <i v-else class="bi bi-check2-circle me-2"></i> 
                             {{ loading ? 'កំពុងរក្សាទុក...' : 'រក្សាទុកទិន្នន័យ' }}
                         </button>
                     </div>
@@ -82,10 +97,23 @@
     const emit = defineEmits(['update:modelValue', 'refresh'])
     const loading = ref(false)
 
-    // ១. កំណត់តម្លៃដើម (Initial State)
+    // Function សម្រាប់ឆែក AM ឬ PM ភ្លាមៗ
+    const getAMPM = (timeStr) => {
+        if (!timeStr) return '--';
+        const hour = parseInt(timeStr.split(':')[0]);
+        return hour >= 12 ? 'PM' : 'AM';
+    }
+
+    const getCurrentTime = (addHours = 0) => {
+        const now = new Date();
+        now.setHours(now.getHours() + addHours);
+        return now.toTimeString().slice(0, 5);
+    }
+
     const getInitialForm = () => ({
         type: 'meeting', 
         title: '', 
+        description: '',
         date: new Date().toISOString().split('T')[0],
         start_time: getCurrentTime(), 
         end_time: getCurrentTime(1),
@@ -96,16 +124,8 @@
         color: 'green'
     })
 
-    const getCurrentTime = (addHours = 0) => {
-        const now = new Date();
-        now.setHours(now.getHours() + addHours);
-        return now.toTimeString().slice(0, 5);
-    }
-
-    // ២. បង្កើត Form ចេញពី Initial State
     const form = reactive(getInitialForm())
 
-    // មុខងារសម្រាប់សម្អាតទិន្នន័យក្នុង Form ឱ្យទៅជាដើមវិញ
     const resetForm = () => {
         Object.assign(form, getInitialForm())
     }
@@ -131,9 +151,7 @@
     const activeTheme = computed(() => activeTab.value.theme)
     const activeGradient = computed(() => activeTab.value.gradient)
 
-    const closeModal = () => {
-        emit('update:modelValue', false)
-    }
+    const closeModal = () => emit('update:modelValue', false)
 
     const handleSave = async () => {
         if (form.start_time >= form.end_time) {
@@ -143,35 +161,26 @@
         loading.value = true;
         try {
             const payload = { 
-                type: form.type,
-                title: form.title,
-                date: form.date,
-                start_time: form.start_time,
-                end_time: form.end_time,
-                location: form.location || null,
-                link: form.link || null,
+                ...form,
                 color_id: form.color,
                 participants: form.participants ? form.participants.split(',').map(p => p.trim()) : null,
-                room: form.type === 'meeting' ? form.room : null
+                room: form.type === 'meeting' ? form.room : null,
+                description: form.description || null
             };
 
             await api.post('/schedules', payload);
             alertStore.show('រក្សាទុកជោគជ័យ', 'success');
-            
-            // ៣. ចំណុចសំខាន់៖ សម្អាត Form ក្រោយ Save ជោគជ័យ
-            resetForm(); 
-            
+            resetForm();
             emit('refresh');
             closeModal();
         } catch (err) {
-            const msg = err.response?.data?.message || 'បរាជ័យក្នុងការ Insert';
-            alertStore.show(msg, 'error');
+            alertStore.show('បរាជ័យក្នុងការរក្សាទុក', 'error');
         } finally {
             loading.value = false;
         }
     }
 </script>
- 
+
 <style scoped>
     /* Use @ to start from resources/js/ */
     @import "@/css/scheduler-form.css";

@@ -12,7 +12,7 @@ class Schedule extends Model
 
     protected $fillable = [
         'type', 'title', 'date', 'start_time', 'end_time', 
-        'participants', 'location', 'room', 'link', 'color_id', 'user_id'
+        'participants', 'location', 'room','description','link', 'color_id', 'user_id'
     ];
 
     protected $casts = [

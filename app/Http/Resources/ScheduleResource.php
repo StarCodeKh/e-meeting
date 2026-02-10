@@ -20,6 +20,7 @@ class ScheduleResource extends JsonResource
             'participants' => $this->participants,
             'location'     => $this->location,
             'room'         => $this->room,
+            'description'  => $this->description,
             'color_id'     => $this->color_id,
             'created_at'   => $this->created_at->format('Y-m-d H:i:s'),
         ];
