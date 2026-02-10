@@ -17,7 +17,7 @@ class ScheduleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'type'         => 'required|string|in:meeting,personal,task',
+            'type'         => 'required|string|in:meeting,appointment,task',
             'title'        => 'required|string|max:255',
             'link'         => 'nullable|url',
             'date'         => 'required|date',
