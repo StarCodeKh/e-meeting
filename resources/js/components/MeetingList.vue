@@ -89,33 +89,25 @@
     const meetings = ref([]);
     const isLoading = ref(false);
 
-    // ៣. បង្កើត Function សម្រាប់ទាញទិន្នន័យ
+    const getTodayDate = () => {
+        const d = new Date();
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    };
+
     const fetchAllMeetings = async () => {
         isLoading.value = true;
         try {
-            const date = '2026-02-10'; 
-            const data = await MeetingService.getMeetingsByDate(date);
+            const data = await MeetingService.getMeetingsByDate(getTodayDate());
             meetings.value = data;
-            
-            console.log("ទិន្នន័យទទួលបាន:", meetings.value);
         } catch (error) {
-            console.error("ការទាញទិន្នន័យមានបញ្ហា:", error);
+            console.error("Error fetching meetings:", error);
         } finally {
             isLoading.value = false;
         }
     };
 
-    const morningMeetings = computed(() => 
-        meetings.value.filter(m => m.session === 'morning')
-    );
-
-    const afternoonMeetings = computed(() => 
-        meetings.value.filter(m => m.session === 'afternoon')
-    );
-
-    onMounted(() => {
-        fetchAllMeetings();
-    });
+    const morningMeetings = computed(() => meetings.value.filter(m => m.session === 'morning'));
+    const afternoonMeetings = computed(() => meetings.value.filter(m => m.session === 'afternoon'));
 
     const getDynamicBorder = (colorClass) => {
         const map = {
@@ -126,6 +118,8 @@
         };
         return map[colorClass] || 'border-secondary';
     };
+
+    onMounted(fetchAllMeetings); 
 </script>
 
 <style scoped>
