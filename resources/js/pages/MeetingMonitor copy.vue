@@ -86,7 +86,53 @@
 </template>
 
 <script setup>
-  
+    import { ref, onMounted, computed, onUnmounted } from 'vue'
+    import DashboardLayout from '../components/layouts/DashboardLayout.vue'
+    import HeaderBar from '@/components/HeaderBar.vue'
+
+    const currentTime = ref(''), currentDateKhmer = ref('')
+    let timer = null
+
+    // --- Dynamic Styling Logic ---
+    const THEME_MAP = {
+        active: 'danger',
+        completed: 'success',
+        upcoming: 'warning',
+        pending: 'info'
+    };
+
+    const getStatusColor = (status) => THEME_MAP[status] || 'secondary';
+
+    const getMeetingTheme = (status) => {
+        const color = getStatusColor(status);
+        return `border-${color} bg-${color} bg-opacity-10 ${status === 'active' ? 'shadow-sm active-pulse' : ''}`;
+    };
+
+    // --- Data ---
+    const meetings = ref([
+        { id: 1, title: 'ប្រជុំរៀបចំផែនការថវិកាឆ្នាំ ២០២៦', startTime: '08:30', endTime: '10:00', location: 'សាលាខេត្ត', floor: '២', room: '២០១', host: 'ឯកឧត្តម សាយ សំអាល់', status: 'active', statusText: 'កំពុងប្រជុំ' },
+        { id: 2, title: 'សិក្ខាសាលាស្តីពីបច្ចេកវិទ្យាឌីជីថល', startTime: '10:30', endTime: '12:00', location: 'កោះពេជ្រ', floor: 'G', room: 'A1', host: 'លោក យើត វីណែល', status: 'upcoming', statusText: 'បន្ទាប់' },
+        { id: 3, title: 'កិច្ចប្រជុំបូកសរុបលទ្ធផលការងារ', startTime: '07:00', endTime: '08:00', location: 'ទីស្តីការគណៈរដ្ឋមន្ត្រី', floor: '១', room: '១០៥', host: 'លោកជំទាវ មីន ម៉ានី', status: 'completed', statusText: 'បានបញ្ចប់' }
+    ]);
+
+    // --- Computed Properties (Standard Dynamic Logic) ---
+    const activeMeetingsCount = computed(() => meetings.value.filter(m => m.status === 'active').length);
+
+    // Sort logic: Active first, then Upcoming, then Completed
+    const sortedMeetings = computed(() => {
+        const priority = { active: 1, upcoming: 2, completed: 3 };
+        return [...meetings.value].sort((a, b) => (priority[a.status] || 4) - (priority[b.status] || 4));
+    });
+
+    // --- Clock Logic ---
+    const updateClock = () => {
+        const now = new Date();
+        currentTime.value = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        currentDateKhmer.value = now.toLocaleDateString('km-KH', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    };
+
+    onMounted(() => { updateClock(); timer = setInterval(updateClock, 1000); });
+    onUnmounted(() => clearInterval(timer));
 </script>
 
 <style scoped>

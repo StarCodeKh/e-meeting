@@ -86,7 +86,87 @@
 </template>
 
 <script setup>
-  
+    import { ref, onMounted, computed, onUnmounted, watch } from 'vue'
+    import { MeetingServices } from '@/services/MeetingServices'
+    import DashboardLayout from '../components/layouts/DashboardLayout.vue'
+    import HeaderBar from '@/components/HeaderBar.vue'
+
+    const props = defineProps(['selectedDate']); 
+    const meetings = ref([]);
+    const isLoading = ref(false);
+    const currentTime = ref(''), currentDateKhmer = ref('');
+    let timer = null;
+
+    // --- ១. Logic កំណត់ Status ឌីណាមិក ---
+    const getMeetingStatus = (startTime, endTime) => {
+        const now = new Date();
+        const nowTime = now.getHours() * 60 + now.getMinutes();
+        
+        const [startH, startM] = startTime.split(':').map(Number);
+        const [endH, endM] = endTime.split(':').map(Number);
+        
+        const sTime = startH * 60 + startM;
+        const eTime = endH * 60 + endM;
+
+        if (nowTime >= sTime && nowTime <= eTime) return { status: 'active', text: 'កំពុងប្រជុំ' };
+        if (nowTime < sTime) return { status: 'upcoming', text: 'បន្ទាប់' };
+        return { status: 'completed', text: 'បានបញ្ចប់' };
+    };
+
+    // --- ២. ទាញទិន្នន័យពី API ---
+    const fetchMeetings = async (date) => {
+        isLoading.value = true;
+        try {
+            const response = await MeetingServices.getMeetingsByDate(date);
+            
+            // Map ទិន្នន័យពី API ឱ្យត្រូវនឹង Layout របស់អ្នក
+            meetings.value = response.map(item => {
+                const statusInfo = getMeetingStatus(item.startTime || item.time, item.endTime || "23:59");
+                return {
+                    ...item,
+                    startTime: item.startTime || item.time, // បើ API បោះ time មក
+                    endTime: item.endTime || '--:--',
+                    host: item.host || 'មិនមានបញ្ជាក់',
+                    floor: item.floor || '?',
+                    status: statusInfo.status,
+                    statusText: statusInfo.text
+                };
+            });
+        } catch (error) {
+            console.error("Fetch Error:", error);
+        } finally {
+            isLoading.value = false;
+        }
+    };
+
+    // --- ៣. Styling Logic ---
+    const THEME_MAP = { active: 'danger', completed: 'success', upcoming: 'warning' };
+    const getStatusColor = (status) => THEME_MAP[status] || 'secondary';
+    const getMeetingTheme = (status) => {
+        const color = getStatusColor(status);
+        return `border-${color} bg-${color} bg-opacity-10 ${status === 'active' ? 'shadow-sm active-pulse' : ''}`;
+    };
+
+    // --- ៤. Computed & Clock ---
+    const sortedMeetings = computed(() => {
+        const priority = { active: 1, upcoming: 2, completed: 3 };
+        return [...meetings.value].sort((a, b) => (priority[a.status] || 4) - (priority[b.status] || 4));
+    });
+
+    const updateClock = () => {
+        const now = new Date();
+        currentTime.value = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        currentDateKhmer.value = now.toLocaleDateString('km-KH', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    };
+
+    onMounted(() => { 
+        updateClock(); 
+        timer = setInterval(updateClock, 1000);
+        fetchMeetings(new Date().toISOString().split('T')[0]); // ទាញថ្ងៃនេះ
+    });
+
+    watch(() => props.selectedDate, (newDate) => { if (newDate) fetchMeetings(newDate); });
+    onUnmounted(() => clearInterval(timer));
 </script>
 
 <style scoped>

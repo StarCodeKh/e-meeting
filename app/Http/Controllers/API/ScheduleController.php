@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ScheduleRequest;
 use App\Http\Resources\ScheduleResource;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\Schedule;
@@ -41,31 +42,36 @@ class ScheduleController extends Controller
     // ២. រក្សាទុកទិន្នន័យថ្មី (Store)
     public function store(ScheduleRequest $request)
     {
-        DB::beginTransaction();
+        return DB::transaction(function () use ($request) {
+            try {
+                $data = $request->validated();
+                $data['user_id'] = auth()->id();
 
-        try {
-            $data = $request->validated();
-            
-            $data['user_id'] = auth()->id();
+                if ($request->hasFile('attachment')) {
+                    $file = $request->file('attachment');
+                    $path = $file->store('attachments', 'public');
+                    $data['attachment'] = $path; 
+                }
 
-            $schedule = Schedule::create($data);
+                $schedule = Schedule::create($data);
 
-            DB::commit();
+                return response()->json([
+                    'status'  => 'success',
+                    'message' => 'រក្សាទុកបានជោគជ័យ!',
+                    'data'    => new ScheduleResource($schedule)
+                ], 201);
 
-            return response()->json([
-                'status'  => 'success',
-                'message' => 'រក្សាទុកបានជោគជ័យ!',
-                'data'    => new ScheduleResource($schedule)
-            ], 201);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'status'  => 'error',
-                'message' => 'មានបញ្ហាបច្ចេកទេស មិនអាចរក្សាទុកបានទេ!',
-                'error'   => $e->getMessage()
-            ], 500);
-        }
+            } catch (\Exception $e) {
+                if (isset($path)) {
+                    Storage::disk('public')->delete($path);
+                }
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => 'បរាជ័យក្នុងការរក្សាទុក!',
+                    'error'   => $e->getMessage()
+                ], 500);
+            }
+        });
     }
 
     // ៣. បង្ហាញទិន្នន័យមួយ (Show)
@@ -100,6 +106,14 @@ class ScheduleController extends Controller
                 ], 403);
             }
 
+            if ($request->hasFile('attachment')) {
+                // លុប File ចាស់ (បើមាន)
+                if ($schedule->attachment) {
+                    Storage::disk('public')->delete(str_replace('/storage/', '', $schedule->attachment));
+                }
+                // រក្សាទុក File ថ្មី (ដូចកូដក្នុង store ខាងលើ)
+            }
+
             $schedule->update($request->validated());
 
             return response()->json([
@@ -121,7 +135,10 @@ class ScheduleController extends Controller
     public function destroy(Schedule $schedule)
     {
         try {
-            $schedule->forceDelete();
+            if ($schedule->attachment) {
+                Storage::disk('public')->delete(str_replace('/storage/', '', $schedule->attachment));
+            }
+            $schedule->delete();
 
             return response()->json([
                 'status'  => 'success',

@@ -68,7 +68,7 @@
 
 <script setup>
     import { ref, computed, onMounted } from 'vue';
-    import { MeetingDashboard } from '@/services/MeetingDashboard';
+    import { MeetingServices } from '@/services/MeetingServices';
 
     const props = defineProps({
         headerDate: { 
@@ -101,7 +101,7 @@
     const fetchAllMeetings = async () => {
         isLoading.value = true;
         try {
-            const data = await MeetingDashboard.getMeetingsByDate(getTodayDate());
+            const data = await MeetingServices.getMeetingsByDate(getTodayDate());
             meetings.value = data;
         } catch (error) {
             console.error("Error fetching meetings:", error);

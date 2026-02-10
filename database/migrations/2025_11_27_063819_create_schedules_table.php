@@ -24,6 +24,7 @@ return new class extends Migration
             $table->text('link')->nullable();
             $table->string('color_id')->nullable(); 
             $table->text('description')->nullable();
+            $table->string('attachment')->nullable();
             $table->foreignId('user_id')->constrained() ->cascadeOnDelete(); 
             $table->timestamps();
             $table->softDeletes(); 
