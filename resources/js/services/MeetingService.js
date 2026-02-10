@@ -15,11 +15,10 @@ export const MeetingService = {
                 const displayHour = hours % 12 || 12;
                 const period = hours >= 12 ? 'រសៀល' : 'ព្រឹក';
                 const session = hours >= 12 ? 'afternoon' : 'morning';
-
                 const colorMap = {
-                    'meeting': 'bg-coral',
-                    'appointment': 'bg-orange',
-                    'task': 'bg-success'
+                    'red': 'bg-coral',
+                    'yellow': 'bg-orange',
+                    'green': 'bg-success',
                 };
 
                 return {
@@ -28,7 +27,7 @@ export const MeetingService = {
                     time: `${displayHour}:${m}`, 
                     period: period,
                     session: session,
-                    colorClass: colorMap[item.type] || 'bg-sky',
+                    colorClass: colorMap[item.color_id] || 'bg-coral',
                     description: item.description,
                     location: item.location,
                     room: item.room,

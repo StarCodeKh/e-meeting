@@ -27,6 +27,7 @@ class ScheduleResource extends JsonResource
             'link'         => $this->link,
             'date'         => $this->date ? Carbon::parse($this->date)->format('Y-m-d') : null,
             'room'         => $this->room,
+            'color_id'     => $this->color_id,
             'created_at'   => $this->created_at?->format('Y-m-d H:i:s'),
         ];
     }
