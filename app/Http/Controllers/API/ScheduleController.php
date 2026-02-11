@@ -41,7 +41,7 @@ class ScheduleController extends Controller
     public function schedulesPublic(Request $request)
     {
         try {
-            
+
             $date = $request->query('date', Carbon::today()->toDateString());
             $schedules = Schedule::whereDate('date', $date)->orderBy('start_time', 'asc')->get();
 

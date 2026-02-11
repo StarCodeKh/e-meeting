@@ -2,27 +2,16 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 
+// --- នាំចូល Styles (CSS) ---
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap-icons/font/bootstrap-icons.css'
-import '../css/stylecustom.css';
+import '../css/stylecustom.css'
 
-import { createI18n } from 'vue-i18n'
+// បង្កើត App Instance
+const app = createApp(App)
 
-const messages = {
-  en:{
-    add:"+ Add",
-    video:"VIDEO CONFERENCE"
-  },
-  km:{
-    add:"+ បន្ថែម",
-    video:"កិច្ចប្រជុំវីដេអូ"
-  }
-}
+// ប្រើប្រាស់ Router
+app.use(router)
 
-const i18n = createI18n({
-  locale:'km',
-  fallbackLocale:'en',
-  messages
-})
-
-createApp(App).use(router).use(i18n).mount('#app')
+// បញ្ចូល App ទៅក្នុង DOM (#app ក្នុង index.html)
+app.mount('#app')
