@@ -38,6 +38,24 @@ class ScheduleController extends Controller
         }
     }
 
+    public function schedulesPublic(Request $request)
+    {
+        try {
+            
+            $date = $request->query('date', Carbon::today()->toDateString());
+            $schedules = Schedule::whereDate('date', $date)->orderBy('start_time', 'asc')->get();
+
+            return ScheduleResource::collection($schedules);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'មិនអាចទាញយកទិន្នន័យកាលវិភាគបានទេ',
+                'error'   => $e->getMessage()
+            ], 500);
+        }
+    }
+
     // ២. រក្សាទុកទិន្នន័យថ្មី (Store)
     public function store(ScheduleRequest $request)
     {

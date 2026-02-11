@@ -29,7 +29,7 @@ export const MeetingMonitor = {
      */
     async getMeetingsByDate(date) {
         try {
-            const response = await api.get('/schedules', { params: { date } });
+            const response = await api.get('/schedules/public', { params: { date } });
             const rawData = response?.data?.data;
 
             if (!Array.isArray(rawData)) {
@@ -44,7 +44,7 @@ export const MeetingMonitor = {
     },
 
     /**
-     * បំប្លែងទិន្នន័យពី API ឱ្យទៅជាទម្រង់ Standard សម្រាប់ UI (Private-like method)
+     * បំប្លែងទិន្នន័យពី API ឱ្យទៅជាទម្រង់ Standard សម្រាប់ UI
      */
     _normalizeData(rawData) {
         const normalized = rawData.map((item) => {
@@ -56,21 +56,24 @@ export const MeetingMonitor = {
                 startTime: item.start_time ?? '00:00',
                 endTime: item.end_time ?? '--:--',
                 
-                // Data Logic
+                link: item.link ?? null, 
+                hasLink: !!item.link,
+                
+                attachmentUrl: item.attachment_url ?? null,
+                hasAttachment: !!item.attachment_url,
+                
                 participantsRaw: participants,
                 participantsDisplay: participants.length > 0 ? participants.join(', ') : CONFIG.DEFAULTS.NO_DATA,
                 host: participants[0] ?? CONFIG.DEFAULTS.UNKNOWN,
                 
-                // Info Logic
                 location: item.location ?? CONFIG.DEFAULTS.UNKNOWN,
                 room: item.room ?? 'N/A',
                 description: item.description ?? 'មិនមានការពិពណ៌នា',
                 
-                // Style Mapping Logic
-                colorClass: CONFIG.COLORS[item.color_id] ?? CONFIG.COLORS.red,
-                tagClass: CONFIG.TAGS[item.color_id] ?? CONFIG.TAGS.red,
+                color_id: item.color_id,
+                colorClass: CONFIG.COLORS[item.color_id] ?? CONFIG.COLORS.green,
+                tagClass: CONFIG.TAGS[item.color_id] ?? CONFIG.TAGS.green,
                 
-                // Sort Key
                 rawStartTime: item.start_time ?? '00:00'
             };
         });

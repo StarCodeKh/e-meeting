@@ -84,18 +84,26 @@
                             </td>
 
                             <td class="center">
-                                <button class="btn-action" title="ចូលរួម">
-                                <i class="bi bi-camera-video-fill"></i>
-                                </button>
+                                <div class="d-flex gap-2 justify-content-center">
+                                    <a v-if="m.link" :href="m.link" target="_blank" class="btn-action" title="ចូលរួមប្រជុំ">
+                                        <i class="bi bi-camera-video-fill"></i>
+                                    </a>
+
+                                    <a v-if="m.attachmentUrl" :href="m.attachmentUrl" target="_blank" class="btn-action text-danger" title="មើលឯកសារ">
+                                        <i class="bi bi-file-earmark-pdf-fill"></i>
+                                    </a>
+
+                                    <span v-if="!m.link && !m.attachmentUrl" class="text-white-50 small">-</span>
+                                </div>
                             </td>
                         </tr>
                     </tbody>
 
-                <tbody v-else>
-                    <tr>
-                        <td colspan="8" class="center loading khmer-font">កំពុងទាញទិន្នន័យ...</td>
-                    </tr>
-                </tbody>
+                    <tbody v-else>
+                        <tr>
+                            <td colspan="8" class="center loading khmer-font">កំពុងទាញទិន្នន័យ...</td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
         </main>
@@ -161,13 +169,11 @@
     }
 
     // --- ៣. ការទាញទិន្នន័យ (Data Fetching) ---
-
     const fetchMeetingsData = async () => {
         try {
             isLoading.value = true
             const today = new Date().toISOString().split('T')[0]
             
-            // ទាញទិន្នន័យពី Service
             const data = await MeetingMonitor.getMeetingsByDate(today)
             
             meetings.value = (data || []).map(m => {
@@ -179,7 +185,10 @@
                     ...m,
                     status: statusInfo.code,
                     statusText: statusInfo.text,
-                    // បំប្លែងសម្រាប់បង្ហាញលើ UI
+                    
+                    link: m.link, 
+                    attachmentUrl: m.attachmentUrl,
+
                     displayStartTime: toKhmerNumeral(sTime),
                     displayEndTime: eTime !== '--:--' ? toKhmerNumeral(eTime) : '--:--'
                 }
@@ -192,7 +201,6 @@
     }
 
     // --- ៤. Computed Properties ---
-
     const activeMeetingsCount = computed(() => 
         meetings.value.filter(m => m.status === 'active').length
     )

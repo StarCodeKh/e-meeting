@@ -27,6 +27,9 @@ use App\Http\Controllers\Api\ActionController;
         });
     });
 
+    // public link
+    Route::get('schedules/public', [ScheduleController::class, 'schedulesPublic']);
+
     Route::middleware('auth:api')->group(function () {
         // User Management API
         Route::apiResource('users', UserController::class);

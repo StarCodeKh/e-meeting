@@ -19,60 +19,65 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 40px;
+    padding: 1.5rem 2.5rem;
     background: #161b22;
     border-bottom: 5px solid #00f2ff;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
     z-index: 100;
+    transition: all 0.3s ease-in-out;
 }
 
-.header-left { 
-    display: flex; 
-    align-items: center; 
-    gap: 25px; 
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex: 1;
 }
 
 .monitor-logo {
-    height: 100px;
+    height: 80px;
     width: auto;
     object-fit: contain;
-    filter: drop-shadow(0 0 10px rgba(0, 242, 255, 0.2));
+    transition: height 0.3s ease;
 }
 
-.title { 
-    font-size: 28px; 
-    margin: 0; 
-    color: #ffffff; 
+.header-text {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.title {
+    font-size: clamp(1.2rem, 2vw, 1.8rem);
+    color: #ffffff;
     font-weight: 700;
-    line-height: 1.4;
+    margin: 0;
+    line-height: 1.2;
 }
 
-.subtitle { 
-    font-size: 15px; 
-    opacity: 0.8; 
-    margin: 0; 
+.subtitle {
+    font-size: clamp(0.8rem, 1.2vw, 1rem);
     color: #00f2ff;
-    line-height: 1.5;
-    max-width: 800px;
+    opacity: 0.9;
+    margin: 0;
+    line-height: 1.4;
 }
 
 .header-right {
     text-align: right;
+    min-width: fit-content;
 }
 
-.time { 
-    font-size: 60px; 
-    font-weight: 900; 
-    color: #00f2ff; 
+.time {
+    font-size: clamp(2.5rem, 4vw, 3.8rem);
+    font-weight: 900;
     line-height: 1;
     text-shadow: 0 0 15px rgba(0, 242, 255, 0.4);
 }
 
-.date { 
-    opacity: 0.9; 
-    font-size: 18px; 
-    margin-bottom: 5px; 
-    color: #e6edf3;
+.date {
+    font-size: clamp(0.9rem, 1.5vw, 1.2rem);
+    margin-bottom: 4px;
 }
 
 .monitor-content {
@@ -127,6 +132,26 @@
 
 .row-active td { 
     border-bottom: 1px solid rgba(215, 58, 73, 0.3);
+}
+
+.row-upcoming { 
+    background: rgba(241, 196, 15, 0.08) !important; 
+    position: relative;
+}
+
+.row-upcoming td { 
+    border-bottom: 1px solid rgba(241, 196, 15, 0.15);
+}
+
+.row-completed { 
+    background: rgba(149, 165, 166, 0.05) !important; 
+    position: relative;
+    opacity: 0.7;
+    filter: grayscale(0.5);
+}
+
+.row-completed td { 
+    border-bottom: 1px solid rgba(149, 165, 166, 0.1);
 }
 
 .time-wrapper {
@@ -252,3 +277,21 @@
     border-radius: 10px;
 }
 .table-container::-webkit-scrollbar-thumb:hover { background: #00f2ff; }
+
+@media (max-width: 1200px) {
+    .monitor-header { padding: 1rem 1.5rem; }
+    .monitor-logo { height: 60px; }
+}
+
+@media (max-width: 992px) {
+    .monitor-header {
+        flex-direction: row;
+    }
+    .subtitle { display: none; }
+}
+
+@media (max-width: 768px) {
+    .header-left { gap: 10px; }
+    .monitor-logo { height: 50px; }
+    .time { font-size: 2rem; }
+}
