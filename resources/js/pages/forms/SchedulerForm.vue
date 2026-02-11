@@ -113,15 +113,14 @@
                         <div class="mt-3">
                             <label class="khmer-font small text-muted mb-2 d-block">កម្រិតអាទិភាព</label>
                             <div class="color-row-container">
-                                <div v-for="color in COLOR_OPTIONS" :key="color.id" class="color-option" @click="form.color = color.id">
-                                    <div class="color-bubble" :style="{ backgroundColor: color.hex }" :class="{ 'selected': form.color === color.id }">
-                                        <i v-if="form.color === color.id" class="bi bi-check-lg text-white"></i>
+                                <div v-for="color in COLOR_OPTIONS" :key="color.id" class="color-option" @click="form.color_id = color.id">
+                                    <div class="color-bubble" :style="{ backgroundColor: color.hex }" :class="{ 'selected': form.color_id === color.id }">
+                                        <i v-if="form.color_id === color.id" class="bi bi-check-lg text-white"></i>
                                     </div>
                                     <span class="color-text khmer-font">{{ color.label }}</span>
                                 </div>
                             </div>
                         </div>
-
                     </div>
 
                     <div class="modal-footer-custom d-flex justify-content-between mt-5 pt-3 border-top">
@@ -244,8 +243,6 @@
         emit('update:modelValue', false);
     }
 
-
-
     const selectedFileName = ref('')
     const fileError = ref('')
     const selectedFile = ref(null)
@@ -348,8 +345,6 @@
         text-align: center;
     }
 
-
-
     .cursor-pointer {
         cursor: pointer;
     }
@@ -360,10 +355,10 @@
     .icon-gray {
         width: 24px;
         font-size: 1.2rem;
-        color: #adb5bd;
+        color: v-bind(activeTheme); 
     }
     .bi-file-earmark-pdf {
-        color:v-bind(activeTheme); 
+        color: v-bind(activeTheme); 
     }
 
 </style>
