@@ -175,15 +175,6 @@
     text-shadow: 0 0 8px rgba(255, 123, 123, 0.5);
 }
 
-.room-badge {
-    background: #00f2ff;
-    color: #0d1117;
-    padding: 5px 12px;
-    border-radius: 4px;
-    font-weight: 800;
-    font-size: 14px;
-}
-
 .status-badge {
     padding: 4px 12px;
     border-radius: 6px;

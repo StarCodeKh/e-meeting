@@ -77,7 +77,7 @@
                             </td>
 
                             <td class="center">
-                                <span class="room-badge" v-if="m.room">{{ m.room }}</span>
+                                <span class="badge bg-white bg-opacity-25 rounded-2" v-if="m.room">{{ m.room }}</span>
                                 <span v-else>-</span>
                             </td>
 
