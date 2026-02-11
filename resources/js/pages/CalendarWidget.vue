@@ -1,41 +1,48 @@
-
 <template>
     <DashboardLayout>
         <template #header>
             <HeaderBar />
         </template>
-        <div class="row g-3 h-100">
+
+        <div class="row g-3 h-100 position-relative">
+            <div v-if="loading" class="api-loader shadow-sm">
+                <div class="spinner-border text-primary" role="status"></div>
+                <span class="ms-2 khmer-font">កំពុងទាញទិន្នន័យ...</span>
+            </div>
+
             <div class="col-lg-3 d-flex flex-column h-100">
                 <LeftPanel :featuredTime="'7:30'" leaderName="ឯកឧត្តម យើត វីណែល" />
             </div>
 
             <div class="col-lg-9 d-flex flex-column h-100">
-
-                <Timeline :redLineTop="62">
+                
+                <Timeline v-if="currentView !== 'month'" :redLineTop="62">
                     <template #morning>
                         <MeetingCard 
-                        v-for="meeting in morningList" 
-                        :key="meeting.id"
-                        :variant="meeting.color"
-                        :time="meeting.time"
-                        :title="meeting.title"
-                        :desc="meeting.desc"
+                            v-for="meeting in morningList" 
+                            :key="meeting.id"
+                            :variant="meeting.color_id"
+                            :time="meeting.start_time + ' - ' + meeting.end_time"
+                            :title="meeting.title"
+                            :desc="meeting.description"
                         />
+                        <div v-if="morningList.length === 0" class="text-muted small p-3 khmer-font">មិនមានកិច្ចប្រជុំពេលព្រឹក</div>
                     </template>
 
                     <template #afternoon>
                         <MeetingCard 
-                        v-for="meeting in afternoonList" 
-                        :key="meeting.id"
-                        :variant="meeting.color"
-                        :time="meeting.time"
-                        :title="meeting.title"
-                        :desc="meeting.desc"
+                            v-for="meeting in afternoonList" 
+                            :key="meeting.id"
+                            :variant="meeting.color_id"
+                            :time="meeting.start_time + ' - ' + meeting.end_time"
+                            :title="meeting.title"
+                            :desc="meeting.description"
                         />
+                        <div v-if="afternoonList.length === 0" class="text-muted small p-3 khmer-font">មិនមានកិច្ចប្រជុំពេលរសៀល</div>
                     </template>
                 </Timeline>
 
-                <div class="calendar-card card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+                <div class="calendar-card card border-0 shadow-sm rounded-4 overflow-hidden bg-white mt-3">
                     <div class="card-header bg-white border-0 pt-4 px-4">
                         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                             <div>
@@ -44,7 +51,10 @@
                             </div>
 
                             <div class="d-flex gap-1 bg-light p-1 rounded-pill border shadow-none">
-                                <button v-for="v in viewOptions" :key="v.id" class="btn btn-sm rounded-pill px-3 transition-all khmer-font" :class="currentView === v.id ? 'btn-primary shadow-sm text-white' : 'btn-light text-muted border-0'" @click="currentView = v.id">
+                                <button v-for="v in viewOptions" :key="v.id" 
+                                    class="btn btn-sm rounded-pill px-3 transition-all khmer-font" 
+                                    :class="currentView === v.id ? 'btn-primary shadow-sm text-white' : 'btn-light text-muted border-0'" 
+                                    @click="currentView = v.id">
                                     {{ v.label }}
                                 </button>
                             </div>
@@ -57,21 +67,23 @@
                         </div>
                     </div>
 
-                <div class="card-body p-0 mt-3">
-                    <div v-if="currentView === 'month'" class="fade-in">
-                        <div class="calendar-grid bg-light py-2 border-top border-bottom">
-                            <div v-for="day in daysOfWeek" :key="day" class="text-center small fw-bold text-muted khmer-font">
-                                {{ day }}
+                    <div class="card-body p-0 mt-3">
+                        <div v-if="currentView === 'month'" class="fade-in">
+                            <div class="calendar-grid bg-light py-2 border-top border-bottom">
+                                <div v-for="day in daysOfWeek" :key="day" class="text-center small fw-bold text-muted khmer-font">
+                                    {{ day }}
+                                </div>
                             </div>
-                        </div>
-                        <div class="calendar-grid p-2">
-                            <div v-for="n in paddingDays" :key="'p-'+n" class="day-cell empty"></div>
+                            <div class="calendar-grid p-2">
+                                <div v-for="n in paddingDays" :key="'p-'+n" class="day-cell empty"></div>
                                 <div v-for="day in monthDays" :key="day.dateString" class="day-cell" @click="handleDateSelection(day.dateObj)">
                                     <div class="day-number" :class="{ 'today-active': day.isToday, 'selected-active': isSelected(day.dateObj) }">
                                         {{ day.date }}
                                     </div>
                                     <div class="event-indicator-container">
-                                        <span v-for="e in day.events.slice(0, 3)" :key="e.id" class="dot" :class="e.dotColor"></span>
+                                        <span v-for="e in day.events.slice(0, 3)" :key="e.id" 
+                                            class="dot" 
+                                            :style="{ backgroundColor: getColorHex(e.color_id) }"></span>
                                     </div>
                                 </div>
                             </div>
@@ -80,9 +92,9 @@
                         <div v-else class="timeline-container p-4 fade-in overflow-auto" style="max-height: 600px;">
                             <div v-for="slot in timelineData" :key="slot.dateString" class="mb-5">
                                 <div class="d-flex align-items-center gap-3 mb-3">
-                                    <div class="date-icon shadow-sm">
+                                    <div class="date-icon shadow-sm" :class="{ 'bg-primary text-white': slot.dateString === new Date().toISOString().split('T')[0] }">
                                         <div class="month text-uppercase">{{ slot.monthShort }}</div>
-                                        <div class="day">{{ slot.dayNumber }}</div>
+                                        <div class="day fw-bold">{{ slot.dayNumber }}</div>
                                     </div>
                                     <div>
                                         <h6 class="mb-0 fw-bold khmer-font">{{ slot.dayName }}</h6>
@@ -90,16 +102,24 @@
                                     </div>
                                 </div>
 
-                                <div v-if="slot.events.length === 0" class="empty-box khmer-font">
-                                    មិនមានកិច្ចប្រជុំគ្រោងទុកសម្រាប់ថ្ងៃនេះទេ
+                                <div v-if="slot.events.length === 0" class="empty-box khmer-font py-4 text-center border rounded-3 opacity-50">
+                                    <i class="bi bi-calendar-x d-block fs-4 mb-2"></i>
+                                    មិនមានកិច្ចប្រជុំគ្រោងទុកទេ
                                 </div>
 
-                                <div v-for="event in slot.events" :key="event.id" class="event-card mb-3 p-3 border-start border-4 rounded-3 shadow-sm" :class="event.theme">
+                                <div v-for="event in slot.events" :key="event.id" 
+                                    class="event-card mb-3 p-3 border-start border-4 rounded-3 shadow-sm bg-white hover-shadow"
+                                    :style="{ borderLeftColor: getColorHex(event.color_id) }">
                                     <div class="d-flex justify-content-between">
-                                        <div class="small text-muted fw-bold"><i class="bi bi-clock me-1"></i> {{ event.time }}</div>
-                                        <span class="badge bg-white text-dark border rounded-pill">{{ event.locationType }}</span>
+                                        <div class="small text-muted fw-bold">
+                                            <i class="bi bi-clock me-1"></i> {{ event.start_time }} - {{ event.end_time }}
+                                        </div>
+                                        <span class="badge bg-light text-dark border rounded-pill small">
+                                            {{ event.room || event.location || 'មិនកំណត់ទីតាំង' }}
+                                        </span>
                                     </div>
-                                    <h6 class="khmer-font fw-bold mt-2 mb-0">{{ event.title }}</h6>
+                                    <h6 class="khmer-font fw-bold mt-2 mb-1">{{ event.title }}</h6>
+                                    <p v-if="event.description" class="text-muted small mb-0 text-truncate">{{ event.description }}</p>
                                 </div>
                             </div>
                         </div>
@@ -111,228 +131,155 @@
 </template>
 
 <script setup>
-    import { ref, computed } from 'vue'
-    import DashboardLayout from '../components/layouts/DashboardLayout.vue'
-    import HeaderBar from '@/components/HeaderBar.vue'
-    import LeftPanel from '@/components/LeftPanel.vue'
+import { ref, computed, onMounted, watch } from 'vue'
+import DashboardLayout from '../components/layouts/DashboardLayout.vue'
+import HeaderBar from '@/components/HeaderBar.vue'
+import LeftPanel from '@/components/LeftPanel.vue'
+import api from '@/api/axios'
 
-    // --- State Management ---
-    const currentView = ref('month')
-    const referenceDate = ref(new Date())
-    const daysOfWeek = ['អាទិត្យ', 'ចន្ទ', 'អង្គារ', 'ពុធ', 'ព្រហស្បតិ៍', 'សុក្រ', 'សៅរ៍']
-    const viewOptions = [
-        { id: 'today', label: 'ថ្ងៃនេះ' },
-        { id: 'week', label: 'សប្តាហ៍' },
-        { id: 'month', label: 'ខែ' }
-    ]
+// --- State Management ---
+const currentView = ref('month')
+const referenceDate = ref(new Date())
+const events = ref([]) 
+const loading = ref(false)
 
-    // --- Mock API Data ---
-    const mockEvents = [
-        { id: 101, date: new Date().toISOString().split('T')[0], title: 'ប្រជុំក្រុមបច្ចេកទេសប្រចាំសប្តាហ៍', time: '09:00 - 10:30', theme: 'border-primary bg-primary-subtle', dotColor: 'bg-primary', locationType: 'Zoom' },
-        { id: 102, date: new Date().toISOString().split('T')[0], title: 'ពិនិត្យរបាយការណ៍ហិរញ្ញវត្ថុ', time: '14:00 - 15:30', theme: 'border-danger bg-danger-subtle', dotColor: 'bg-danger', locationType: 'Office' }
-    ]
+const daysOfWeek = ['អាទិត្យ', 'ចន្ទ', 'អង្គារ', 'ពុធ', 'ព្រហស្បតិ៍', 'សុក្រ', 'សៅរ៍']
+const viewOptions = [
+    { id: 'today', label: 'ថ្ងៃនេះ' },
+    { id: 'week', label: 'សប្តាហ៍' },
+    { id: 'month', label: 'ខែ' }
+]
 
-    // --- Computed Values ---
-    const viewTitle = computed(() => {
-        return referenceDate.value.toLocaleDateString('km-KH', { month: 'long', year: 'numeric' })
-    })
+// --- Helper: បំប្លែង ID ពណ៌ទៅជា Class ឬ Hex ---
+const getColorHex = (colorId) => {
+    const colors = {
+        red: '#ff6b6b',
+        yellow: '#fcc419',
+        green: '#51cf66',
+        blue: '#3498db'
+    }
+    return colors[colorId] || '#718096'
+}
 
-    const currentRangeLabel = computed(() => {
-        if (currentView.value === 'today') return referenceDate.value.toLocaleDateString('km-KH', { weekday: 'long', day: 'numeric', month: 'long' })
-        return 'តារាងពេលវេលាកិច្ចប្រជុំ'
-    })
-
-    // Logic for Month Grid
-    const paddingDays = computed(() => {
-        const d = new Date(referenceDate.value.getFullYear(), referenceDate.value.getMonth(), 1)
-        return d.getDay()
-    })
-
-    const monthDays = computed(() => {
+// --- API Methods ---
+const fetchEvents = async () => {
+    loading.value = true
+    try {
         const year = referenceDate.value.getFullYear()
-        const month = referenceDate.value.getMonth()
-        const lastDay = new Date(year, month + 1, 0).getDate()
+        const month = referenceDate.value.getMonth() + 1
         
-        return Array.from({ length: lastDay }, (_, i) => {
-            const d = new Date(year, month, i + 1)
-            const dateStr = d.toISOString().split('T')[0]
-            return {
+        const response = await api.get('schedules/calendar', {
+            params: { 
+                month: month.toString().padStart(2, '0'),
+                year: year
+            }
+        })
+        events.value = response.data.data 
+    } catch (error) {
+        console.error("Error fetching schedules:", error)
+    } finally {
+        loading.value = false
+    }
+}
+
+watch([referenceDate, currentView], () => {
+    fetchEvents()
+}, { immediate: true })
+
+// --- Computed: បែងចែកបញ្ជីសម្រាប់ Timeline (Today) ---
+const todayEvents = computed(() => {
+    const selectedDateStr = referenceDate.value.toISOString().split('T')[0]
+    return events.value.filter(e => e.date === selectedDateStr)
+})
+
+const morningList = computed(() => {
+    return todayEvents.value.filter(e => {
+        const hour = parseInt(e.start_time.split(':')[0])
+        return hour < 12 // មុនម៉ោង ១២ ថ្ងៃត្រង់
+    })
+})
+
+const afternoonList = computed(() => {
+    return todayEvents.value.filter(e => {
+        const hour = parseInt(e.start_time.split(':')[0])
+        return hour >= 12 // ចាប់ពីម៉ោង ១២ ថ្ងៃត្រង់
+    })
+})
+
+// --- Computed: រៀបចំទិន្នន័យសម្រាប់ Calendar Grid ---
+const paddingDays = computed(() => {
+    const d = new Date(referenceDate.value.getFullYear(), referenceDate.value.getMonth(), 1)
+    return d.getDay()
+})
+
+const monthDays = computed(() => {
+    const year = referenceDate.value.getFullYear()
+    const month = referenceDate.value.getMonth()
+    const lastDay = new Date(year, month + 1, 0).getDate()
+    
+    return Array.from({ length: lastDay }, (_, i) => {
+        const d = new Date(year, month, i + 1)
+        const dateStr = d.toISOString().split('T')[0]
+        return {
             date: i + 1,
             dateObj: d,
             dateString: dateStr,
             isToday: new Date().toDateString() === d.toDateString(),
-            events: mockEvents.filter(e => e.date === dateStr)
-            }
-        })
+            events: events.value.filter(e => e.date === dateStr)
+        }
     })
+})
 
-    // Logic for Timeline (Today/Week)
-    const timelineData = computed(() => {
+// Logic for Timeline (Week View)
+const timelineData = computed(() => {
     const dates = []
     const tempDate = new Date(referenceDate.value)
     
     const count = currentView.value === 'today' ? 1 : 7
     if (currentView.value === 'week') tempDate.setDate(tempDate.getDate() - tempDate.getDay())
 
-        for (let i = 0; i < count; i++) {
-            const d = new Date(tempDate)
-            d.setDate(d.getDate() + i)
-            const dateStr = d.toISOString().split('T')[0]
-            dates.push({
+    for (let i = 0; i < count; i++) {
+        const d = new Date(tempDate)
+        d.setDate(d.getDate() + i)
+        const dateStr = d.toISOString().split('T')[0]
+        dates.push({
             dateString: dateStr,
             dayNumber: d.getDate(),
             dayName: daysOfWeek[d.getDay()],
             monthShort: d.toLocaleDateString('en-US', { month: 'short' }),
-            events: mockEvents.filter(e => e.date === dateStr)
-            })
-        }
-        return dates
-    })
+            events: events.value.filter(e => e.date === dateStr)
+        })
+    }
+    return dates
+})
 
-    // --- Methods ---
-    const navigate = (step) => {
+const viewTitle = computed(() => {
+    return referenceDate.value.toLocaleDateString('km-KH', { month: 'long', year: 'numeric' })
+})
+
+const currentRangeLabel = computed(() => {
+    if (currentView.value === 'today') return referenceDate.value.toLocaleDateString('km-KH', { weekday: 'long', day: 'numeric', month: 'long' })
+    return 'តារាងពេលវេលាកិច្ចប្រជុំ'
+})
+
+// --- Methods ---
+const navigate = (step) => {
     const d = new Date(referenceDate.value)
-        if (currentView.value === 'month') d.setMonth(d.getMonth() + step)
-        else if (currentView.value === 'week') d.setDate(d.getDate() + (step * 7))
-        else d.setDate(d.getDate() + step)
-        referenceDate.value = d
-    }
+    if (currentView.value === 'month') d.setMonth(d.getMonth() + step)
+    else if (currentView.value === 'week') d.setDate(d.getDate() + (step * 7))
+    else d.setDate(d.getDate() + step)
+    referenceDate.value = d
+}
 
-    const handleDateSelection = (date) => {
-        referenceDate.value = date
-        currentView.value = 'today' // Standard UX: Jump to day details on click
-    }
+const handleDateSelection = (date) => {
+    referenceDate.value = date
+    currentView.value = 'today'
+}
 
-    const goToToday = () => {
-        referenceDate.value = new Date()
-    }
-
-    const isSelected = (date) => referenceDate.value.toDateString() === date.toDateString()
+const goToToday = () => { referenceDate.value = new Date() }
+const isSelected = (date) => referenceDate.value.toDateString() === date.toDateString()
 </script>
 
 <style scoped>
-    @import url('../assets/css/style.css');
-    /* Grid Layout */
-    .calendar-grid {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-    }
-
-    .day-cell {
-        aspect-ratio: 1/1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-        cursor: pointer;
-        border-radius: 12px;
-    }
-
-    .day-cell:hover:not(.empty) {
-        background-color: #f1f5f9;
-    }
-
-    .day-number {
-        width: 34px;
-        height: 34px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        transition: 0.3s;
-    }
-
-    .today-active {
-        background: #3498db;
-        color: white !important;
-        font-weight: bold;
-        box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
-    }
-
-    .selected-active:not(.today-active) {
-        border: 2px solid #3498db;
-        color: #3498db;
-    }
-
-    /* Timeline UI */
-    .date-icon {
-        width: 50px;
-        border-radius: 10px;
-        overflow: hidden;
-        border: 1px solid #eee;
-        text-align: center;
-        background: white;
-    }
-
-    .date-icon .month {
-        background: #e76f51;
-        color: white;
-        font-size: 0.65rem;
-        font-weight: bold;
-        padding: 2px 0;
-    }
-
-    .date-icon .day {
-        font-size: 1.2rem;
-        font-weight: bold;
-        color: #333;
-    }
-
-    .empty-box {
-        padding: 20px;
-        text-align: center;
-        border: 2px dashed #eee;
-        border-radius: 12px;
-        color: #999;
-        font-size: 0.85rem;
-    }
-
-    /* Mini Indicators */
-    .event-indicator-container {
-        display: flex;
-        gap: 3px;
-        position: absolute;
-        bottom: 8px;
-    }
-
-    .dot {
-        width: 5px;
-        height: 5px;
-        border-radius: 50%;
-    }
-
-    /* Navigation Buttons */
-    .nav-square-btn {
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: white;
-        border-radius: 12px;
-        cursor: pointer;
-        transition: 0.2s;
-    }
-
-    .nav-square-btn:hover {
-        background: #f8fafc;
-        color: #3498db;
-        transform: translateY(-1px);
-    }
-
-    .fade-in {
-        animation: fadeIn 0.3s ease;
-    }
-
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
+    @import url('../css/calendar.css');
 </style>

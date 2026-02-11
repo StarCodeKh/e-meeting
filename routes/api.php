@@ -34,6 +34,7 @@ use App\Http\Controllers\Api\ActionController;
         // User Management API
         Route::apiResource('users', UserController::class);
         // Schedule API
+        Route::get('schedules/calendar', [ScheduleController::class, 'calendarShow']);
         Route::apiResource('schedules', ScheduleController::class);
 
         // Roles

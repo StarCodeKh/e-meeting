@@ -56,6 +56,23 @@ class ScheduleController extends Controller
         }
     }
 
+    public function calendarShow(Request $request)
+    {
+        $month = $request->query('month', date('m'));
+        $year = $request->query('year', date('Y'));
+
+        $schedules = Schedule::whereYear('date', $year)
+            ->whereMonth('date', $month)
+            // ->with('participants')
+            ->orderBy('date', 'asc')
+            ->orderBy('start_time', 'asc')
+            ->get();
+        return response()->json([
+            'status' => 'success',
+            'data' => $schedules
+        ]);
+    }
+
     // ២. រក្សាទុកទិន្នន័យថ្មី (Store)
     public function store(ScheduleRequest $request)
     {

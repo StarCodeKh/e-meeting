@@ -1,0 +1,124 @@
+@import url('../assets/css/style.css');
+    /* Grid Layout */
+    .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+    }
+
+    .day-cell {
+        aspect-ratio: 1/1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        cursor: pointer;
+        border-radius: 12px;
+    }
+
+    .day-cell:hover:not(.empty) {
+        background-color: #f1f5f9;
+    }
+
+    .day-number {
+        width: 34px;
+        height: 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: 0.3s;
+    }
+
+    .today-active {
+        background: #3498db;
+        color: white !important;
+        font-weight: bold;
+        box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+    }
+
+    .selected-active:not(.today-active) {
+        border: 2px solid #3498db;
+        color: #3498db;
+    }
+
+    /* Timeline UI */
+    .date-icon {
+        width: 50px;
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid #eee;
+        text-align: center;
+        background: white;
+    }
+
+    .date-icon .month {
+        background: #e76f51;
+        color: white;
+        font-size: 0.65rem;
+        font-weight: bold;
+        padding: 2px 0;
+    }
+
+    .date-icon .day {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .empty-box {
+        padding: 20px;
+        text-align: center;
+        border: 2px dashed #eee;
+        border-radius: 12px;
+        color: #999;
+        font-size: 0.85rem;
+    }
+
+    /* Mini Indicators */
+    .event-indicator-container {
+        display: flex;
+        gap: 3px;
+        position: absolute;
+        bottom: 8px;
+    }
+
+    .dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+    }
+
+    /* Navigation Buttons */
+    .nav-square-btn {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: white;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .nav-square-btn:hover {
+        background: #f8fafc;
+        color: #3498db;
+        transform: translateY(-1px);
+    }
+
+    .fade-in {
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }

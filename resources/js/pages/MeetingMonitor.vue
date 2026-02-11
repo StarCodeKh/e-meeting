@@ -47,22 +47,27 @@
                                     <i class="bi bi-person-badge text-warning fs-6"></i>
                                     <span class="text-warning-50">ដឹកនាំដោយ៖</span>
                                     <span :class="['fw-bold fs-6', m.status === 'active' ? 'text-success' : 'text-info']">
-                                        {{ m.host }}
+                                        {{ m.participantsDisplay }}
                                     </span>
                                 </div>
                             </td>
 
-                            <td class="center tabular-nums fw-bold">
+                            <td class="center tabular-nums">
                                 <div class="time-wrapper">
                                     <i class="bi bi-clock icon-sm"></i>
-                                    <span>{{ m.startTime }}</span>
+                                    <span class="fw-bold">{{ m.startTime }}</span>
+                                    <span class="badge bg-white bg-opacity-10 rounded-2 fw-normal px-2 py-1 small khmer-font">
+                                        {{ parseInt(m.startTime) < 12 ? 'ព្រឹក' : 'រសៀល' }}
+                                    </span>
                                 </div>
                             </td>
-
-                            <td class="center tabular-nums fw-bold">
+                            <td class="center tabular-nums">
                                 <div class="time-wrapper">
                                     <i class="bi bi-clock icon-sm"></i>
-                                    <span>{{ m.endTime }}</span>
+                                    <span class="fw-bold">{{ m.endTime }}</span>
+                                    <span class="badge bg-white bg-opacity-10 rounded-2 fw-normal px-2 py-1 small khmer-font">
+                                        {{ parseInt(m.endTime) < 12 ? 'ព្រឹក' : 'រសៀល' }}
+                                    </span>
                                 </div>
                             </td>
 
@@ -215,7 +220,6 @@
     })
 
     // --- ៥. ពេលវេលា និង Lifecycle ---
-
     const updateTime = () => {
         const now = new Date()
         const days = ['ថ្ងៃអាទិត្យ', 'ថ្ងៃច័ន្ទ', 'ថ្ងៃអង្គារ', 'ថ្ងៃពុធ', 'ថ្ងៃព្រហស្បតិ៍', 'ថ្ងៃសុក្រ', 'ថ្ងៃសៅរ៍']
@@ -243,8 +247,6 @@
     onMounted(() => {
         updateTime()
         fetchMeetingsData()
-        
-        // Update ម៉ោងរាល់វិនាទី និង Refresh Data រាល់នាទី
         timer = setInterval(() => {
             updateTime()
             if (new Date().getSeconds() === 0) {
