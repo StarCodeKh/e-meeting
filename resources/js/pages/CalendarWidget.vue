@@ -1,48 +1,41 @@
+
 <template>
     <DashboardLayout>
         <template #header>
             <HeaderBar />
         </template>
-
-        <div class="row g-3 h-100 position-relative">
-            <div v-if="loading" class="api-loader shadow-sm">
-                <div class="spinner-border text-primary" role="status"></div>
-                <span class="ms-2 khmer-font">កំពុងទាញទិន្នន័យ...</span>
-            </div>
-
+        <div class="row g-3 h-100">
             <div class="col-lg-3 d-flex flex-column h-100">
                 <LeftPanel :featuredTime="'7:30'" leaderName="ឯកឧត្តម យើត វីណែល" />
             </div>
 
             <div class="col-lg-9 d-flex flex-column h-100">
-                
-                <Timeline v-if="currentView !== 'month'" :redLineTop="62">
+
+                <Timeline :redLineTop="62">
                     <template #morning>
                         <MeetingCard 
-                            v-for="meeting in morningList" 
-                            :key="meeting.id"
-                            :variant="meeting.color_id"
-                            :time="meeting.start_time + ' - ' + meeting.end_time"
-                            :title="meeting.title"
-                            :desc="meeting.description"
+                        v-for="meeting in morningList" 
+                        :key="meeting.id"
+                        :variant="meeting.color"
+                        :time="meeting.time"
+                        :title="meeting.title"
+                        :desc="meeting.desc"
                         />
-                        <div v-if="morningList.length === 0" class="text-muted small p-3 khmer-font">មិនមានកិច្ចប្រជុំពេលព្រឹក</div>
                     </template>
 
                     <template #afternoon>
                         <MeetingCard 
-                            v-for="meeting in afternoonList" 
-                            :key="meeting.id"
-                            :variant="meeting.color_id"
-                            :time="meeting.start_time + ' - ' + meeting.end_time"
-                            :title="meeting.title"
-                            :desc="meeting.description"
+                        v-for="meeting in afternoonList" 
+                        :key="meeting.id"
+                        :variant="meeting.color"
+                        :time="meeting.time"
+                        :title="meeting.title"
+                        :desc="meeting.desc"
                         />
-                        <div v-if="afternoonList.length === 0" class="text-muted small p-3 khmer-font">មិនមានកិច្ចប្រជុំពេលរសៀល</div>
                     </template>
                 </Timeline>
 
-                <div class="calendar-card card border-0 shadow-sm rounded-4 overflow-hidden bg-white mt-3">
+                <div class="calendar-card card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
                     <div class="card-header bg-white border-0 pt-4 px-4">
                         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                             <div>
@@ -51,10 +44,7 @@
                             </div>
 
                             <div class="d-flex gap-1 bg-light p-1 rounded-pill border shadow-none">
-                                <button v-for="v in viewOptions" :key="v.id" 
-                                    class="btn btn-sm rounded-pill px-3 transition-all khmer-font" 
-                                    :class="currentView === v.id ? 'btn-primary shadow-sm text-white' : 'btn-light text-muted border-0'" 
-                                    @click="currentView = v.id">
+                                <button v-for="v in viewOptions" :key="v.id" class="btn btn-sm rounded-pill px-3 transition-all khmer-font" :class="currentView === v.id ? 'btn-primary shadow-sm text-white' : 'btn-light text-muted border-0'" @click="currentView = v.id">
                                     {{ v.label }}
                                 </button>
                             </div>
@@ -77,13 +67,11 @@
                             <div class="calendar-grid p-2">
                                 <div v-for="n in paddingDays" :key="'p-'+n" class="day-cell empty"></div>
                                 <div v-for="day in monthDays" :key="day.dateString" class="day-cell" @click="handleDateSelection(day.dateObj)">
-                                    <div class="day-number" :class="{ 'today-active': day.isToday, 'selected-active': isSelected(day.dateObj) }">
+                                    <div class="day-number fw-bold" :class="{ 'today-active': day.isToday, 'selected-active': isSelected(day.dateObj) }">
                                         {{ day.date }}
                                     </div>
                                     <div class="event-indicator-container">
-                                        <span v-for="e in day.events.slice(0, 3)" :key="e.id" 
-                                            class="dot" 
-                                            :style="{ backgroundColor: getColorHex(e.color_id) }"></span>
+                                        <span v-for="e in day.events.slice(0, 3)" :key="e.id" class="dot" :class="e.dotColor"></span>
                                     </div>
                                 </div>
                             </div>
@@ -92,9 +80,9 @@
                         <div v-else class="timeline-container p-4 fade-in overflow-auto" style="max-height: 600px;">
                             <div v-for="slot in timelineData" :key="slot.dateString" class="mb-5">
                                 <div class="d-flex align-items-center gap-3 mb-3">
-                                    <div class="date-icon shadow-sm" :class="{ 'bg-primary text-white': slot.dateString === new Date().toISOString().split('T')[0] }">
+                                    <div class="date-icon shadow-sm">
                                         <div class="month text-uppercase">{{ slot.monthShort }}</div>
-                                        <div class="day fw-bold">{{ slot.dayNumber }}</div>
+                                        <div class="day">{{ slot.dayNumber }}</div>
                                     </div>
                                     <div>
                                         <h6 class="mb-0 fw-bold khmer-font">{{ slot.dayName }}</h6>
@@ -102,24 +90,19 @@
                                     </div>
                                 </div>
 
-                                <div v-if="slot.events.length === 0" class="empty-box khmer-font py-4 text-center border rounded-3 opacity-50">
-                                    <i class="bi bi-calendar-x d-block fs-4 mb-2"></i>
-                                    មិនមានកិច្ចប្រជុំគ្រោងទុកទេ
+                                <div v-if="slot.events.length === 0" class="empty-box khmer-font">
+                                    មិនមានកិច្ចប្រជុំគ្រោងទុកសម្រាប់ថ្ងៃនេះទេ
                                 </div>
 
-                                <div v-for="event in slot.events" :key="event.id" 
-                                    class="event-card mb-3 p-3 border-start border-4 rounded-3 shadow-sm bg-white hover-shadow"
-                                    :style="{ borderLeftColor: getColorHex(event.color_id) }">
+                                <div v-for="event in slot.events" :key="event.id" class="event-card mb-3 p-3 border-start border-4 rounded-3 shadow-sm" :class="event.theme">
                                     <div class="d-flex justify-content-between">
-                                        <div class="small text-muted fw-bold">
-                                            <i class="bi bi-clock me-1"></i> {{ event.start_time }} - {{ event.end_time }}
-                                        </div>
-                                        <span class="badge bg-light text-dark border rounded-pill small">
-                                            {{ event.room || event.location || 'មិនកំណត់ទីតាំង' }}
-                                        </span>
+                                        <div class="small text-muted fw-bold"><i class="bi bi-clock me-1"></i> {{ event.time }}</div>
+                                        <a v-if="event.link" :href="event.link" target="_blank" rel="noopener noreferrer" class="btn btn-light d-flex align-items-center justify-content-center border shadow-sm p-0" style="width: 38px; height: 38px;" title="ចូលរួមប្រជុំ">
+                                            <i class="bi bi-camera-video-fill fs-5 lh-1"></i>
+                                        </a>
+                                        <span v-else class="text-muted small">---</span>
                                     </div>
-                                    <h6 class="khmer-font fw-bold mt-2 mb-1">{{ event.title }}</h6>
-                                    <p v-if="event.description" class="text-muted small mb-0 text-truncate">{{ event.description }}</p>
+                                    <h6 class="khmer-font fw-bold mt-2 mb-0">{{ event.title }}</h6>
                                 </div>
                             </div>
                         </div>
@@ -131,153 +114,132 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
-import DashboardLayout from '../components/layouts/DashboardLayout.vue'
-import HeaderBar from '@/components/HeaderBar.vue'
-import LeftPanel from '@/components/LeftPanel.vue'
-import api from '@/api/axios'
+    import { ref, computed, onMounted, watch } from 'vue'
+    import DashboardLayout from '../components/layouts/DashboardLayout.vue'
+    import HeaderBar from '@/components/HeaderBar.vue'
+    import LeftPanel from '@/components/LeftPanel.vue'
+    import { MeetingServices } from '@/services/MeetingServices'
 
-// --- State Management ---
-const currentView = ref('month')
-const referenceDate = ref(new Date())
-const events = ref([]) 
-const loading = ref(false)
+    // --- State Management ---
+    const currentView = ref('month')
+    const referenceDate = ref(new Date())
+    const meetings = ref([])
+    const isLoading = ref(false)
 
-const daysOfWeek = ['អាទិត្យ', 'ចន្ទ', 'អង្គារ', 'ពុធ', 'ព្រហស្បតិ៍', 'សុក្រ', 'សៅរ៍']
-const viewOptions = [
-    { id: 'today', label: 'ថ្ងៃនេះ' },
-    { id: 'week', label: 'សប្តាហ៍' },
-    { id: 'month', label: 'ខែ' }
-]
+    const daysOfWeek = ['អាទិត្យ', 'ចន្ទ', 'អង្គារ', 'ពុធ', 'ព្រហស្បតិ៍', 'សុក្រ', 'សៅរ៍']
+    const viewOptions = [
+        { id: 'today', label: 'ថ្ងៃនេះ' },
+        { id: 'week', label: 'សប្តាហ៍' },
+        { id: 'month', label: 'ខែ' }
+    ]
 
-// --- Helper: បំប្លែង ID ពណ៌ទៅជា Class ឬ Hex ---
-const getColorHex = (colorId) => {
-    const colors = {
-        red: '#ff6b6b',
-        yellow: '#fcc419',
-        green: '#51cf66',
-        blue: '#3498db'
+    // --- មុខងារទាញទិន្នន័យ (Dynamic Mapping) ---
+    const fetchMeetingsData = async () => {
+        try {
+            isLoading.value = true
+            const dateStr = referenceDate.value.toISOString().split('T')[0]
+            const data = await MeetingServices.getMeetingsByDate(dateStr)
+            
+            meetings.value = data.map(m => {
+                const themeMap = {
+                    'bg-success': 'border-success bg-success-subtle',
+                    'bg-coral':   'border-danger bg-danger-subtle',
+                    'bg-orange':  'border-warning bg-warning-subtle'
+                }
+                return {
+                    ...m,
+                    date: m.date || dateStr, 
+                    theme: themeMap[m.colorClass] || 'border-primary bg-primary-subtle',
+                    dotColor: m.colorClass
+                }
+            })
+        } catch (error) {
+            console.error("❌ Component Fetch Error:", error)
+        } finally {
+            isLoading.value = false
+        }
     }
-    return colors[colorId] || '#718096'
-}
 
-// --- API Methods ---
-const fetchEvents = async () => {
-    loading.value = true
-    try {
+    onMounted(fetchMeetingsData)
+    watch(referenceDate, fetchMeetingsData)
+
+    // --- Computed Values ---
+    const viewTitle = computed(() => {
+        return referenceDate.value.toLocaleDateString('km-KH', { month: 'long', year: 'numeric' })
+    })
+
+    const currentRangeLabel = computed(() => {
+        if (currentView.value === 'today') return referenceDate.value.toLocaleDateString('km-KH', { weekday: 'long', day: 'numeric', month: 'long' })
+        return 'តារាងពេលវេលាកិច្ចប្រជុំ'
+    })
+
+    const paddingDays = computed(() => {
+        const d = new Date(referenceDate.value.getFullYear(), referenceDate.value.getMonth(), 1)
+        return d.getDay()
+    })
+
+    // រៀបចំថ្ងៃក្នុងខែ
+    const monthDays = computed(() => {
         const year = referenceDate.value.getFullYear()
-        const month = referenceDate.value.getMonth() + 1
+        const month = referenceDate.value.getMonth()
+        const lastDay = new Date(year, month + 1, 0).getDate()
         
-        const response = await api.get('schedules/calendar', {
-            params: { 
-                month: month.toString().padStart(2, '0'),
-                year: year
+        return Array.from({ length: lastDay }, (_, i) => {
+            const d = new Date(year, month, i + 1)
+            const dateStr = d.toLocaleDateString('en-CA')
+            return {
+                date: i + 1,
+                dateObj: d,
+                dateString: dateStr,
+                isToday: new Date().toDateString() === d.toDateString(),
+                events: meetings.value.filter(e => e.date === dateStr) 
             }
         })
-        events.value = response.data.data 
-    } catch (error) {
-        console.error("Error fetching schedules:", error)
-    } finally {
-        loading.value = false
-    }
-}
-
-watch([referenceDate, currentView], () => {
-    fetchEvents()
-}, { immediate: true })
-
-// --- Computed: បែងចែកបញ្ជីសម្រាប់ Timeline (Today) ---
-const todayEvents = computed(() => {
-    const selectedDateStr = referenceDate.value.toISOString().split('T')[0]
-    return events.value.filter(e => e.date === selectedDateStr)
-})
-
-const morningList = computed(() => {
-    return todayEvents.value.filter(e => {
-        const hour = parseInt(e.start_time.split(':')[0])
-        return hour < 12 // មុនម៉ោង ១២ ថ្ងៃត្រង់
     })
-})
 
-const afternoonList = computed(() => {
-    return todayEvents.value.filter(e => {
-        const hour = parseInt(e.start_time.split(':')[0])
-        return hour >= 12 // ចាប់ពីម៉ោង ១២ ថ្ងៃត្រង់
-    })
-})
+    // រៀបចំទិន្នន័យសម្រាប់ Timeline (Today/Week)
+    const timelineData = computed(() => {
+        const dates = []
+        const tempDate = new Date(referenceDate.value)
+        const count = currentView.value === 'today' ? 1 : 7
+        
+        // បើជា Week View ត្រូវថយទៅរកថ្ងៃអាទិត្យដើមសប្តាហ៍
+        if (currentView.value === 'week') tempDate.setDate(tempDate.getDate() - tempDate.getDay())
 
-// --- Computed: រៀបចំទិន្នន័យសម្រាប់ Calendar Grid ---
-const paddingDays = computed(() => {
-    const d = new Date(referenceDate.value.getFullYear(), referenceDate.value.getMonth(), 1)
-    return d.getDay()
-})
-
-const monthDays = computed(() => {
-    const year = referenceDate.value.getFullYear()
-    const month = referenceDate.value.getMonth()
-    const lastDay = new Date(year, month + 1, 0).getDate()
-    
-    return Array.from({ length: lastDay }, (_, i) => {
-        const d = new Date(year, month, i + 1)
-        const dateStr = d.toISOString().split('T')[0]
-        return {
-            date: i + 1,
-            dateObj: d,
-            dateString: dateStr,
-            isToday: new Date().toDateString() === d.toDateString(),
-            events: events.value.filter(e => e.date === dateStr)
+        for (let i = 0; i < count; i++) {
+            const d = new Date(tempDate)
+            d.setDate(d.getDate() + i)
+            const dateStr = d.toLocaleDateString('en-CA')
+            dates.push({
+                dateString: dateStr,
+                dayNumber: d.getDate(),
+                dayName: daysOfWeek[d.getDay()],
+                monthShort: d.toLocaleDateString('en-US', { month: 'short' }),
+                events: meetings.value.filter(e => e.date === dateStr)
+            })
         }
+        return dates
     })
-})
 
-// Logic for Timeline (Week View)
-const timelineData = computed(() => {
-    const dates = []
-    const tempDate = new Date(referenceDate.value)
-    
-    const count = currentView.value === 'today' ? 1 : 7
-    if (currentView.value === 'week') tempDate.setDate(tempDate.getDate() - tempDate.getDay())
-
-    for (let i = 0; i < count; i++) {
-        const d = new Date(tempDate)
-        d.setDate(d.getDate() + i)
-        const dateStr = d.toISOString().split('T')[0]
-        dates.push({
-            dateString: dateStr,
-            dayNumber: d.getDate(),
-            dayName: daysOfWeek[d.getDay()],
-            monthShort: d.toLocaleDateString('en-US', { month: 'short' }),
-            events: events.value.filter(e => e.date === dateStr)
-        })
+    // --- Navigation Methods ---
+    const navigate = (step) => {
+        const d = new Date(referenceDate.value)
+        if (currentView.value === 'month') d.setMonth(d.getMonth() + step)
+        else if (currentView.value === 'week') d.setDate(d.getDate() + (step * 7))
+        else d.setDate(d.getDate() + step)
+        referenceDate.value = d
     }
-    return dates
-})
 
-const viewTitle = computed(() => {
-    return referenceDate.value.toLocaleDateString('km-KH', { month: 'long', year: 'numeric' })
-})
+    const handleDateSelection = (date) => {
+        referenceDate.value = date
+        currentView.value = 'today'
+    }
 
-const currentRangeLabel = computed(() => {
-    if (currentView.value === 'today') return referenceDate.value.toLocaleDateString('km-KH', { weekday: 'long', day: 'numeric', month: 'long' })
-    return 'តារាងពេលវេលាកិច្ចប្រជុំ'
-})
+    const goToToday = () => {
+        referenceDate.value = new Date()
+    }
 
-// --- Methods ---
-const navigate = (step) => {
-    const d = new Date(referenceDate.value)
-    if (currentView.value === 'month') d.setMonth(d.getMonth() + step)
-    else if (currentView.value === 'week') d.setDate(d.getDate() + (step * 7))
-    else d.setDate(d.getDate() + step)
-    referenceDate.value = d
-}
-
-const handleDateSelection = (date) => {
-    referenceDate.value = date
-    currentView.value = 'today'
-}
-
-const goToToday = () => { referenceDate.value = new Date() }
-const isSelected = (date) => referenceDate.value.toDateString() === date.toDateString()
+    const isSelected = (date) => referenceDate.value.toDateString() === date.toDateString()
 </script>
 
 <style scoped>
