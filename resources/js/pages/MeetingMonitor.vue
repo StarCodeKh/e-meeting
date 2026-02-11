@@ -85,15 +85,19 @@
 
                             <td class="center">
                                 <div class="d-flex gap-2 justify-content-center">
-                                    <a v-if="m.link" :href="m.link" target="_blank" class="btn-action" title="ចូលរួមប្រជុំ">
+                                    <a v-if="m.link && m.status !== 'completed'" :href="m.link" target="_blank" rel="noopener noreferrer" class="btn-action" title="ចូលរួមប្រជុំ" @click.stop>
                                         <i class="bi bi-camera-video-fill"></i>
                                     </a>
 
-                                    <a v-if="m.attachmentUrl" :href="m.attachmentUrl" target="_blank" class="btn-action text-danger" title="មើលឯកសារ">
+                                    <a v-if="m.attachmentUrl" :href="m.attachmentUrl" target="_blank" rel="noopener noreferrer" class="btn-action text-danger" title="មើលឯកសារ" @click.stop>
                                         <i class="bi bi-file-earmark-pdf-fill"></i>
                                     </a>
 
-                                    <span v-if="!m.link && !m.attachmentUrl" class="text-white-50 small">-</span>
+                                    <span v-if="(!m.link && !m.attachmentUrl) || (m.status === 'completed' && !m.attachmentUrl)" class="text-white-50 small">
+                                        <a class="btn-action">
+                                            <i class="bi bi-camera-video-off"></i>
+                                        </a>
+                                    </span>
                                 </div>
                             </td>
                         </tr>

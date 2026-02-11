@@ -59,8 +59,8 @@ export const MeetingMonitor = {
                 link: item.link ?? null, 
                 hasLink: !!item.link,
                 
-                attachmentUrl: item.attachment_url ?? null,
-                hasAttachment: !!item.attachment_url,
+                attachmentUrl: item.attachment ?? null,
+                hasAttachment: !!item.attachment,
                 
                 participantsRaw: participants,
                 participantsDisplay: participants.length > 0 ? participants.join(', ') : CONFIG.DEFAULTS.NO_DATA,
