@@ -325,28 +325,6 @@
             loading.value = false;
         }
     }
-        
-    // const handleSave = async () => {
-    //     loading.value = true;
-    //     try {
-    //         const payload = {
-    //             ...form,
-    //             date: form.date instanceof Date ? form.date.toISOString().split('T')[0] : form.date,
-    //         };
-
-    //         await api.post('/schedules', payload);
-    //         alertStore.show('រក្សាទុកជោគជ័យ', 'success');
-    //         emit('refresh');
-    //         closeModal();
-    //         // Reset state
-    //         Object.assign(form, getInitialForm());
-    //         selectedUsers.value = [];
-    //     } catch (err) {
-    //         alertStore.show('បរាជ័យក្នុងការរក្សាទុក', 'error');
-    //     } finally {
-    //         loading.value = false;
-    //     }
-    // }
 </script>
 
 <style scoped>

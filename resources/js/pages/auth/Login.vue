@@ -3,9 +3,6 @@
         <div class="login-wrapper">
             <form class="login-card shadow" @submit.prevent="handleLogin">
                 <div class="card-header text-center mb-4">
-                    <!-- <div class="logo-squircle mb-3">
-                        <i class="bi bi-shield-lock-fill"></i>
-                    </div> -->
                     <div class="logo-squircle mb-3">
                         <img :src="logo" alt="Logo" class="logo-img">
                     </div>
@@ -149,14 +146,7 @@
 </script>
 
 <style scoped>
-    /* 1. Use swap for better performance and local fallbacks */
-    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@400;700&display=swap');
-
-    .khmer-font {
-        font-family: 'Noto Sans Khmer', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        -webkit-font-smoothing: antialiased; /* Smoother Khmer text */
-        -moz-osx-font-smoothing: grayscale;
-    }
+    @import url('@/assets/css/style.css');
 
     .login-page {
         min-height: 100vh;
