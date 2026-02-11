@@ -6,25 +6,35 @@
                     <i class="bi bi-list fs-5"></i>
                 </div>
                 <div class="d-flex align-items-center gap-2 ms-md-2">
-                    <button class="nav-square-btn shadow-sm border-0 text-coral" @click="$router.back()">
+                    <button class="nav-square-btn shadow-sm border-0 text-coral" @click="router.back()">
                         <i class="bi bi-arrow-left"></i>
                     </button>
-                    <button class="nav-square-btn shadow-sm border-0 text-sky" @click="$router.forward()">
+                    <button class="nav-square-btn shadow-sm border-0 text-sky" @click="router.forward()">
                         <i class="bi bi-arrow-right"></i>
                     </button>
                 </div>
             </div>
 
             <div class="d-flex align-items-center gap-2 bg-white-capsule p-1 shadow-sm">
-                <router-link 
-                    v-for="tab in navigationTabs" 
-                    :key="tab.id"
-                    :to="tab.path"
-                    class="nav-tab-box text-decoration-none"
-                    active-class="active-capsule"
-                >
-                    <i class="bi" :class="tab.icon"></i>
-                </router-link>
+                <template v-for="tab in navigationTabs" :key="tab.id">
+                    <a v-if="tab.external" 
+                       :href="tab.path" 
+                       target="_blank" 
+                       rel="noopener noreferrer"
+                       class="nav-tab-box text-decoration-none"
+                       :class="{ 'active-capsule': route.path === tab.path }"
+                    >
+                        <i class="bi" :class="tab.icon"></i>
+                    </a>
+
+                    <router-link v-else
+                        :to="tab.path"
+                        class="nav-tab-box text-decoration-none"
+                        active-class="active-capsule"
+                    >
+                        <i class="bi" :class="tab.icon"></i>
+                    </router-link>
+                </template>
             </div>
 
             <div class="d-flex align-items-center gap-2">
@@ -44,7 +54,10 @@
                 </router-link>
 
                 <div class="position-relative">
-                    <div class="nav-square-btn shadow-sm" :class="{ 'active-nav-btn': isDropdownOpen }" @click="isDropdownOpen = !isDropdownOpen" role="button">
+                    <div class="nav-square-btn shadow-sm" 
+                         :class="{ 'active-nav-btn': isDropdownOpen }" 
+                         @click="isDropdownOpen = !isDropdownOpen" 
+                         role="button">
                         <i class="bi bi-person-fill"></i>
                     </div>
 
@@ -52,7 +65,7 @@
                         <ul v-if="isDropdownOpen" class="custom-dropdown-menu shadow border-0 rounded-4 p-2 show">
                             <li class="px-3 py-2 border-bottom mb-1 text-center">
                                 <div class="fw-bold text-dark khmer-font lh-1">{{ user.name }}</div>
-                                <small class="text-muted">Administrator</small>
+                                <small class="text-muted">{{ user.role }}</small>
                             </li>
                             <li>
                                 <router-link to="/settings" class="dropdown-item rounded-3 khmer-font py-2" @click="isDropdownOpen = false">
@@ -60,7 +73,9 @@
                                 </router-link>
                             </li>
                             <li>
-                                <a class="dropdown-item rounded-3 text-danger khmer-font py-2 d-flex align-items-center" @click.prevent="handleLogout">
+                                <a class="dropdown-item rounded-3 text-danger khmer-font py-2 d-flex align-items-center" 
+                                   @click.prevent="handleLogout" 
+                                   style="cursor: pointer;">
                                     <span v-if="isLoggingOut" class="spinner-border spinner-border-sm me-2"></span>
                                     <i v-else class="bi bi-box-arrow-right me-2"></i>
                                     <span>ចាកចេញ</span>
@@ -78,7 +93,7 @@
 </template>
 
 <script setup>
-    import { ref, reactive, computed } from 'vue'
+    import { ref, reactive } from 'vue'
     import { useRouter, useRoute } from 'vue-router'
     import CreateEventModal from '../pages/forms/SchedulerForm.vue'
 
@@ -91,32 +106,32 @@
     const isDropdownOpen = ref(false)
     const isLoggingOut = ref(false)
 
-    // 3. Reactive Data
+    // 3. Reactive Data (User Info)
     const user = reactive({ 
         name: 'យើត វីណែល',
         role: 'Administrator',
         avatar: null 
     })
 
+    // 4. Navigation Config (Dynamic)
     const navigationTabs = [
         { id: 'home', icon: 'bi-house-fill', path: '/' },
         { id: 'calendar', icon: 'bi-calendar3', path: '/calendar' },
-        { id: 'meeting-monitor', icon: 'bi-display', path: '/meeting-monitor' },
+        { id: 'meeting-monitor', icon: 'bi-display', path: '/meeting-monitor', external: true },
     ]
 
     const navigationTabsSitting = [
         { id: 'settings', icon: 'bi-gear-fill', path: '/settings' }
     ]
 
+    // 5. Functions
     const handleLogout = async () => {
         if (isLoggingOut.value) return
-        
         isLoggingOut.value = true
         
         try {
-            // In a real app, you would call: await api.logout()
+            // កន្លែងហៅ API Logout (ប្រសិនបើមាន)
             await new Promise(resolve => setTimeout(resolve, 1000))
-            
             localStorage.clear()
             router.push('/login')
         } catch (error) {
@@ -124,7 +139,6 @@
             isLoggingOut.value = false
         }
     }
-    const currentPath = computed(() => route.path)
 </script>
 
 <style scoped>

@@ -15,37 +15,42 @@
                         <span class="badge bg-primary-light text-primary extra-small">Version 1.0</span>
                     </div>
                 </div>
+
                 <nav class="nav-menu flex-grow-1 p-3">
-                <div class="menu-label khmer-font text-uppercase small opacity-50 mb-3 px-2">មេនុយចម្បង</div>
-                <router-link 
-                    v-for="item in menuItems" 
-                    :key="item.path" 
-                    :to="item.path"
-                    class="nav-link-custom mb-1"
-                    active-class="active"
-                    @click="autoCloseMobile"
-                >
-                    <div class="icon-frame">
-                    <i :class="['bi', item.icon]"></i>
-                    </div>
-                    <span class="khmer-font">{{ item.label }}</span>
-                </router-link>
+                    <div class="menu-label khmer-font text-uppercase small opacity-50 mb-3 px-2">មេនុយចម្បង</div>
+                    
+                    <template v-for="item in menuItems" :key="item.path">
+                        <a v-if="item.external" :href="item.path" target="_blank" rel="noopener noreferrer" class="nav-link-custom mb-1 text-decoration-none" @click="autoCloseMobile">
+                            <div class="icon-frame">
+                                <i :class="['bi', item.icon]"></i>
+                            </div>
+                            <span class="khmer-font">{{ item.label }}</span>
+                            <i class="bi bi-box-arrow-up-right ms-auto small opacity-25"></i>
+                        </a>
+
+                        <router-link v-else :to="item.path" class="nav-link-custom mb-1" active-class="active" @click="autoCloseMobile">
+                            <div class="icon-frame">
+                                <i :class="['bi', item.icon]"></i>
+                            </div>
+                            <span class="khmer-font">{{ item.label }}</span>
+                        </router-link>
+                    </template>
                 </nav>
 
                 <div class="sidebar-footer p-3 border-top">
-                <div class="user-pill d-flex align-items-center gap-2 p-2 rounded-3">
-                    <img src="https://ui-avatars.com/api/?name=Admin&background=e15b44&color=fff" class="avatar" alt="user">
-                    <div class="user-meta overflow-hidden">
-                    <div class="fw-bold small text-truncate">អ្នកគ្រប់គ្រង</div>
-                    <div class="text-muted extra-small">admin@system.com</div>
+                    <div class="user-pill d-flex align-items-center gap-2 p-2 rounded-3">
+                        <img src="https://ui-avatars.com/api/?name=Admin&background=e15b44&color=fff" class="avatar" alt="user">
+                        <div class="user-meta overflow-hidden">
+                            <div class="fw-bold small text-truncate">អ្នកគ្រប់គ្រង</div>
+                            <div class="text-muted extra-small">admin@system.com</div>
+                        </div>
                     </div>
-                </div>
                 </div>
             </aside>
 
             <main class="content-view flex-grow-1">
                 <div class="container-fluid p-4">
-                <slot />
+                    <slot />
                 </div>
             </main>
         </div>
@@ -67,9 +72,16 @@
     }
 
     const menuItems = [
-        { label: 'ផ្ទាំងគ្រប់គ្រង', icon: 'bi bi-house-fill', path: '/' },
-        { label: 'កាលវិភាគ', icon: 'bi bi-calendar3', path: '/calendar' },
-        { label: 'ការតាមដានប្រព័ន្ធ', icon: 'bi bi-display', path: '/meeting-monitor' },
+        { label: 'ផ្ទាំងគ្រប់គ្រង', icon: 'bi-house-fill', path: '/' },
+        { label: 'កាលវិភាគ', icon: 'bi-calendar3', path: '/calendar' },
+        
+        { 
+            label: 'ការតាមដានប្រព័ន្ធ', 
+            icon: 'bi-display', 
+            path: '/meeting-monitor', 
+            external: true 
+        },
+        
         { label: 'ការកំណត់', icon: 'bi-gear-fill', path: '/settings' },
         { label: 'កិច្ចប្រជុំ', icon: 'bi-people-fill', path: '/meetings' },
         { label: 'គ្រប់គ្រងអ្នកប្រើប្រាស់', icon: 'bi-person-fill', path: '/users' },
