@@ -12,25 +12,11 @@
 
                 <Timeline :redLineTop="62">
                     <template #morning>
-                        <MeetingCard 
-                        v-for="meeting in morningList" 
-                        :key="meeting.id"
-                        :variant="meeting.color"
-                        :time="meeting.time"
-                        :title="meeting.title"
-                        :desc="meeting.desc"
-                        />
+                        <MeetingCard v-for="meeting in morningList" :key="meeting.id" :variant="meeting.color" :time="meeting.time" :title="meeting.title" :desc="meeting.desc" />
                     </template>
 
                     <template #afternoon>
-                        <MeetingCard 
-                        v-for="meeting in afternoonList" 
-                        :key="meeting.id"
-                        :variant="meeting.color"
-                        :time="meeting.time"
-                        :title="meeting.title"
-                        :desc="meeting.desc"
-                        />
+                        <MeetingCard v-for="meeting in afternoonList" :key="meeting.id" :variant="meeting.color" :time="meeting.time" :title="meeting.title" :desc="meeting.desc" />
                     </template>
                 </Timeline>
 
