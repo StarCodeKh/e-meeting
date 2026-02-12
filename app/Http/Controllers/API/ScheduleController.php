@@ -14,7 +14,7 @@ use Carbon\Carbon;
 
 class ScheduleController extends Controller
 {
-    // ទាញយកទិន្នន័យទាំងអស់ (Index)
+    // ទាញយកទិន្នន័យថ្ងៃនេះ (Index today)
     public function index(Request $request)
     {
         try {
@@ -75,6 +75,35 @@ class ScheduleController extends Controller
             return response()->json([
                 'status'  => 'error',
                 'message' => 'មានបញ្ហាបច្ចេកទេស មិនអាចទាញយកទិន្នន័យកាលវិភាគបានទេ',
+            ], 500);
+        }
+    }
+
+    // ទាញយកទិន្នន័យទាំងអស់ (calendar All)
+    public function scheduleAll(Request $request)
+    {
+        try {
+            $query = Schedule::query();
+            if (auth()->check() && auth()->user()->role !== 'admin') {
+                $query->where('user_id', auth()->id());
+            }
+
+            if ($request->has(['month', 'year'])) {
+                $query->whereMonth('date', $request->month)
+                    ->whereYear('date', $request->year);
+            } elseif ($request->has('date')) {
+                $query->whereDate('date', $request->date);
+            }
+
+            $schedules = $query->orderBy('date', 'asc')->orderBy('start_time', 'asc')->get();
+
+            return ScheduleResource::collection($schedules);
+
+        } catch (\Exception $e) {
+            \Log::error("❌ Calendar Access Error: " . $e->getMessage());
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'មិនអាចទាញយកទិន្នន័យបានទេ',
             ], 500);
         }
     }

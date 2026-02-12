@@ -85,6 +85,7 @@
         { label: 'ការកំណត់', icon: 'bi-gear-fill', path: '/settings' },
         { label: 'កិច្ចប្រជុំ', icon: 'bi-people-fill', path: '/meetings' },
         { label: 'គ្រប់គ្រងអ្នកប្រើប្រាស់', icon: 'bi-person-fill', path: '/users' },
+        { label: 'គ្រប់គ្រងកិច្ចប្រជុំ', icon: 'bi bi-calendar4-event', path: '/schedules/all' },
     ]
 </script>
 
