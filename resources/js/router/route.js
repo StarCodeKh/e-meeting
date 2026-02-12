@@ -4,14 +4,14 @@ export default [
     path: '/calendar',
     name: 'calendar',
     component: () => import('@/pages/CalendarWidget.vue'),
-    meta: { requiresAuth: true, title: 'Calendar' }
+    meta: { requiresAuth: false, title: 'Calendar' }
   },
   /* --- Calendar --- */
   {
     path: '/meeting-monitor',
     name: 'meeting-monitor',
     component: () => import('@/pages/MeetingMonitor.vue'),
-    meta: { requiresAuth: true, title: 'Meeting Monitor' }
+    meta: { requiresAuth: false, title: 'Meeting Monitor' }
   },
 
   /* --- 🔐 ACCESS CONTROL (Roles & Permissions) --- */
