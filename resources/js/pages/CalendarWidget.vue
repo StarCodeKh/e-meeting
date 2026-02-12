@@ -28,8 +28,8 @@
                                 <p class="text-muted small mb-0 khmer-font">{{ currentRangeLabel }}</p>
                             </div>
 
-                            <div class="d-flex gap-1 bg-light p-1 rounded-pill border shadow-none">
-                                <button v-for="v in viewOptions" :key="v.id" class="btn btn-sm rounded-pill px-3 transition-all khmer-font" :class="currentView === v.id ? 'btn-primary shadow-sm text-white' : 'btn-light text-muted border-0'" @click="currentView = v.id">
+                            <div class="d-flex gap-1 bg-light p-1 rounded-3 border shadow-none">
+                                <button v-for="v in viewOptions" :key="v.id" class="btn btn-sm rounded-3 px-3 transition-all khmer-font" :class="currentView === v.id ? 'btn-primary shadow-sm text-white' : 'btn-light text-muted border-0'" @click="currentView = v.id">
                                     {{ v.label }}
                                 </button>
                             </div>
@@ -71,7 +71,7 @@
                                     </div>
                                     <div>
                                         <h6 class="mb-0 fw-bold khmer-font">{{ slot.dayName }}</h6>
-                                        <span class="badge bg-light text-primary border rounded-pill small">{{ slot.events.length }} កិច្ចប្រជុំ</span>
+                                        <span class="badge bg-light text-primary border rounded-3 small">{{ slot.events.length }} កិច្ចប្រជុំ</span>
                                     </div>
                                 </div>
 

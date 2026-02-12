@@ -1,0 +1,185 @@
+@import url('../assets/css/style.css');
+/* WRAPPER FOR RESPONSIVE */
+.side-panel-wrapper {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.side-panel-container {
+    font-family: 'Kantumruy Pro', sans-serif;
+    width: 100%;
+}
+
+/* FEATURED CARD */
+.featured-card {
+    border-radius: 20px;
+    background: white;
+    overflow: hidden;
+}
+
+.time-header {
+    margin: 10px;
+    padding: 15px;
+    border-radius: 15px;
+}
+
+.display-time {
+    font-size: calc(1.8rem + 1vw);
+    font-weight: 800;
+    line-height: 1;
+}
+
+.indicator-dot {
+    width: 5px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+}
+
+.indicator-dot.active {
+    width: 12px;
+    background: white;
+    border-radius: 4px;
+}
+
+.btn-conference {
+    background: #f0f7ff;
+    color: #3182ce;
+    border: none;
+    font-size: 0.9rem;
+}
+
+/* RESPONSIVE CALENDAR GRID */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    width: 100%;
+}
+
+.grid-header {
+    font-size: 0.7rem;
+    padding: 8px 0;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+}
+
+.grid-cell {
+    aspect-ratio: 1 / 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    cursor: pointer;
+    border-radius: 8px;
+    font-size: 0.85rem;
+}
+
+.day-num {
+    font-weight: 700;
+    z-index: 1;
+}
+
+.is-today {
+    background: #e15b44 !important;
+    color: white !important;
+}
+
+.is-selected:not(.is-today) {
+    background: #ebf8ff;
+    border: 1px solid #bee3f8;
+    color: #3182ce;
+}
+
+.dot-container {
+    display: flex;
+    gap: 2px;
+    position: absolute;
+    bottom: 4px;
+    justify-content: center;
+    width: 100%;
+}
+
+.status-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+}
+
+/* API COLORS */
+.bg-coral {
+    background: #f56565 !important;
+}
+
+.bg-orange {
+    background: #ed8936 !important;
+}
+
+.bg-success {
+    background: #48bb78 !important;
+}
+
+.bg-primary {
+    background: #4299e1 !important;
+}
+
+.nav-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    background: #fff;
+}
+
+/* MEDIA QUERIES FOR MOBILE */
+@media (max-width: 576px) {
+    .side-panel-wrapper {
+        max-width: 100%;
+        padding: 10px;
+    }
+
+    .display-time {
+        font-size: 2.2rem;
+    }
+
+    .grid-cell {
+        font-size: 0.75rem;
+    }
+
+    .view-title {
+        font-size: 0.9rem;
+        order: -1;
+        width: 100%;
+        text-align: center;
+        margin-bottom: 5px;
+    }
+
+    .calendar-nav {
+        gap: 10px;
+    }
+}
+
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* ANIMATION */
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+    transition: all 0.4s ease;
+}
+
+.slide-fade-enter-from {
+    opacity: 0;
+    transform: translateX(20px);
+}
+
+.slide-fade-leave-to {
+    opacity: 0;
+    transform: translateX(-20px);
+}

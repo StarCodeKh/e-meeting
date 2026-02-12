@@ -9,7 +9,7 @@
 							<div class="time-header" :class="activeMeeting.colorClass || 'bg-primary'">
 								<div class="d-flex justify-content-between align-items-center">
 									<div class="d-flex align-items-center gap-2 gap-sm-3">
-										<h1 class="display-time mb-0">{{ activeMeeting.time }}</h1>
+										<h1 class="display-time text-white mb-0">{{ activeMeeting.time }}</h1>
 										<div v-if="selectedDayMeetings.length > 1" class="slide-indicators d-flex gap-1">
 											<span v-for="(m, idx) in selectedDayMeetings" :key="idx" :class="['indicator-dot', { 'active': idx === currentSlideIndex }]"></span>
 										</div>
@@ -45,29 +45,29 @@
 				</Transition>
 			</div>
 
-			<div class="calendar-card shadow-sm bg-white p-3 p-sm-4 rounded-4">
-				<div class="calendar-nav d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3 mb-4">
-					<div class="view-switcher d-flex bg-light p-1 rounded-pill border">
-						<button v-for="view in ['week', 'month']" :key="view"
-								@click="currentView = view"
-								:class="['btn btn-sm rounded-pill px-3 px-sm-4 khmer-font transition-all', 
-										currentView === view ? 'btn-primary text-white shadow-sm' : 'border-0 text-muted']">
-						{{ view === 'week' ? 'សប្តាហ៍' : 'ខែ' }}
-						</button>
-					</div>
-					
-					<div class="khmer-font fw-bold fs-6 text-dark view-title">
-						{{ viewTitle }}
+			<div class="calendar-card shadow-sm bg-white p-3 p-sm-4 rounded-4 border-0">
+				<div class="calendar-nav d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3 mb-3">
+					<div class="khmer-font fw-bold fs-5 text-dark view-title">
+						{{ viewTitleKhmer }}
 					</div>
 
 					<div class="d-flex gap-2">
 						<button class="nav-btn" @click="navigate(-1)"><i class="bi bi-chevron-left"></i></button>
 						<button class="nav-btn" @click="navigate(1)"><i class="bi bi-chevron-right"></i></button>
 					</div>
-					</div>
+				</div>
 
-					<div class="calendar-grid">
-					<div v-for="day in daysOfWeek" :key="day" class="grid-header khmer-font text-muted fw-bold">
+				<div class="view-switcher d-flex bg-light p-1 justify-content-center rounded-3 border mb-3">
+					<button v-for="view in ['week', 'month']" 
+							:key="view" 
+							@click="currentView = view" 
+							:class="['btn btn-sm rounded-2 px-3 px-sm-4 khmer-font transition-all', currentView === view ? 'btn-primary text-white shadow-sm' : 'border-0 text-muted']">
+						{{ view === 'week' ? 'សប្តាហ៍' : 'ខែ' }}
+					</button>
+				</div>
+
+				<div class="calendar-grid">
+					<div v-for="day in daysOfWeekKhmer" :key="day" class="grid-header khmer-font text-muted fw-bold text-center">
 						{{ day }}
 					</div>
 					
@@ -75,10 +75,18 @@
 						<div v-for="n in paddingDays" :key="'p'+n" class="grid-cell empty"></div>
 					</template>
 					
-					<div v-for="day in displayDays" :key="day.dateString" class="grid-cell transition-all" :class="{ 'is-today': day.isToday, 'is-selected': isSelected(day.dateObj) }" @click="handleDateClick(day)">
-						<span class="day-num">{{ day.date }}</span>
+					<div v-for="day in displayDays" 
+						:key="day.dateString" 
+						class="grid-cell transition-all" 
+						:class="{ 'is-today': day.isToday, 'is-selected': isSelected(day.dateObj) }" 
+						@click="handleDateClick(day)">
+						
+						<span class="day-num">{{ toKhmerNum(day.date) }}</span>
+						
 						<div class="dot-container">
-							<span v-for="e in day.events.slice(0, 3)" :key="e.id" :class="['status-dot', e.colorClass]"></span>
+							<span v-for="e in day.events.slice(0, 3)" 
+								:key="e.id" 
+								:class="['status-dot', e.colorClass]"></span>
 						</div>
 					</div>
 				</div>
@@ -88,294 +96,138 @@
 </template>
 
 <script setup>
-	import {
-		ref
-		, computed
-		, onMounted
-		, watch
-		, onUnmounted
-	} from 'vue'
-	import {
-		MeetingCalendar
-	} from '@/services/MeetingCalendar'
+    import { ref, computed, onMounted, watch, onUnmounted } from 'vue'
+    import { MeetingCalendar } from '@/services/MeetingCalendar'
 
-	const currentView = ref('month')
-	const referenceDate = ref(new Date())
-	const meetings = ref([])
-	const daysOfWeek = ['អា', 'ច', 'អ', 'ព', 'ព្រ', 'សុ', 'ស']
-	const currentSlideIndex = ref(0)
-	let slideInterval = null
+    // --- State ---
+    const currentView = ref('month')
+    const referenceDate = ref(new Date()) // ថ្ងៃបច្ចុប្បន្ន
+    const meetings = ref([])
+    const currentSlideIndex = ref(0)
+    let slideInterval = null
 
-	const fetchMeetings = async () => {
-		const month = referenceDate.value.getMonth() + 1
-		const year = referenceDate.value.getFullYear()
-		meetings.value = await MeetingCalendar.getMeetingsByMonth(month, year)
-	}
+    // --- Khmer Localization Constants ---
+    const daysOfWeekKhmer = ['អា', 'ច', 'អ', 'ព', 'ព្រ', 'សុ', 'ស']
+    const khmerMonths = ['មករា', 'កុម្ភៈ', 'មីនា', 'មេសា', 'ឧសភា', 'មិថុនា', 'កក្កដា', 'សីហា', 'កញ្ញា', 'តុលា', 'វិច្ឆិកា', 'ធ្នូ']
 
-	onMounted(() => {
-		fetchMeetings();
-		startAutoSlide();
-	})
-	onUnmounted(() => stopAutoSlide())
+    // --- Helper Functions ---
+    // បម្លែងលេខឡាតាំងទៅជាលេខខ្មែរ (Standard សម្រាប់ UI ខ្មែរ)
+    const toKhmerNum = (num) => {
+        if (num === null || num === undefined) return ''
+        const khmerNums = ['០', '១', '២', '៣', '៤', '៥', '៦', '៧', '៨', '៩']
+        return num.toString().replace(/\d/g, (d) => khmerNums[d])
+    }
 
-	const selectedDayMeetings = computed(() => {
-		const dateStr = referenceDate.value.toLocaleDateString('en-CA')
-		return meetings.value.filter(m => m.date === dateStr)
-	})
+    // --- Computed Properties ---
+    // ចំណងជើងខែ/ឆ្នាំ ជាខ្មែរ (Dynamic)
+    const viewTitleKhmer = computed(() => {
+        const month = khmerMonths[referenceDate.value.getMonth()]
+        const year = toKhmerNum(referenceDate.value.getFullYear())
+        return `ខែ${month} ឆ្នាំ${year}`
+    })
 
-	const activeMeeting = computed(() => selectedDayMeetings.value[currentSlideIndex.value] || null)
+    // កិច្ចប្រជុំសម្រាប់ថ្ងៃដែលបានជ្រើសរើស (ប្រើសម្រាប់ Featured Card)
+    const selectedDayMeetings = computed(() => {
+        const dateStr = referenceDate.value.toLocaleDateString('en-CA')
+        return meetings.value.filter(m => m.date === dateStr)
+    })
 
-	const startAutoSlide = () => {
-		stopAutoSlide()
-		slideInterval = setInterval(() => {
-			if (selectedDayMeetings.value.length > 1) {
-				currentSlideIndex.value = (currentSlideIndex.value + 1) % selectedDayMeetings.value.length
-			}
-		}, 5000)
-	}
+    const activeMeeting = computed(() => selectedDayMeetings.value[currentSlideIndex.value] || null)
 
-	const stopAutoSlide = () => {
-		if (slideInterval) clearInterval(slideInterval)
-	}
+    // --- API & Lifecycle ---
+    const fetchMeetings = async () => {
+        const month = referenceDate.value.getMonth() + 1
+        const year = referenceDate.value.getFullYear()
+        try {
+            meetings.value = await MeetingCalendar.getMeetingsByMonth(month, year)
+        } catch (error) {
+            console.error("Error fetching meetings:", error)
+        }
+    }
 
-	watch(referenceDate, () => {
-		currentSlideIndex.value = 0
-		fetchMeetings()
-	})
+    onMounted(() => {
+        fetchMeetings()
+        startAutoSlide()
+    })
 
-	const displayDays = computed(() => {
-		if (currentView.value === 'month') return monthDays.value
-		const start = new Date(referenceDate.value)
-		start.setDate(referenceDate.value.getDate() - referenceDate.value.getDay())
-		return Array.from({
-			length: 7
-		}, (_, i) => {
-			const d = new Date(start);
-			d.setDate(start.getDate() + i)
-			return generateDayObject(d)
-		})
-	})
+    onUnmounted(() => stopAutoSlide())
 
-	const monthDays = computed(() => {
-		const y = referenceDate.value.getFullYear()
-			, m = referenceDate.value.getMonth()
-		const last = new Date(y, m + 1, 0).getDate()
-		return Array.from({
-			length: last
-		}, (_, i) => generateDayObject(new Date(y, m, i + 1)))
-	})
+    // --- Slider Logic ---
+    const startAutoSlide = () => {
+        stopAutoSlide()
+        slideInterval = setInterval(() => {
+            if (selectedDayMeetings.value.length > 1) {
+                currentSlideIndex.value = (currentSlideIndex.value + 1) % selectedDayMeetings.value.length
+            }
+        }, 5000)
+    }
 
-	const generateDayObject = (dateObj) => {
-		const dateStr = dateObj.toLocaleDateString('en-CA')
-		return {
-			date: dateObj.getDate()
-			, dateObj: new Date(dateObj)
-			, dateString: dateStr
-			, isToday: new Date().toDateString() === dateObj.toDateString()
-			, events: meetings.value.filter(e => e.date === dateStr)
-		}
-	}
+    const stopAutoSlide = () => {
+        if (slideInterval) clearInterval(slideInterval)
+    }
 
-	const viewTitle = computed(() => referenceDate.value.toLocaleDateString('km-KH', {
-		month: 'long'
-		, year: 'numeric'
-	}))
-	const paddingDays = computed(() => new Date(referenceDate.value.getFullYear(), referenceDate.value.getMonth(), 1).getDay())
-	const navigate = (step) => {
-		const d = new Date(referenceDate.value)
-		if (currentView.value === 'month') d.setMonth(d.getMonth() + step)
-		else d.setDate(d.getDate() + (step * 7))
-		referenceDate.value = d
-	}
-	const handleDateClick = (day) => {
-		referenceDate.value = day.dateObj
-	}
-	const isSelected = (date) => referenceDate.value.toDateString() === date.toDateString()
+    // ចាប់យកការផ្លាស់ប្តូរថ្ងៃ ដើម្បី Update កិច្ចប្រជុំក្នុង API
+    watch(referenceDate, (newDate, oldDate) => {
+        currentSlideIndex.value = 0
+        // Update API តែនៅពេលប្តូរខែ ឬឆ្នាំប៉ុណ្ណោះ ដើម្បីកាត់បន្ថយការហៅ API ច្រើនដង
+        if (newDate.getMonth() !== oldDate.getMonth() || newDate.getFullYear() !== oldDate.getFullYear()) {
+            fetchMeetings()
+        }
+    })
+
+    // --- Calendar Navigation & Grid Logic ---
+    const generateDayObject = (dateObj) => {
+        const dateStr = dateObj.toLocaleDateString('en-CA')
+        return {
+            date: dateObj.getDate(), // លេខថ្ងៃធម្មតា (បម្លែងជាខ្មែរតាមក្រោយក្នុង Template)
+            dateObj: new Date(dateObj),
+            dateString: dateStr,
+            isToday: new Date().toDateString() === dateObj.toDateString(),
+            events: meetings.value.filter(e => e.date === dateStr)
+        }
+    }
+
+    const displayDays = computed(() => {
+        if (currentView.value === 'month') return monthDays.value
+        
+        // Week View Logic
+        const start = new Date(referenceDate.value)
+        start.setDate(referenceDate.value.getDate() - referenceDate.value.getDay())
+        return Array.from({ length: 7 }, (_, i) => {
+            const d = new Date(start)
+            d.setDate(start.getDate() + i)
+            return generateDayObject(d)
+        })
+    })
+
+    const monthDays = computed(() => {
+        const y = referenceDate.value.getFullYear()
+        const m = referenceDate.value.getMonth()
+        const last = new Date(y, m + 1, 0).getDate()
+        return Array.from({ length: last }, (_, i) => generateDayObject(new Date(y, m, i + 1)))
+    })
+
+    const paddingDays = computed(() => {
+        return new Date(referenceDate.value.getFullYear(), referenceDate.value.getMonth(), 1).getDay()
+    })
+
+    const navigate = (step) => {
+        const d = new Date(referenceDate.value)
+        if (currentView.value === 'month') {
+            d.setMonth(d.getMonth() + step)
+        } else {
+            d.setDate(d.getDate() + (step * 7))
+        }
+        referenceDate.value = d
+    }
+
+    const handleDateClick = (day) => {
+        referenceDate.value = day.dateObj
+    }
+
+    const isSelected = (date) => referenceDate.value.toDateString() === date.toDateString()
 </script>
 
 <style scoped>
-	/* WRAPPER FOR RESPONSIVE */
-	.side-panel-wrapper {
-		width: 100%;
-		max-width: 400px;
-		margin: 0 auto;
-	}
-
-	.side-panel-container {
-		font-family: 'Kantumruy Pro', sans-serif;
-		width: 100%;
-	}
-
-	/* FEATURED CARD */
-	.featured-card {
-		border-radius: 20px;
-		background: white;
-		overflow: hidden;
-	}
-
-	.time-header {
-		margin: 10px;
-		padding: 15px;
-		border-radius: 15px;
-	}
-
-	.display-time {
-		font-size: calc(1.8rem + 1vw);
-		font-weight: 800;
-		line-height: 1;
-	}
-
-	.indicator-dot {
-		width: 5px;
-		height: 5px;
-		background: rgba(255, 255, 255, 0.3);
-		border-radius: 50%;
-	}
-
-	.indicator-dot.active {
-		width: 12px;
-		background: white;
-		border-radius: 4px;
-	}
-
-	.btn-conference {
-		background: #f0f7ff;
-		color: #3182ce;
-		border: none;
-		font-size: 0.9rem;
-	}
-
-	/* RESPONSIVE CALENDAR GRID */
-	.calendar-grid {
-		display: grid;
-		grid-template-columns: repeat(7, 1fr);
-		gap: 2px;
-		width: 100%;
-	}
-
-	.grid-header {
-		font-size: 0.7rem;
-		padding: 8px 0;
-		text-align: center;
-		border-bottom: 1px solid #eee;
-	}
-
-	.grid-cell {
-		aspect-ratio: 1 / 1;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		position: relative;
-		cursor: pointer;
-		border-radius: 8px;
-		font-size: 0.85rem;
-	}
-
-	.day-num {
-		font-weight: 700;
-		z-index: 1;
-	}
-
-	.is-today {
-		background: #e15b44 !important;
-		color: white !important;
-	}
-
-	.is-selected:not(.is-today) {
-		background: #ebf8ff;
-		border: 1px solid #bee3f8;
-		color: #3182ce;
-	}
-
-	.dot-container {
-		display: flex;
-		gap: 2px;
-		position: absolute;
-		bottom: 4px;
-		justify-content: center;
-		width: 100%;
-	}
-
-	.status-dot {
-		width: 4px;
-		height: 4px;
-		border-radius: 50%;
-	}
-
-	/* API COLORS */
-	.bg-coral {
-		background: #f56565 !important;
-	}
-
-	.bg-orange {
-		background: #ed8936 !important;
-	}
-
-	.bg-success {
-		background: #48bb78 !important;
-	}
-
-	.bg-primary {
-		background: #4299e1 !important;
-	}
-
-	.nav-btn {
-		width: 30px;
-		height: 30px;
-		border-radius: 8px;
-		border: 1px solid #ddd;
-		background: #fff;
-	}
-
-	/* MEDIA QUERIES FOR MOBILE */
-	@media (max-width: 576px) {
-		.side-panel-wrapper {
-			max-width: 100%;
-			padding: 10px;
-		}
-
-		.display-time {
-			font-size: 2.2rem;
-		}
-
-		.grid-cell {
-			font-size: 0.75rem;
-		}
-
-		.view-title {
-			font-size: 0.9rem;
-			order: -1;
-			width: 100%;
-			text-align: center;
-			margin-bottom: 5px;
-		}
-
-		.calendar-nav {
-			gap: 10px;
-		}
-	}
-
-	.line-clamp-3 {
-		display: -webkit-box;
-		-webkit-line-clamp: 3;
-		-webkit-box-orient: vertical;
-		overflow: hidden;
-	}
-
-	/* ANIMATION */
-	.slide-fade-enter-active,
-	.slide-fade-leave-active {
-		transition: all 0.4s ease;
-	}
-
-	.slide-fade-enter-from {
-		opacity: 0;
-		transform: translateX(20px);
-	}
-
-	.slide-fade-leave-to {
-		opacity: 0;
-		transform: translateX(-20px);
-	}
+	 @import url('../css/left-panel.css');
 </style>
