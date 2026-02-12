@@ -1,7 +1,6 @@
 <template>
 	<div class="side-panel-wrapper">
 		<div class="side-panel-container h-100">
-		
 			<div class="featured-card shadow-sm mb-4">
 				<Transition name="slide-fade" mode="out-in">
 					<div v-if="selectedDayMeetings.length > 0" :key="currentSlideIndex">
@@ -20,21 +19,27 @@
 								</div>
 							</div>
 
-							<div class="card-body p-3 p-sm-4 bg-white rounded-bottom-4">
-								<h6 class="khmer-font fw-bold text-muted small mb-1">ដឹកនាំដោយ</h6>
-								<h5 class="khmer-font leader-name fw-bold mb-3 text-dark">{{ activeMeeting.leader }}</h5>
-								<p class="khmer-font description-text text-muted mb-4 small line-clamp-3"> {{ activeMeeting.description }} </p>
-								<div class="meta-info mb-4 d-flex flex-column gap-2">
-									<div class="meta-item small text-muted font-khmer">
-										<i class="bi bi-geo-alt me-2 text-primary"></i> {{ activeMeeting.location }}
-									</div>
-								</div>
-
-								<a v-if="activeMeeting.link" :href="activeMeeting.link" target="_blank" 
-									class="btn btn-conference w-100 fw-bold py-2 khmer-font rounded-3">
-									<i class="bi bi-camera-video me-2"></i> VIDEO CONFERENCE
-								</a>
-							</div>
+                            <div class="card-body p-3 p-sm-4 bg-white rounded-bottom-4">
+                                <h6 class="khmer-font fw-bold text-muted small mb-1">ដឹកនាំដោយ</h6>
+                                <h5 class="khmer-font leader-name fw-bold mb-3 text-dark">
+                                    {{ activeMeeting.leader || activeMeeting.participants.join(', ') }}
+                                </h5>
+                                <p class="khmer-font description-text text-muted mb-4 small line-clamp-3">
+                                    {{ activeMeeting.description }}
+                                </p>
+                                <div class="meta-info mb-4 d-flex flex-column gap-2">
+                                    <div class="meta-item small text-muted khmer-font">
+                                        <i class="bi bi-geo-alt me-2 text-primary"></i> {{ activeMeeting.location }}
+                                    </div>
+                                    <div v-if="activeMeeting.room" class="meta-item small text-muted khmer-font">
+                                        <i class="bi bi-door-open me-2 text-primary"></i> បន្ទប់៖ {{ activeMeeting.room }}
+                                    </div>
+                                </div>
+                                <a v-if="activeMeeting.link" :href="activeMeeting.link" target="_blank" 
+                                    class="btn btn-conference w-100 fw-bold py-2 khmer-font rounded-3">
+                                    <i class="bi bi-camera-video me-2"></i> VIDEO CONFERENCE
+                                </a>
+                            </div>
 						</div>
 					</div>
 
