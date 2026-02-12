@@ -14,7 +14,15 @@ export default [
     meta: { requiresAuth: false, title: 'Meeting Monitor' }
   },
 
-  /* --- 🔐 ACCESS CONTROL (Roles & Permissions) --- */
+  /* --- SCHEDULE MANAGEMENT --- */
+  {
+    path: '/schedules/all',
+    name: 'schedules.index',
+    component: () => import('@/pages/forms/ScheduleList.vue'),
+    meta: { requiresAuth: true, title: 'បញ្ជីកាលវិភាគប្រជុំ' }
+  },
+
+  /* --- ACCESS CONTROL (Roles & Permissions) --- */
   {
     path: '/permissions',
     name: 'permissions.index',

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Http\Requests\ScheduleRequest;
 use App\Http\Resources\ScheduleResource;
 use Illuminate\Support\Facades\Storage;
@@ -14,6 +15,8 @@ use Carbon\Carbon;
 
 class ScheduleController extends Controller
 {
+    use AuthorizesRequests;
+
     // ទាញយកទិន្នន័យថ្ងៃនេះ (Index today)
     public function index(Request $request)
     {
@@ -84,23 +87,31 @@ class ScheduleController extends Controller
     {
         try {
             $query = Schedule::query();
+
             if (auth()->check() && auth()->user()->role !== 'admin') {
                 $query->where('user_id', auth()->id());
             }
 
-            if ($request->has(['month', 'year'])) {
+            if ($request->filled(['month', 'year'])) {
                 $query->whereMonth('date', $request->month)
                     ->whereYear('date', $request->year);
-            } elseif ($request->has('date')) {
+            } elseif ($request->filled('date')) {
                 $query->whereDate('date', $request->date);
             }
 
-            $schedules = $query->orderBy('date', 'asc')->orderBy('start_time', 'asc')->get();
+            if ($request->filled('search')) {
+                $query->where('title', 'LIKE', '%' . $request->search . '%');
+            }
+
+            $perPage = $request->input('per_page', 15);
+            $schedules = $query->orderBy('date', 'desc')
+                            ->orderBy('start_time', 'asc')
+                            ->paginate($perPage);
 
             return ScheduleResource::collection($schedules);
 
         } catch (\Exception $e) {
-            \Log::error("❌ Calendar Access Error: " . $e->getMessage());
+            \Log::error("❌ Schedule Access Error: " . $e->getMessage());
             return response()->json([
                 'status'  => 'error',
                 'message' => 'មិនអាចទាញយកទិន្នន័យបានទេ',
@@ -168,19 +179,14 @@ class ScheduleController extends Controller
     // កែប្រែទិន្នន័យ (Update)
     public function update(ScheduleRequest $request, Schedule $schedule)
     {
-        try {
-            if ($schedule->user_id !== auth()->id()) {
-                return response()->json([
-                    'status'  => 'error',
-                    'message' => 'អ្នកមិនមានសិទ្ធិកែប្រែកាលវិភាគនេះទេ!'
-                ], 403);
-            }
+        $this->authorize('update', $schedule);
 
+        try {
             $data = $request->validated();
 
             if ($request->hasFile('attachment')) {
-                if ($schedule->getRawOriginal('attachment')) {
-                    Storage::disk('public')->delete($schedule->getRawOriginal('attachment'));
+                if ($schedule->attachment) {
+                    Storage::disk('public')->delete($schedule->attachment);
                 }
                 $data['attachment'] = $request->file('attachment')->store('attachments', 'public');
             }
@@ -190,7 +196,7 @@ class ScheduleController extends Controller
             return response()->json([
                 'status'  => 'success',
                 'message' => 'កែប្រែបានជោគជ័យ!',
-                'data'    => new ScheduleResource($schedule)
+                'data'    => new ScheduleResource($schedule->load('user'))
             ], 200);
 
         } catch (\Exception $e) {
@@ -205,14 +211,15 @@ class ScheduleController extends Controller
     // លុបទិន្នន័យ (Destroy)
     public function destroy(Schedule $schedule)
     {
+        $this->authorize('delete', $schedule);
+
         try {
-            if ($schedule->user_id !== auth()->id()) {
-                return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 403);
+            $filePath = $schedule->getRawOriginal('attachment');
+            
+            if ($filePath && Storage::disk('public')->exists($filePath)) {
+                Storage::disk('public')->delete($filePath);
             }
 
-            if ($schedule->getRawOriginal('attachment')) {
-                Storage::disk('public')->delete($schedule->getRawOriginal('attachment'));
-            }
             $schedule->delete();
 
             return response()->json([
@@ -221,10 +228,10 @@ class ScheduleController extends Controller
             ], 200);
 
         } catch (\Exception $e) {
-            Log::error("❌ Destroy Error: " . $e->getMessage());
+            Log::error("❌ Destroy Error: [ID: {$schedule->id}] " . $e->getMessage());
             return response()->json([
                 'status'  => 'error',
-                'message' => 'មិនអាចលុបទិន្នន័យនេះបានទេ!',
+                'message' => 'មានបញ្ហាបច្ចេកទេស មិនអាចលុបទិន្នន័យនេះបានទេ!',
             ], 500);
         }
     }
