@@ -1,4 +1,3 @@
-
 <template>
     <DashboardLayout>
         <template #header>
@@ -140,7 +139,7 @@
     import LeftPanel from '@/components/LeftPanel.vue'
     import { MeetingCalendar } from '@/services/MeetingCalendar'
 
-    // --- State Management ---
+    // --- ១. State Management ---
     const currentView = ref('month')
     const referenceDate = ref(new Date())
     const meetings = ref([])
@@ -153,30 +152,39 @@
         { id: 'month', label: 'ខែ' }
     ]
 
+    // --- ២. Helpers ---
     const getPeriod = (timeStr) => {
         if (!timeStr) return '';
         const hour = parseInt(timeStr.split(':')[0]);
         return hour >= 12 ? 'រសៀល' : 'ព្រឹក';
     }
 
-    // --- មុខងារទាញទិន្នន័យ (Dynamic Mapping) ---
+    // --- ៣. មុខងារទាញទិន្នន័យ (Dynamic & Optimized) ---
     const fetchMeetingsData = async () => {
         try {
             isLoading.value = true
-            const dateStr = referenceDate.value.toISOString().split('T')[0]
-            const data = await MeetingCalendar.getMeetingsByDate(dateStr)
+            let data = []
+            
+            if (currentView.value === 'month') {
+                const month = referenceDate.value.getMonth() + 1
+                const year = referenceDate.value.getFullYear()
+                data = await MeetingCalendar.getMeetingsByMonth(month, year)
+            } else {
+                const dateStr = referenceDate.value.toLocaleDateString('en-CA')
+                data = await MeetingCalendar.getMeetingsByDate(dateStr)
+            }
             
             meetings.value = data.map(m => {
                 const themeMap = {
                     'bg-success': 'border-success bg-success-subtle',
-                    'bg-coral':   'border-danger bg-danger-subtle',
-                    'bg-orange':  'border-warning bg-warning-subtle'
+                    'bg-danger': 'border-danger bg-danger-subtle',
+                    'bg-warning': 'border-warning bg-warning-subtle'
                 }
                 return {
                     ...m,
-                    date: m.date || dateStr, 
+                    date: m.date || referenceDate.value.toLocaleDateString('en-CA'), 
                     theme: themeMap[m.colorClass] || 'border-primary bg-primary-subtle',
-                    dotColor: m.colorClass
+                    dotColor: m.colorClass 
                 }
             })
         } catch (error) {
@@ -186,10 +194,31 @@
         }
     }
 
+    // បន្ថែម Watch លើ currentView ដើម្បីទាញទិន្នន័យថ្មីរាល់ពេលប្តូរ Mode មើល
     onMounted(fetchMeetingsData)
-    watch(referenceDate, fetchMeetingsData)
+    watch([referenceDate, currentView], fetchMeetingsData)
 
-    // --- Computed Values ---
+    // --- ៤. Computed Values ---
+
+    // សម្រាប់ Timeline ផ្នែកខាងលើ
+    const filteredForSelectedDate = computed(() => {
+        const selectedStr = referenceDate.value.toLocaleDateString('en-CA')
+        return meetings.value.filter(m => m.date === selectedStr)
+    })
+
+    const morningList = computed(() => {
+        return filteredForSelectedDate.value
+            .filter(m => m.session === 'morning')
+            .map(m => ({ ...m, variant: m.colorClass?.replace('bg-', '') || 'primary' }))
+    })
+
+    const afternoonList = computed(() => {
+        return filteredForSelectedDate.value
+            .filter(m => m.session === 'afternoon')
+            .map(m => ({ ...m, variant: m.colorClass?.replace('bg-', '') || 'primary' }))
+    })
+
+    // សម្រាប់ Calendar Grid
     const viewTitle = computed(() => {
         return referenceDate.value.toLocaleDateString('km-KH', { month: 'long', year: 'numeric' })
     })
@@ -204,7 +233,6 @@
         return d.getDay()
     })
 
-    // រៀបចំថ្ងៃក្នុងខែ
     const monthDays = computed(() => {
         const year = referenceDate.value.getFullYear()
         const month = referenceDate.value.getMonth()
@@ -212,24 +240,24 @@
         
         return Array.from({ length: lastDay }, (_, i) => {
             const d = new Date(year, month, i + 1)
-            const dateStr = d.toLocaleDateString('en-CA')
+            const dateStr = d.toLocaleDateString('en-CA') // Format: YYYY-MM-DD
+            
             return {
                 date: i + 1,
                 dateObj: d,
                 dateString: dateStr,
                 isToday: new Date().toDateString() === d.toDateString(),
+                // បង្ហាញ Dots លុះត្រាតែ date ក្នុង API ស៊ីគ្នាជាមួយ date ក្នុង Grid
                 events: meetings.value.filter(e => e.date === dateStr) 
             }
         })
     })
 
-    // រៀបចំទិន្នន័យសម្រាប់ Timeline (Today/Week)
     const timelineData = computed(() => {
         const dates = []
         const tempDate = new Date(referenceDate.value)
         const count = currentView.value === 'today' ? 1 : 7
         
-        // បើជា Week View ត្រូវថយទៅរកថ្ងៃអាទិត្យដើមសប្តាហ៍
         if (currentView.value === 'week') tempDate.setDate(tempDate.getDate() - tempDate.getDay())
 
         for (let i = 0; i < count; i++) {
@@ -247,7 +275,7 @@
         return dates
     })
 
-    // --- Navigation Methods ---
+    // --- ៥. Navigation Methods ---
     const navigate = (step) => {
         const d = new Date(referenceDate.value)
         if (currentView.value === 'month') d.setMonth(d.getMonth() + step)
