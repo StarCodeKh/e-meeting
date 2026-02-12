@@ -96,11 +96,31 @@
 
                                 <div v-for="event in slot.events" :key="event.id" class="event-card mb-3 p-3 border-start border-4 rounded-3 shadow-sm" :class="event.theme">
                                     <div class="d-flex justify-content-between">
-                                        <div class="small text-muted fw-bold"><i class="bi bi-clock me-1"></i> {{ event.time }}</div>
-                                        <a v-if="event.link" :href="event.link" target="_blank" rel="noopener noreferrer" class="btn btn-light d-flex align-items-center justify-content-center border shadow-sm p-0" style="width: 38px; height: 38px;" title="ចូលរួមប្រជុំ">
-                                            <i class="bi bi-camera-video-fill fs-5 lh-1"></i>
-                                        </a>
-                                        <span v-else class="text-muted small">---</span>
+                                        <div class="small text-muted khmer-font fw-bold">
+                                            <i class="bi bi-clock me-1"></i> 
+                                            {{ event.time }} 
+                                            <span class="badge bg-black bg-opacity-10 rounded-2 fw-normal px-2 py-1 text-muted small khmer-font">
+                                                {{ event.period }}
+                                            </span>
+
+                                            <span class="mx-1">ដល់</span>
+
+                                            {{ event.endTime }} 
+                                            <span class="badge bg-black bg-opacity-10 rounded-2 fw-normal px-2 py-1 text-muted small khmer-font">
+                                                {{ getPeriod(event.endTimeRaw || event.endTime) }}
+                                            </span>
+                                        </div>
+                                        <div class="d-flex gap-2">
+                                            <a v-if="event.link && event.link !== '#'" :href="event.link" target="_blank" rel="noopener noreferrer" class="btn btn-light d-flex align-items-center justify-content-center border shadow-sm p-0" style="width: 38px; height: 38px;" title="ចូលរួមប្រជុំ">
+                                                <i class="bi bi-camera-video-fill fs-5 lh-1 text-primary"></i>
+                                            </a>
+
+                                            <a v-if="event.attachment" :href="event.attachment" target="_blank" class="btn btn-light d-flex align-items-center justify-content-center border shadow-sm p-0" style="width: 38px; height: 38px;" title="មើលឯកសារយោង">
+                                                <i class="bi bi-file-earmark-pdf-fill fs-5 lh-1 text-danger"></i>
+                                            </a>
+
+                                            <span v-if="!event.link && !event.attachment" class="text-muted small">---</span>
+                                        </div>
                                     </div>
                                     <h6 class="khmer-font fw-bold mt-2 mb-0">{{ event.title }}</h6>
                                 </div>
@@ -118,7 +138,7 @@
     import DashboardLayout from '../components/layouts/DashboardLayout.vue'
     import HeaderBar from '@/components/HeaderBar.vue'
     import LeftPanel from '@/components/LeftPanel.vue'
-    import { MeetingServices } from '@/services/MeetingServices'
+    import { MeetingCalendar } from '@/services/MeetingCalendar'
 
     // --- State Management ---
     const currentView = ref('month')
@@ -133,12 +153,18 @@
         { id: 'month', label: 'ខែ' }
     ]
 
+    const getPeriod = (timeStr) => {
+        if (!timeStr) return '';
+        const hour = parseInt(timeStr.split(':')[0]);
+        return hour >= 12 ? 'រសៀល' : 'ព្រឹក';
+    }
+
     // --- មុខងារទាញទិន្នន័យ (Dynamic Mapping) ---
     const fetchMeetingsData = async () => {
         try {
             isLoading.value = true
             const dateStr = referenceDate.value.toISOString().split('T')[0]
-            const data = await MeetingServices.getMeetingsByDate(dateStr)
+            const data = await MeetingCalendar.getMeetingsByDate(dateStr)
             
             meetings.value = data.map(m => {
                 const themeMap = {

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ScheduleRequest;
 use App\Http\Resources\ScheduleResource;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\Schedule;
@@ -13,7 +14,7 @@ use Carbon\Carbon;
 
 class ScheduleController extends Controller
 {
-    // ១. ទាញយកទិន្នន័យទាំងអស់ (Index)
+    // ទាញយកទិន្នន័យទាំងអស់ (Index)
     public function index(Request $request)
     {
         try {
@@ -23,57 +24,62 @@ class ScheduleController extends Controller
             $schedules = Schedule::whereDate('date', $date)
                 ->where(function ($query) use ($userEmail) {
                     $query->whereJsonContains('participants', $userEmail)
-                        ->Where('user_id', auth()->id());
+                        ->orWhere('user_id', auth()->id());
                 })
                 ->orderBy('start_time', 'asc')->get();
 
             return ScheduleResource::collection($schedules);
 
         } catch (\Exception $e) {
+            Log::error("❌ Index Error: " . $e->getMessage());
             return response()->json([
                 'status'  => 'error',
                 'message' => 'មិនអាចទាញយកទិន្នន័យកាលវិភាគបានទេ',
-                'error'   => $e->getMessage()
             ], 500);
         }
     }
-
+    // បង្ហាញទិន្នន័យជាសាធារណៈ (Public)
     public function schedulesPublic(Request $request)
     {
         try {
-
             $date = $request->query('date', Carbon::today()->toDateString());
             $schedules = Schedule::whereDate('date', $date)->orderBy('start_time', 'asc')->get();
 
             return ScheduleResource::collection($schedules);
 
         } catch (\Exception $e) {
+            Log::error("❌ Public Schedules Error: " . $e->getMessage());
             return response()->json([
                 'status'  => 'error',
                 'message' => 'មិនអាចទាញយកទិន្នន័យកាលវិភាគបានទេ',
-                'error'   => $e->getMessage()
             ], 500);
         }
     }
 
+    // បង្ហាញប្រតិទិន១ខែ (Calendar Show Month)
     public function calendarShow(Request $request)
     {
-        $month = $request->query('month', date('m'));
-        $year = $request->query('year', date('Y'));
+        try {
+            $month = $request->query('month', date('m'));
+            $year = $request->query('year', date('Y'));
 
-        $schedules = Schedule::whereYear('date', $year)
-            ->whereMonth('date', $month)
-            // ->with('participants')
-            ->orderBy('date', 'asc')
-            ->orderBy('start_time', 'asc')
-            ->get();
-        return response()->json([
-            'status' => 'success',
-            'data' => $schedules
-        ]);
+            $schedules = Schedule::whereYear('date', $year)
+                ->whereMonth('date', $month)
+                ->orderBy('date', 'asc')
+                ->orderBy('start_time', 'asc')
+                ->get();
+            return ScheduleResource::collection($schedules);
+
+        } catch (\Exception $e) {
+            Log::error("❌ CalendarShow Error: " . $e->getMessage());
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'មានបញ្ហាបច្ចេកទេស មិនអាចទាញយកទិន្នន័យកាលវិភាគបានទេ',
+            ], 500);
+        }
     }
 
-    // ២. រក្សាទុកទិន្នន័យថ្មី (Store)
+    // រក្សាទុកទិន្នន័យថ្មី (Store)
     public function store(ScheduleRequest $request)
     {
         return DB::transaction(function () use ($request) {
@@ -96,19 +102,19 @@ class ScheduleController extends Controller
                 ], 201);
 
             } catch (\Exception $e) {
+                Log::error("❌ Store Error: " . $e->getMessage());
                 if (isset($path)) {
                     Storage::disk('public')->delete($path);
                 }
                 return response()->json([
                     'status'  => 'error',
                     'message' => 'បរាជ័យក្នុងការរក្សាទុក!',
-                    'error'   => $e->getMessage()
                 ], 500);
             }
         });
     }
 
-    // ៣. បង្ហាញទិន្នន័យមួយ (Show)
+    // បង្ហាញទិន្នន័យមួយ (Show)
     public function show(Schedule $schedule)
     {
         try {
@@ -122,6 +128,7 @@ class ScheduleController extends Controller
             return new ScheduleResource($schedule);
 
         } catch (\Exception $e) {
+            Log::error("❌ Show Error: " . $e->getMessage());
             return response()->json([
                 'status'  => 'error',
                 'message' => 'រកមិនឃើញទិន្នន័យដែលអ្នកស្នើសុំឡើយ',
@@ -129,7 +136,7 @@ class ScheduleController extends Controller
         }
     }
 
-    // ៤. កែប្រែទិន្នន័យ (Update)
+    // កែប្រែទិន្នន័យ (Update)
     public function update(ScheduleRequest $request, Schedule $schedule)
     {
         try {
@@ -140,15 +147,16 @@ class ScheduleController extends Controller
                 ], 403);
             }
 
+            $data = $request->validated();
+
             if ($request->hasFile('attachment')) {
-                // លុប File ចាស់ (បើមាន)
-                if ($schedule->attachment) {
-                    Storage::disk('public')->delete(str_replace('/storage/', '', $schedule->attachment));
+                if ($schedule->getRawOriginal('attachment')) {
+                    Storage::disk('public')->delete($schedule->getRawOriginal('attachment'));
                 }
-                // រក្សាទុក File ថ្មី (ដូចកូដក្នុង store ខាងលើ)
+                $data['attachment'] = $request->file('attachment')->store('attachments', 'public');
             }
 
-            $schedule->update($request->validated());
+            $schedule->update($data);
 
             return response()->json([
                 'status'  => 'success',
@@ -157,33 +165,37 @@ class ScheduleController extends Controller
             ], 200);
 
         } catch (\Exception $e) {
+            Log::error("❌ Update Error: " . $e->getMessage());
             return response()->json([
                 'status'  => 'error',
                 'message' => 'មានបញ្ហាបច្ចេកទេស មិនអាចកែប្រែបានទេ!',
-                'error'   => $e->getMessage()
             ], 500);
         }
     }
 
-    // ៥. លុបទិន្នន័យ (Destroy)
+    // លុបទិន្នន័យ (Destroy)
     public function destroy(Schedule $schedule)
     {
         try {
-            if ($schedule->attachment) {
-                Storage::disk('public')->delete(str_replace('/storage/', '', $schedule->attachment));
+            if ($schedule->user_id !== auth()->id()) {
+                return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 403);
+            }
+
+            if ($schedule->getRawOriginal('attachment')) {
+                Storage::disk('public')->delete($schedule->getRawOriginal('attachment'));
             }
             $schedule->delete();
 
             return response()->json([
                 'status'  => 'success',
-                'message' => 'លុបកាលវិភាគបានជោគជ័យជានិរន្តរ៍!'
+                'message' => 'លុបកាលវិភាគបានជោគជ័យ!'
             ], 200);
 
         } catch (\Exception $e) {
+            Log::error("❌ Destroy Error: " . $e->getMessage());
             return response()->json([
                 'status'  => 'error',
                 'message' => 'មិនអាចលុបទិន្នន័យនេះបានទេ!',
-                'error'   => $e->getMessage() 
             ], 500);
         }
     }
