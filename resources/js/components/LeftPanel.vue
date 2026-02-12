@@ -20,7 +20,7 @@
 							</div>
 
                             <div class="card-body p-3 p-sm-4 bg-white rounded-bottom-4">
-                                <h6 class="khmer-font fw-bold text-muted small mb-1">ដឹកនាំដោយ</h6>
+                                <h6 class="khmer-font fw-bold text-muted small mb-1">ដឹកនាំដោយ៖</h6>
                                 <h5 class="khmer-font leader-name fw-bold mb-3 text-dark">
                                     {{ activeMeeting.leader || activeMeeting.participants.join(', ') }}
                                 </h5>

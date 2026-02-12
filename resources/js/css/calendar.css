@@ -5,6 +5,22 @@
         grid-template-columns: repeat(7, 1fr);
     }
 
+    .btn-action {
+        width: 38px;
+        height: 38px;
+        background: #fff;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+
+    .btn-action:hover {
+        background: #f8f9fa;
+        transform: translateY(-2px);
+    }
+
     .day-cell {
         aspect-ratio: 1/1;
         display: flex;
@@ -31,18 +47,18 @@
     }
 
     .today-active {
-        background: #3498db;
+        background-color: #ff4d4d;
         color: white !important;
-        font-weight: bold;
-        box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+        border-radius: 8px;
+        padding: 2px 6px;
     }
 
     .selected-active:not(.today-active) {
-        border: 2px solid #3498db;
-        color: #3498db;
+        border: 2px solid #007bff;
+        border-radius: 8px;
+        padding: 2px 6px;
     }
 
-    /* Timeline UI */
     .date-icon {
         width: 50px;
         border-radius: 10px;
@@ -74,8 +90,7 @@
         color: #999;
         font-size: 0.85rem;
     }
-
-    /* Mini Indicators */
+    
     .event-indicator-container {
         display: flex;
         gap: 3px;
@@ -89,7 +104,6 @@
         border-radius: 50%;
     }
 
-    /* Navigation Buttons */
     .nav-square-btn {
         width: 40px;
         height: 40px;
