@@ -70,6 +70,9 @@ export const MeetingServices = {
             participantsDisplay: participants.length > 0 ? participants.join(', ') : 'មិនមាន',
             host: participants[0] ?? 'មិនមានបញ្ជាក់',
 
+            // Attachment Url
+            attachmentUrl: item.attachment ?? null,
+
             // UI Styling Classes
             colorClass: UI_CONFIG.COLORS[item.color_id] ?? UI_CONFIG.COLORS.red,
             tagClass: UI_CONFIG.TAGS[item.color_id] ?? UI_CONFIG.TAGS.red,

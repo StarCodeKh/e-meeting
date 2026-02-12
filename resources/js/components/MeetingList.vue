@@ -25,12 +25,19 @@
                                     {{ m.period }}
                                 </span>
                             </div>
-                            
+                
                             <div class="card-body ps-5 py-3">
                                 <h6 class="khmer-font fw-bold text-dark mb-1">{{ m.title }}</h6>
                                 <p class="khmer-font text-muted x-small mb-3">{{ m.description }}</p>
-                                <div :class="['tag-video-conf khmer-font', m.tagClass]">
-                                    VIDEO CONFERENCE
+
+                                <div class="d-flex align-items-center gap-2 flex-wrap">
+                                    <a v-if="m.link && m.link !== '#'" :href="m.link" target="_blank" :class="['tag-video-conf khmer-font text-decoration-none hover-effect', m.tagClass]">
+                                        <i class="bi bi-camera-video-fill me-1"></i> VIDEO CONFERENCE
+                                    </a>
+
+                                    <a v-if="m.attachmentUrl" :href="m.attachmentUrl" target="_blank" :class="['tag-video-conf khmer-font text-decoration-none hover-effect', m.tagClass]">
+                                        <i class="bi bi-file-earmark-pdf-fill text-danger me-1"></i> ឯកសារ PDF
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -54,8 +61,15 @@
                             <div class="card-body ps-5 py-3">
                                 <h6 class="khmer-font fw-bold text-dark mb-1">{{ m.title }}</h6>
                                 <p class="khmer-font text-muted x-small mb-3">{{ m.description }}</p>
-                                <div :class="['tag-video-conf khmer-font', m.tagClass]">
-                                    VIDEO CONFERENCE
+
+                                <div class="d-flex align-items-center gap-2 flex-wrap">
+                                    <a v-if="m.link && m.link !== '#'" :href="m.link" target="_blank" :class="['tag-video-conf khmer-font text-decoration-none hover-effect', m.tagClass]">
+                                        <i class="bi bi-camera-video-fill me-1"></i> VIDEO CONFERENCE
+                                    </a>
+
+                                    <a v-if="m.attachmentUrl" :href="m.attachmentUrl" target="_blank" :class="['tag-video-conf khmer-font text-decoration-none hover-effect', m.tagClass]">
+                                        <i class="bi bi-file-earmark-pdf-fill text-danger me-1"></i> ឯកសារ PDF
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -80,7 +94,6 @@
                 const month = months[now.getMonth()];
                 const year = now.getFullYear();
                 const toKhmerNum = (n) => String(n).replace(/[0-9]/g, d => "០១២៣៤៥៦៧៨៩"[d]);
-
                 return `${toKhmerNum(day)} ${month} ${toKhmerNum(year)}`;
             }
         },
