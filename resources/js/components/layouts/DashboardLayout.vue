@@ -1,9 +1,6 @@
 <template>
     <div class="app-wrapper" :class="{ 'sidebar-active': isSidebarOpen }">
-        <header class="layout-header border-bottom sticky-top">
-            <HeaderBar @toggle-sidebar="isSidebarOpen = !isSidebarOpen" />
-        </header>
-
+        <HeaderBar @toggle-sidebar="isSidebarOpen = !isSidebarOpen" />
         <div class="layout-container d-flex">
             <aside class="sidebar-drawer shadow-lg border-end">
                 <div class="sidebar-brand p-4 d-flex align-items-center gap-3">
