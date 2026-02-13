@@ -276,6 +276,7 @@
     const selectedFile = ref(null)
     const modalElement = ref(null)
     let modalInstance = null 
+    let searchTimeout = null
 
     const showUserDropdown = ref(false)
     const userSearchQuery = ref('')
@@ -295,7 +296,7 @@
         { id: 'green', hex: '#51cf66', label: 'ធម្មតា' }
     ]
 
-    // --- Computed ---
+    // --- Computed Properties ---
     const activeTab = computed(() => TABS.find(t => t.id === editingItem.value.type) || TABS[0])
     const activeTheme = computed(() => activeTab.value.theme)
     const activeGradient = computed(() => activeTab.value.gradient)
@@ -306,27 +307,55 @@
         return allUsers.value.filter(u => u.name?.toLowerCase().includes(query))
     })
 
-    // --- Methods ---
+    const participantDisplayNames = computed(() => {
+        if (!editingItem.value.participants?.length) return 'ជ្រើសរើសអ្នកចូលរួម...';
+        return editingItem.value.participants.map(email => {
+            const found = allUsers.value.find(u => u.email === email);
+            return found ? found.name : email;
+        }).join(', ');
+    });
+
+    // --- Core Methods ---
+    const fetchMeetings = async (page = 1) => {
+        isLoading.value = true
+        try {
+            const data = await ScheduleService.getAll(page, searchQuery.value)
+            meetings.value = data.data
+            pagination.value = data.meta
+            currentPage.value = data.meta.current_page
+        } catch (e) { 
+            console.error("Fetch Error:", e) 
+        } finally { 
+            isLoading.value = false 
+        }
+    }
+
+    const handleSearch = () => {
+        if (searchTimeout) clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            currentPage.value = 1;
+            fetchMeetings(1);
+        }, 500);
+    };
+
+    const changePage = (page) => {
+        if (page >= 1 && page <= pagination.value.last_page) {
+            fetchMeetings(page);
+        }
+    };
+
+    // --- User Selection Methods ---
     const fetchApiUsers = async () => {
         isFetchingUsers.value = true
         try {
             const res = await api.get('/users?per_page=100')
             allUsers.value = res.data?.data || []
         } catch (error) {
-            console.error("Fetch Error:", error)
+            console.error("User Fetch Error:", error)
         } finally {
             isFetchingUsers.value = false
         }
     }
-
-    const participantDisplayNames = computed(() => {
-        if (!editingItem.value.participants?.length) return 'ជ្រើសរើសអ្នកចូលរួម...';
-        
-        return editingItem.value.participants.map(email => {
-            const found = allUsers.value.find(u => u.email === email);
-            return found ? found.name : email;
-        }).join(', ');
-    });
 
     const toggleDropdown = () => {
         showUserDropdown.value = !showUserDropdown.value
@@ -335,9 +364,7 @@
 
     const toggleUserSelection = (user) => {
         if (!editingItem.value.participants) editingItem.value.participants = [];
-        
         const index = editingItem.value.participants.indexOf(user.email);
-        
         if (index > -1) {
             editingItem.value.participants.splice(index, 1);
         } else {
@@ -345,10 +372,9 @@
         }
     };
 
-    const isUserSelected = (user) => {
-        return editingItem.value.participants?.includes(user.email)
-    }
+    const isUserSelected = (user) => editingItem.value.participants?.includes(user.email)
 
+    // --- Modal & Form Actions ---
     const openEditModal = (item) => {
         editingItem.value = JSON.parse(JSON.stringify(item));
         selectedFile.value = null;
@@ -358,16 +384,12 @@
             editingItem.value.date = new Date(year, month - 1, day);
         }
 
-        if (item.participant_emails && Array.isArray(item.participant_emails)) {
-            editingItem.value.participants = [...item.participant_emails];
-        } else {
-            editingItem.value.participants = [];
-        }
+        editingItem.value.participants = item.participant_emails && Array.isArray(item.participant_emails) 
+            ? [...item.participant_emails] 
+            : [];
         
         showUserDropdown.value = false;
-        if (!modalInstance && modalElement.value) {
-            modalInstance = new Modal(modalElement.value);
-        }
+        if (!modalInstance && modalElement.value) modalInstance = new Modal(modalElement.value);
         modalInstance?.show();
     };
 
@@ -379,33 +401,26 @@
 
             Object.keys(editingItem.value).forEach(key => {
                 let value = editingItem.value[key]
-                
                 if (key === 'date' && value instanceof Date) {
                     const year = value.getFullYear();
                     const month = String(value.getMonth() + 1).padStart(2, '0');
                     const day = String(value.getDate()).padStart(2, '0');
                     value = `${year}-${month}-${day}`;
                 }
-
                 if (!['attachment', 'participants', 'participant_emails'].includes(key) && value !== null) {
                     data.append(key, value)
                 }
             })
 
-            if (editingItem.value.participants && editingItem.value.participants.length > 0) {
-                editingItem.value.participants.forEach((email) => {
-                    data.append('participant_emails[]', email)
-                })
+            if (editingItem.value.participants?.length > 0) {
+                editingItem.value.participants.forEach(email => data.append('participant_emails[]', email))
             } else {
                 data.append('participant_emails[]', '')
             }
 
-            if (selectedFile.value) {
-                data.append('attachment', selectedFile.value)
-            }
+            if (selectedFile.value) data.append('attachment', selectedFile.value)
 
             await ScheduleService.update(editingItem.value.id, data)
-            
             modalInstance?.hide()
             await fetchMeetings(currentPage.value)
             
@@ -417,7 +432,7 @@
                 customClass: { popup: 'khmer-font' }
             })
         } catch (error) {
-            // Error handling...
+            console.error("Update Error:", error)
         } finally {
             isSaving.value = false
         }
@@ -425,45 +440,25 @@
 
     const handleFileChange = (event) => {
         const file = event.target.files[0];
-        
-        if (!file) {
-            return;
-        }
-
+        if (!file) return;
         if (file.type !== 'application/pdf') {
-            Swal.fire({ 
-                icon: 'error', 
-                title: 'ប្រភេទឯកសារមិនត្រឹមត្រូវ', 
-                text: 'សូមជ្រើសរើសឯកសារ PDF ប៉ុណ្ណោះ',
-                customClass: { popup: 'khmer-font' }
-            });
-            event.target.value = '';
-            return;
+            Swal.fire({ icon: 'error', title: 'Error', text: 'សូមជ្រើសរើស PDF ប៉ុណ្ណោះ', customClass: { popup: 'khmer-font' } });
+            event.target.value = ''; return;
         }
-
-        const maxSize = 5 * 1024 * 1024;
-        if (file.size > maxSize) {
-            Swal.fire({ 
-                icon: 'warning', 
-                title: 'ឯកសារធំពេក', 
-                text: 'ឯកសារមិនអាចលើសពី 5MB ឡើយ',
-                customClass: { popup: 'khmer-font' }
-            });
-            event.target.value = '';
-            return;
+        if (file.size > 5 * 1024 * 1024) {
+            Swal.fire({ icon: 'warning', title: 'Error', text: 'ឯកសារមិនអាចលើសពី 5MB', customClass: { popup: 'khmer-font' } });
+            event.target.value = ''; return;
         }
         selectedFile.value = file;
     };
-    
-    const fetchMeetings = async (page = 1) => {
-        isLoading.value = true
-        try {
-            const data = await ScheduleService.getAll(page, searchQuery.value)
-            meetings.value = data.data
-            pagination.value = data.meta
-            currentPage.value = data.meta.current_page
-        } catch (e) { console.error(e) } finally { isLoading.value = false }
-    }
+
+    // --- Helpers ---
+    const getInitials = (name) => {
+        if (!name) return '';
+        const parts = name.trim().split(/\s+/);
+        if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+        return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+    };
 
     const toKhmerNum = (n) => n?.toString().replace(/\d/g, d => ['០','១','២','៣','៤','៥','៦','៧','៨','៩'][d])
     const getAMPM = (t) => t && parseInt(t.split(':')[0]) >= 12 ? 'PM' : 'AM'
@@ -505,10 +500,7 @@
         await fetchMeetings()
         fetchApiUsers() 
         window.addEventListener('click', (e) => {
-            const isHeaderClick = e.target.closest('.pill-multiselect-header')
-            const isListClick = e.target.closest('.bg-white.rounded-3.border.mt-1')
-            
-            if (!isHeaderClick && !isListClick) {
+            if (!e.target.closest('.pill-multiselect-header') && !e.target.closest('.bg-white.rounded-3.border.mt-1')) {
                 showUserDropdown.value = false
             }
         })
