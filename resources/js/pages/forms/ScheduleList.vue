@@ -21,7 +21,7 @@
                     </div>
                     <div class="col-md-3 text-md-end">
                         <button class="btn btn-primary khmer-font rounded-3 shadow-sm px-4 py-2 w-100 w-md-auto" @click="goToCreate">
-                            <i class="bi bi-plus-circle me-2"></i> បង្កើតថ្មី
+                            <i class="bi bi-plus-circle me-2"></i> បង្កើតកិច្ចប្រជុំថ្មី
                         </button>
                     </div>
                 </div>
@@ -68,6 +68,9 @@
                             <h5 class="khmer-font fw-bold mb-3 text-dark line-clamp-2 title-link" @click="openEditModal(item)">
                                 {{ item.title }}
                             </h5>
+                            <p class="khmer-font text-muted small mb-3 line-clamp-3">
+                                {{ item.description || 'មិនមានការពិពណ៌នា...' }}
+                            </p>
 
                             <div class="mb-4 mt-auto">
                                 <div class="small text-muted khmer-font mb-2">
