@@ -1,11 +1,11 @@
 <template>
     <div class="container-fluid py-4 bg-light min-vh-100">
-        <div class="card border-0 shadow-sm rounded-4 mb-4 p-4 card-header-custom border-top border-primary border-5">
+        <div class="card border-0 shadow-sm rounded-3 mb-4 p-4 card-header-custom border-top border-primary border-5">
             <div class="row g-3 align-items-center">
                 <div class="col-md-4">
                     <h4 class="khmer-font fw-bold mb-1 text-primary">បញ្ជីកាលវិភាគប្រជុំ</h4>
                     <p class="text-muted small mb-0 khmer-font">
-                        លទ្ធផលសរុប៖ <span class="badge bg-primary-subtle text-primary rounded-pill px-3">{{ toKhmerNum(pagination.total || 0) }} កិច្ចប្រជុំ</span>
+                        លទ្ធផលសរុប៖ <span class="badge bg-primary-subtle text-primary rounded-3 px-3">{{ toKhmerNum(pagination.total || 0) }} កិច្ចប្រជុំ</span>
                     </p>
                 </div>
                 <div class="col-md-5">
@@ -25,7 +25,7 @@
 
         <div v-if="isLoading" class="row g-3">
             <div v-for="n in 6" :key="n" class="col-12 col-md-6 col-lg-4">
-                <div class="card border-0 shadow-sm rounded-4 p-4 skeleton-card animate-pulse">
+                <div class="card border-0 shadow-sm rounded-3 p-4 skeleton-card animate-pulse">
                     <div class="skeleton-line mb-3" style="width: 30%;"></div>
                     <div class="skeleton-line mb-2" style="width: 80%;"></div>
                     <div class="skeleton-line mb-4" style="width: 60%;"></div>
@@ -35,11 +35,11 @@
 
         <div v-else class="row g-3">
             <div v-for="item in meetings" :key="item.id" class="col-12 col-md-6 col-lg-4">
-                <div class="card border-0 shadow-sm rounded-4 h-100 meeting-card border-start border-4" :class="getBorderClass(item.color_id)">
+                <div class="card border-0 shadow-sm rounded-3 h-100 meeting-card border-start border-4" :class="getBorderClass(item.color_id)">
                     <div class="card-body p-4 d-flex flex-column">
                         <div class="d-flex justify-content-between align-items-start mb-3">
                             <div class="d-flex flex-wrap gap-2 align-items-center">
-                                <span class="badge rounded-pill px-3 py-2 khmer-font shadow-sm" :class="getBadgeClass(item.color_id)">
+                                <span class="badge rounded-3 px-3 py-2 khmer-font shadow-sm" :class="getBadgeClass(item.color_id)">
                                     <i class="bi bi-door-open me-1"></i> {{ item.room }}
                                 </span>
                                 <span class="small text-muted khmer-font fw-bold border-start ps-2">
@@ -89,24 +89,139 @@
         </div>
 
         <div class="modal fade" id="editMeetingModal" ref="modalElement" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-lg modal-dialog-centered">
-                <div class="modal-content border-0 shadow-lg rounded-4">
-                    <div class="modal-header border-0 p-4 pb-0">
-                        <h5 class="modal-title khmer-font fw-bold text-primary">កែសម្រួលព័ត៌មាន</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-dialog modal-dialog-centered" style="max-width: 600px;">
+                <div class="modal-content border-0 shadow-lg rounded-3 overflow-hidden" :style="{ borderTop: `6px solid ${activeTheme}` }">
+                    
+                    <div class="d-flex bg-white border-bottom p-2 gap-2 justify-content-center">
+                        <button v-for="tab in TABS" :key="tab.id" 
+                            class="btn border-0 rounded-3 px-4 py-2 khmer-font transition-all d-flex align-items-center justify-content-center flex-grow-1" 
+                            :style="editingItem.type === tab.id ? { background: tab.theme, color: 'white' } : { color: '#666', background: 'transparent' }" 
+                            @click="editingItem.type = tab.id">
+                            <i :class="tab.icon" class="me-2"></i> {{ tab.label }}
+                        </button>
                     </div>
-                    <div class="modal-body p-4">
+
+                    <div class="modal-body p-4 pt-5">
+                        <div class="mb-4">
+                            <input v-model="editingItem.title" type="text" 
+                                class="form-control khmer-font fs-4 fw-bold border-0 border-bottom bg-transparent rounded-0 px-0 shadow-none pb-2" 
+                                :style="{ borderBottomColor: activeTheme + ' !important' }"
+                                placeholder="បញ្ចូលចំណងជើង...">
                         </div>
-                    <div class="modal-footer border-0 p-4 pt-0">
-                        <button type="button" class="btn btn-light khmer-font px-4" data-bs-dismiss="modal">បោះបង់</button>
-                        <button class="btn btn-primary khmer-font px-4" @click="updateMeeting">រក្សាទុក</button>
+
+                        <div class="row g-4">
+                            <div class="col-12">
+                            <div class="bg-light p-2 rounded-3 rounded-md-3 d-flex flex-column flex-md-row align-items-center px-3 border gap-2">
+                                
+                                <div class="d-flex align-items-center w-100 w-md-auto">
+                                    <i class="bi bi-calendar3 text-muted me-2"></i>
+                                    <input v-model="editingItem.date" type="date" 
+                                        class="form-control form-control-sm border-0 bg-transparent shadow-none khmer-font flex-grow-1" 
+                                        style="min-width: 130px;">
+                                </div>
+
+                                <div class="vr mx-2 opacity-25 d-none d-md-block" style="height: 20px;"></div>
+                                <hr class="w-100 my-1 d-md-none opacity-10">
+
+                                <div class="d-flex align-items-center gap-1 justify-content-between justify-content-md-end flex-grow-1 w-100 w-md-auto">
+                                    <div class="d-flex align-items-center gap-1">
+                                        <input v-model="editingItem.start_time" type="time" 
+                                            class="border-0 bg-transparent fw-bold p-0" style="width: 75px; font-size: 0.9rem;">
+                                        <span class="badge rounded-3 px-2 py-1" :style="{ background: activeTheme, fontSize: '0.7rem' }">
+                                            {{ getAMPM(editingItem.start_time) }}
+                                        </span>
+                                    </div>
+                                    
+                                    <span class="mx-1 text-muted small">-</span>
+                                    
+                                    <div class="d-flex align-items-center gap-1">
+                                        <input v-model="editingItem.end_time" type="time" 
+                                            class="border-0 bg-transparent fw-bold p-0" style="width: 75px; font-size: 0.9rem;">
+                                        <span class="badge rounded-3 px-2 py-1" :style="{ background: activeTheme, fontSize: '0.7rem' }">
+                                            {{ getAMPM(editingItem.end_time) }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                            <div class="col-12">
+                                <div class="input-group bg-light rounded-3 border">
+                                    <span class="input-group-text border-0 bg-transparent text-muted"><i class="bi bi-people"></i></span>
+                                    <textarea v-model="editingItem.participants_display" 
+                                            class="form-control khmer-font border-0 bg-transparent shadow-none py-2" 
+                                            rows="1" readonly placeholder="ជ្រើសរើសអ្នកចូលរួម..."></textarea>
+                                    <span class="input-group-text border-0 bg-transparent text-muted"><i class="bi bi-chevron-down small"></i></span>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="d-flex gap-2 bg-light rounded-3 border p-1 px-3 align-items-center">
+                                    <i class="bi bi-geo-alt text-muted"></i>
+                                    <input v-model="editingItem.location" type="text" class="form-control border-0 bg-transparent shadow-none khmer-font" placeholder="ទីតាំង">
+                                    <div class="vr opacity-25" style="height: 20px;"></div>
+                                    <input v-model="editingItem.room" type="text" class="form-control border-0 bg-transparent shadow-none khmer-font w-25" placeholder="បន្ទប់">
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="bg-light rounded-3 border p-1 px-3 d-flex align-items-start">
+                                    <i class="bi bi-card-text text-muted mt-2 me-2"></i>
+                                    <textarea v-model="editingItem.description" rows="2" class="form-control khmer-font border-0 bg-transparent shadow-none py-2" placeholder="ពណ៌នាការងារលម្អិត..."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="bg-light rounded-3 border p-1 px-3 d-flex align-items-center mb-2">
+                                    <i class="bi bi-link-45deg text-muted me-2"></i>
+                                    <input v-model="editingItem.link" type="url" class="form-control border-0 bg-transparent shadow-none" placeholder="លីងតំណភ្ជាប់...">
+                                </div>
+                                <div class="bg-light rounded-3 border p-1 px-3 d-flex align-items-center">
+                                    <i class="bi bi-file-earmark-pdf text-muted me-2"></i>
+                                    <label class="form-control border-0 bg-transparent shadow-none mb-0 flex-grow-1 cursor-pointer khmer-font text-muted">
+                                        {{ selectedFile ? selectedFile.name : 'ភ្ជាប់ឯកសារពិភាក្សា (PDF)...' }}
+                                        <input type="file" class="d-none" @change="handleFileChange" accept=".pdf">
+                                    </label>
+                                    <i class="bi bi-cloud-arrow-up text-muted"></i>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="khmer-font small fw-bold text-muted mb-2 d-block">កម្រិតអាទិភាព</label>
+                                <div class="d-flex gap-4">
+                                    <div v-for="color in COLOR_OPTIONS" :key="color.id" 
+                                        class="d-flex align-items-center cursor-pointer" @click="editingItem.color_id = color.id">
+                                        <div class="rounded-circle me-2 d-flex align-items-center justify-content-center" 
+                                            :style="{ width: '24px', height: '24px', backgroundColor: color.hex, border: editingItem.color_id === color.id ? '2px solid #ccc' : 'none' }">
+                                            <i v-if="editingItem.color_id === color.id" class="bi bi-check text-white"></i>
+                                        </div>
+                                        <span class="khmer-font small" :class="{'fw-bold': editingItem.color_id === color.id}">{{ color.label }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 d-flex justify-content-between align-items-center border-top">
+                        <button type="button" class="btn btn-link text-decoration-none text-muted khmer-font p-0" data-bs-dismiss="modal">
+                            <i class="bi bi-x-circle me-1"></i> បោះបង់
+                        </button>
+                        
+                        <button class="btn khmer-font px-5 py-2 rounded-3 shadow-sm text-white border-0" 
+                                :disabled="isSaving" 
+                                @click="updateMeeting"
+                                :style="{ background: activeGradient }">
+                            <i v-if="!isSaving" class="bi bi-check2-circle me-2"></i>
+                            <span v-else class="spinner-border spinner-border-sm me-2"></span>
+                            {{ isSaving ? 'កំពុងរក្សាទុក...' : 'រក្សាទុកទិន្នន័យ' }}
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
 
         <nav v-if="pagination.last_page > 1" class="mt-5 d-flex justify-content-center">
-            <ul class="pagination shadow-sm rounded-4 overflow-hidden border-0 bg-white">
+            <ul class="pagination shadow-sm rounded-3 overflow-hidden border-0 bg-white">
                 <li class="page-item" :class="{ disabled: currentPage === 1 }">
                     <button class="page-link py-2 px-3 border-0" @click="changePage(currentPage - 1)"><i class="bi bi-chevron-left"></i></button>
                 </li>
@@ -125,15 +240,10 @@
 </template>
 
 <script setup>
-    import { ref, onMounted } from 'vue'
-    import { useRouter } from 'vue-router'
+    import { ref, computed, onMounted } from 'vue'
     import { ScheduleService } from '@/services/ScheduleService'
     import Swal from 'sweetalert2'
-
     import { Modal } from 'bootstrap'
-    import 'bootstrap/dist/css/bootstrap.min.css'
-
-    const router = useRouter()
 
     // --- State Management ---
     const meetings = ref([])
@@ -142,79 +252,131 @@
     const isLoading = ref(false)
     const searchQuery = ref('')
     const editingItem = ref({})
-
+    const isSaving = ref(false)
+    const selectedFile = ref(null)
     const modalElement = ref(null)
     let modalInstance = null 
 
-    // --- Helpers ---
-    const toKhmerNum = (num) => {
-        if (num === null || num === undefined) return ''
-        const kh = ['០', '១', '២', '៣', '៤', '៥', '៦', '៧', '៨', '៩']
-        return num.toString().replace(/\d/g, d => kh[d])
-    }
+    // --- Constants (Matching Create Form) ---
+    const TABS = [
+        { id: 'meeting', label: 'កិច្ចប្រជុំ', icon: 'bi bi-camera-video', theme: '#e54d42', gradient: 'linear-gradient(135deg, #ff6b6b, #e54d42)' },
+        { id: 'appointment', label: 'ការណាត់', icon: 'bi bi-calendar-event', theme: '#4285f4', gradient: 'linear-gradient(135deg, #6ab0ff, #4285f4)' },
+        { id: 'task', label: 'ការងារ', icon: 'bi bi-check2-circle', theme: '#34a853', gradient: 'linear-gradient(135deg, #51cf66, #34a853)' }
+    ]
 
+    const COLOR_OPTIONS = [
+        { id: 'red', hex: '#ff6b6b', label: 'បន្ទាន់' },
+        { id: 'yellow', hex: '#fcc419', label: 'មធ្យម' },
+        { id: 'green', hex: '#51cf66', label: 'ធម្មតា' }
+    ]
+
+    // --- Computed Styling ---
+    const activeTab = computed(() => TABS.find(t => t.id === editingItem.value.type) || TABS[0])
+    const activeTheme = computed(() => activeTab.value.theme)
+    const activeGradient = computed(() => activeTab.value.gradient)
+    
+
+    // --- Style & Format Helpers ---
     const getBadgeClass = (color) => ({
         'bg-success-subtle text-success': color === 'green',
         'bg-danger-subtle text-danger': color === 'red',
         'bg-warning-subtle text-warning': color === 'yellow',
-        'bg-primary-subtle text-primary': !color
+        'bg-primary-subtle text-primary': !color || color === 'blue'
     })
 
     const getBorderClass = (color) => ({
         'border-success': color === 'green',
         'border-danger': color === 'red',
         'border-warning': color === 'yellow',
-        'border-primary': !color
+        'border-primary': !color || color === 'blue'
     })
 
-    // --- Core Logic using Service ---
+    const toKhmerNum = (num) => {
+        if (!num) return ''
+        const kh = ['០', '១', '២', '៣', '៤', '៥', '៦', '៧', '៨', '៩']
+        return num.toString().replace(/\d/g, d => kh[d])
+    }
+
+    // Returns AM/PM for the time inputs in the pill
+    const getAMPM = (timeStr) => {
+        if (!timeStr) return 'AM';
+        const hour = parseInt(timeStr.split(':')[0]);
+        return hour >= 12 ? 'PM' : 'AM';
+    }
+
+    // --- Logic ---
     const fetchMeetings = async (page = 1) => {
         isLoading.value = true
         try {
-            // CALL SERVICE
             const data = await ScheduleService.getAll(page, searchQuery.value)
-            
             meetings.value = data.data
             pagination.value = data.meta
             currentPage.value = data.meta.current_page
         } catch (error) {
-            Swal.fire({ icon: 'error', title: 'កំហុស!', text: 'មិនអាចទាញយកទិន្នន័យបានទេ', customClass: { popup: 'khmer-font' }})
+            console.error('Fetch Error:', error)
         } finally {
             isLoading.value = false
         }
     }
 
-    const handleSearch = () => {
-        clearTimeout(window.searchTimeout)
-        window.searchTimeout = setTimeout(() => fetchMeetings(1), 500)
-    }
-
     const openEditModal = (item) => {
-        editingItem.value = { ...item } 
-        if (!modalInstance && modalElement.value) {
-            modalInstance = new Modal(modalElement.value)
+        // Clone item so changes don't show in list until saved
+        editingItem.value = { ...item }
+        
+        // Map participants for the textarea display vs actual data
+        if (item.participants && Array.isArray(item.participants)) {
+            editingItem.value.participants_display = item.participants
+                .map(p => p.name || p.full_name || 'អ្នកចូលរួម')
+                .join(', ')
+            editingItem.value.participant_emails = item.participants
+                .map(p => p.email)
+                .join(', ')
         }
+        
+        selectedFile.value = null 
+        if (!modalInstance && modalElement.value) modalInstance = new Modal(modalElement.value)
         modalInstance?.show()
     }
 
+    const handleFileChange = (event) => {
+        const file = event.target.files[0]
+        if (file && file.type === 'application/pdf') {
+            selectedFile.value = file
+        } else {
+            Swal.fire({ icon: 'error', title: 'ឯកសារមិនត្រឹមត្រូវ', text: 'សូមជ្រើសរើសឯកសារ PDF ប៉ុណ្ណោះ' })
+        }
+    }
+
     const updateMeeting = async () => {
+        isSaving.value = true
         try {
-            // CALL SERVICE
-            await ScheduleService.update(editingItem.value.id, editingItem.value)
+            const data = new FormData()
+            data.append('_method', 'PUT') // Required for Laravel to handle file uploads via PUT
+
+            Object.keys(editingItem.value).forEach(key => {
+                const value = editingItem.value[key]
+                if (!['attachment', 'participants', 'participants_display', 'participant_emails'].includes(key) && value !== null) {
+                    data.append(key, value)
+                }
+            })
+
+            if (selectedFile.value) data.append('attachment', selectedFile.value)
+
+            await ScheduleService.update(editingItem.value.id, data)
             
             modalInstance?.hide()
+            await fetchMeetings(currentPage.value)
             Swal.fire({ 
                 icon: 'success', 
-                title: 'ជោគជ័យ', 
-                text: 'កែសម្រួលបានជោគជ័យ', 
+                title: 'រក្សាទុកជោគជ័យ', 
                 timer: 1500, 
                 showConfirmButton: false,
                 customClass: { popup: 'khmer-font' }
             })
-            fetchMeetings(currentPage.value)
         } catch (error) {
-            const message = error.response?.data?.message || 'មិនអាចរក្សាទុកបានទេ'
-            Swal.fire({ icon: 'error', title: 'បរាជ័យ', text: message, customClass: { popup: 'khmer-font' }})
+            Swal.fire({ icon: 'error', title: 'បរាជ័យ', text: error.response?.data?.message || 'មានកំហុសបច្ចេកទេស' })
+        } finally {
+            isSaving.value = false
         }
     }
 
@@ -240,7 +402,6 @@
 
         if (result.isConfirmed) {
             try {
-                // CALL SERVICE
                 await ScheduleService.delete(id)
                 Swal.fire({ title: 'ជោគជ័យ!', icon: 'success', timer: 2000, showConfirmButton: false })
                 fetchMeetings(currentPage.value)
@@ -256,3 +417,4 @@
 <style scoped>
     @import "@/css/schedule-list.css";
 </style>
+
