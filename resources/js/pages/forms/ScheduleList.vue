@@ -89,7 +89,7 @@
         </div>
 
         <div class="modal fade" id="editMeetingModal" ref="modalElement" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" style="max-width: 600px;">
+            <div class="modal-dialog modal-dialog-centered" style="max-width: 650px;">
                 <div class="modal-content border-0 shadow-lg rounded-3 overflow-hidden" :style="{ borderTop: `6px solid ${activeTheme}` }">
                     
                     <div class="d-flex bg-white border-bottom p-2 gap-2 justify-content-center">
@@ -97,188 +97,138 @@
                             class="btn border-0 rounded-3 px-4 py-2 khmer-font transition-all d-flex align-items-center justify-content-center flex-grow-1" 
                             :style="editingItem.type === tab.id ? { background: tab.theme, color: 'white' } : { color: '#666', background: 'transparent' }" 
                             @click="editingItem.type = tab.id">
-                            <i :class="tab.icon" class="me-2"></i> {{ tab.label }}
+                            <i :class="tab.icon" class="me-2" :style="{ color: editingItem.type === tab.id ? 'white' : tab.theme }"></i> 
+                            {{ tab.label }}
                         </button>
                     </div>
 
-                    <div class="modal-body p-4 pt-5">
+                    <div class="modal-body p-4 pt-4">
                         <div class="mb-4">
                             <input v-model="editingItem.title" type="text" 
-                                class="form-control khmer-font fs-4 fw-bold border-0 border-bottom bg-transparent rounded-0 px-0 shadow-none pb-2" 
-                                :style="{ borderBottomColor: activeTheme + ' !important' }"
-                                placeholder="បញ្ចូលចំណងជើង...">
+                                class="form-control khmer-font fs-4 fw-bold border-0 border-bottom bg-transparent rounded-0 px-0 shadow-none pb-2 transition-all" 
+                                :style="{ borderBottomColor: editingItem.title ? activeTheme : '#eee' }" placeholder="បញ្ចូលចំណងជើង...">
                         </div>
 
-                        <div class="row g-4">
+                        <div class="row g-3">
                             <div class="col-12">
-                            <div class="bg-light p-2 rounded-3 rounded-md-3 d-flex flex-column flex-md-row align-items-center px-3 border gap-2">
-                                
-                                <div class="d-flex align-items-center w-100 w-md-auto">
-                                    <i class="bi bi-calendar3 text-muted me-2"></i>
-                                    <input v-model="editingItem.date" type="date" 
-                                        class="form-control form-control-sm border-0 bg-transparent shadow-none khmer-font flex-grow-1" 
-                                        style="min-width: 130px;">
-                                </div>
+                                <div class="bg-light p-2 rounded-3 d-flex flex-column flex-md-row align-items-center px-3 border gap-2">
+                                    <div class="d-flex align-items-center w-100 w-md-auto">
+                                        <i class="bi bi-calendar3 me-2 transition-all" :style="{ color: editingItem.date ? activeTheme : '#6c757d' }"></i>
+                                        <input v-model="editingItem.date" type="date" class="form-control form-control-sm border-0 bg-transparent shadow-none khmer-font">
+                                    </div>
 
-                                <div class="vr mx-2 opacity-25 d-none d-md-block" style="height: 20px;"></div>
-                                    <hr class="w-100 my-1 d-md-none opacity-10">
-                                    <div class="d-flex align-items-center gap-1 justify-content-between justify-content-md-end flex-grow-1 w-100 w-md-auto">
+                                    <div class="vr mx-2 opacity-25 d-none d-md-block" style="height: 20px;"></div>
+                                    
+                                    <div class="d-flex align-items-center gap-1 justify-content-between flex-grow-1 w-100 w-md-auto">
                                         <div class="d-flex align-items-center gap-1">
-                                            <input v-model="editingItem.start_time" type="time" 
-                                                class="border-0 bg-transparent fw-bold p-0" style="width: 75px; font-size: 0.9rem;">
-                                            <span class="badge rounded-3 px-2 py-1" :style="{ background: activeTheme, fontSize: '0.7rem' }">
-                                                {{ getAMPM(editingItem.start_time) }}
-                                            </span>
+                                            <input v-model="editingItem.start_time" type="time" class="border-0 bg-transparent fw-bold p-0" style="width: 75px; font-size: 0.9rem;">
+                                            <span class="badge rounded-3 px-2 py-1 transition-all" :style="{ background: activeTheme, fontSize: '0.7rem' }">{{ getAMPM(editingItem.start_time) }}</span>
                                         </div>
-                                        
                                         <span class="mx-1 text-muted small">-</span>
-                                        
                                         <div class="d-flex align-items-center gap-1">
-                                            <input v-model="editingItem.end_time" type="time" 
-                                                class="border-0 bg-transparent fw-bold p-0" style="width: 75px; font-size: 0.9rem;">
-                                            <span class="badge rounded-3 px-2 py-1" :style="{ background: activeTheme, fontSize: '0.7rem' }">
-                                                {{ getAMPM(editingItem.end_time) }}
-                                            </span>
+                                            <input v-model="editingItem.end_time" type="time" class="border-0 bg-transparent fw-bold p-0" style="width: 75px; font-size: 0.9rem;">
+                                            <span class="badge rounded-3 px-2 py-1 transition-all" :style="{ background: activeTheme, fontSize: '0.7rem' }">{{ getAMPM(editingItem.end_time) }}</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="col-12"> 
-                                <label class="form-label khmer-font small fw-bold text-muted opacity-75">អ្នកចូលរួម</label>
-    
-                                <div class="input-group bg-light rounded-3 border pill-multiselect-header cursor-pointer" 
-                                    @click="toggleDropdown">
-                                    <span class="input-group-text border-0 bg-transparent text-muted"><i class="bi bi-people"></i></span>
+                            <div class="col-12 position-relative">
+                                <div class="input-group bg-light rounded-3 border pill-multiselect-header cursor-pointer transition-all" @click="toggleDropdown">
+                                    <span class="input-group-text border-0 bg-transparent">
+                                        <i class="bi bi-people transition-all" :style="{ color: editingItem.participants?.length ? activeTheme : '#6c757d' }"></i>
+                                    </span>
                                     <div class="form-control khmer-font border-0 bg-transparent shadow-none py-2 d-flex align-items-center overflow-hidden">
                                         <span class="text-truncate" :class="{ 'text-muted': !editingItem.participants?.length }">
-                                            {{ 
-                                                editingItem.participants?.length 
-                                                ? editingItem.participants.map(u => typeof u === 'string' ? u : u.name).join(', ') 
-                                                : 'ជ្រើសរើសអ្នកចូលរួម...' 
-                                            }}
+                                            {{ participantDisplayNames }}
                                         </span>
                                     </div>
-                                    <span class="input-group-text border-0 bg-transparent text-muted">
-                                        <i class="bi" :class="showUserDropdown ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
-                                    </span>
+                                    <i class="bi px-3 transition-all" :class="showUserDropdown ? 'bi-chevron-up' : 'bi-chevron-down'" style="font-size: 0.8rem; color: #6c757d"></i>
                                 </div>
-
-                                <div v-if="showUserDropdown" class="bg-white rounded-3 border mt-1 w-100 overflow-hidden shadow-sm">
+                                
+                                <div v-if="showUserDropdown" class="bg-white rounded-3 border mt-1 w-100 overflow-hidden shadow-sm position-absolute z-3">
                                     <div class="p-2 border-bottom bg-light">
-                                        <input v-model="userSearchQuery" type="text" 
-                                            class="form-control form-control-sm khmer-font shadow-none" 
-                                            placeholder="ស្វែងរកឈ្មោះ..." @click.stop>
+                                        <input v-model="userSearchQuery" type="text" class="form-control form-control-sm khmer-font shadow-none" placeholder="ស្វែងរកឈ្មោះ..." @click.stop>
                                     </div>
-
                                     <div class="overflow-auto" style="max-height: 200px;">
-                                        <div v-if="isFetchingUsers" class="p-4 text-center">
-                                            <div class="spinner-border spinner-border-sm text-muted"></div>
-                                        </div>
-                                        
-                                        <template v-else>
-                                            <div v-for="user in filteredUsers" :key="user.id" 
-                                                class="d-flex align-items-center px-3 py-2 border-bottom-faint cursor-pointer hover-bg-light"
-                                                @click.stop="toggleUserSelection(user)">
-                                                
-                                                <div class="rounded-circle d-flex align-items-center justify-content-center me-2 flex-shrink-0" 
-                                                    :style="{ width: '30px', height: '30px', fontSize: '0.75rem', 
-                                                            background: isUserSelected(user) ? activeTheme : '#eee', 
-                                                            color: isUserSelected(user) ? 'white' : '#666' }">
-                                                    {{ user.name?.charAt(0) }}
-                                                </div>
-                                                
-                                                <div class="flex-grow-1 overflow-hidden">
-                                                    <div class="khmer-font small fw-bold text-truncate" :style="isUserSelected(user) ? { color: activeTheme } : {}">
-                                                        {{ user.name }}
-                                                    </div>
-                                                </div>
-
-                                                <i v-if="isUserSelected(user)" class="bi bi-check-lg" :style="{ color: activeTheme }"></i>
+                                        <div v-for="user in filteredUsers" :key="user.id" class="d-flex align-items-center px-3 py-2 border-bottom-faint cursor-pointer hover-bg-light transition-all" @click.stop="toggleUserSelection(user)">
+                                            <div class="rounded-circle d-flex align-items-center justify-content-center me-2 flex-shrink-0 transition-all" 
+                                                :style="{ width: '30px', height: '30px', background: isUserSelected(user) ? activeTheme : '#eee', color: isUserSelected(user) ? 'white' : '#666' }">
+                                                {{ user.name?.charAt(0) }}
                                             </div>
-                                        </template>
+                                            <div class="flex-grow-1 khmer-font small fw-bold text-truncate" :style="isUserSelected(user) ? { color: activeTheme } : {}">{{ user.name }}</div>
+                                            <i v-if="isUserSelected(user)" class="bi bi-check-lg" :style="{ color: activeTheme }"></i>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="col-12">
-                                <div class="d-flex gap-2 bg-light rounded-3 border p-1 px-3 align-items-center">
-                                    <i class="bi bi-geo-alt text-muted"></i>
+                            <div class="col-md-8">
+                                <div class="bg-light rounded-3 border p-1 px-3 d-flex align-items-center h-100">
+                                    <i class="bi bi-geo-alt me-2 transition-all" :style="{ color: editingItem.location ? activeTheme : '#6c757d' }"></i>
                                     <input v-model="editingItem.location" type="text" class="form-control border-0 bg-transparent shadow-none khmer-font" placeholder="ទីតាំង">
-                                    <div class="vr opacity-25" style="height: 20px;"></div>
-                                    <input v-model="editingItem.room" type="text" class="form-control border-0 bg-transparent shadow-none khmer-font w-25" placeholder="បន្ទប់">
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="bg-light rounded-3 border p-1 px-3 d-flex align-items-center h-100">
+                                    <i class="bi bi-door-open me-2 transition-all" :style="{ color: editingItem.room ? activeTheme : '#6c757d' }"></i>
+                                    <input v-model="editingItem.room" type="text" class="form-control border-0 bg-transparent shadow-none khmer-font" placeholder="បន្ទប់">
                                 </div>
                             </div>
 
                             <div class="col-12">
                                 <div class="bg-light rounded-3 border p-1 px-3 d-flex align-items-start">
-                                    <i class="bi bi-card-text text-muted mt-2 me-2"></i>
+                                    <i class="bi bi-card-text mt-2 me-2 transition-all" :style="{ color: editingItem.description ? activeTheme : '#6c757d' }"></i>
                                     <textarea v-model="editingItem.description" rows="2" class="form-control khmer-font border-0 bg-transparent shadow-none py-2" placeholder="ពណ៌នាការងារលម្អិត..."></textarea>
                                 </div>
                             </div>
 
-                            <div class="col-12">
-                                <div class="bg-light rounded-3 border p-1 px-3 d-flex align-items-center mb-2">
-                                    <i class="bi bi-link-45deg text-muted me-2"></i>
-                                    <input v-model="editingItem.link" type="url" class="form-control border-0 bg-transparent shadow-none" placeholder="លីងតំណភ្ជាប់...">
+                            <div class="col-md-6">
+                                <div class="bg-light rounded-3 border p-1 px-3 d-flex align-items-center h-100">
+                                    <i class="bi bi-link-45deg me-2 transition-all" :style="{ color: editingItem.link ? activeTheme : '#6c757d' }"></i>
+                                    <input v-model="editingItem.link" type="url" class="form-control border-0 bg-transparent shadow-none small" placeholder="លីងតំណភ្ជាប់">
                                 </div>
-
-                                <div class="bg-light rounded-3 border p-1 px-3 d-flex align-items-center transition-all" 
-                                    :style="selectedFile ? { borderColor: activeTheme, backgroundColor: '#fff' } : {}">
-                                    
-                                    <i class="bi bi-file-earmark-pdf me-2" 
-                                    :style="{ color: selectedFile || editingItem.attachment ? activeTheme : '#6c757d' }"></i>
-                                    
-                                    <label class="form-control border-0 bg-transparent shadow-none mb-0 flex-grow-1 cursor-pointer khmer-font text-muted">
-                                        <span v-if="selectedFile" class="fw-bold" :style="{ color: activeTheme }">
-                                            {{ selectedFile.name }}
-                                        </span>
-                                        
-                                        <span v-else-if="editingItem.attachment" class="text-dark">
-                                            {{ editingItem.attachment.split('/').pop() }} 
-                                        </span>
-                                        
-                                        <span v-else>
-                                            ភ្ជាប់ឯកសារពិភាក្សា (PDF)...
-                                        </span>
-
+                            </div>
+                            <div class="col-md-6">
+                                <div class="bg-light rounded-3 border p-1 px-3 d-flex align-items-center h-100 transition-all" :style="selectedFile ? { borderColor: activeTheme, backgroundColor: '#fff' } : {}">
+                                    <i class="bi bi-file-earmark-pdf me-2 transition-all" :style="{ color: selectedFile || editingItem.attachment ? activeTheme : '#6c757d' }"></i>
+                                    <label class="form-control border-0 bg-transparent shadow-none mb-0 flex-grow-1 cursor-pointer khmer-font text-muted p-0 small text-truncate">
+                                        <span v-if="selectedFile" :style="{ color: activeTheme }">{{ selectedFile.name }}</span>
+                                        <span v-else-if="editingItem.attachment" class="text-dark">{{ editingItem.attachment.split('/').pop() }}</span>
+                                        <span v-else>ភ្ជាប់ PDF...</span>
                                         <input type="file" class="d-none" @change="handleFileChange" accept=".pdf">
                                     </label>
-
-                                    <div class="d-flex align-items-center">
-                                        <i v-if="selectedFile" class="bi bi-x-circle text-danger cursor-pointer me-2" @click.stop="selectedFile = null"></i>
-                                        
-                                        <i class="bi bi-cloud-arrow-up" 
-                                        :style="{ color: selectedFile ? activeTheme : '#6c757d' }"></i>
-                                    </div>
+                                    <i v-if="selectedFile" class="bi bi-x-circle text-danger ms-1 cursor-pointer" @click.stop="selectedFile = null"></i>
                                 </div>
                             </div>
 
-                            <div class="col-12">
-                                <label class="khmer-font small fw-bold text-muted mb-2 d-block">កម្រិតអាទិភាព</label>
-                                <div class="d-flex gap-4">
-                                    <div v-for="color in COLOR_OPTIONS" :key="color.id" 
-                                        class="d-flex align-items-center cursor-pointer" @click="editingItem.color_id = color.id">
-                                        <div class="rounded-circle me-2 d-flex align-items-center justify-content-center" 
-                                            :style="{ width: '24px', height: '24px', backgroundColor: color.hex, border: editingItem.color_id === color.id ? '2px solid #ccc' : 'none' }">
-                                            <i v-if="editingItem.color_id === color.id" class="bi bi-check text-white"></i>
+                            <div class="col-12 mt-2">
+                                <div class="p-3 border rounded-3 bg-white">
+                                    <label class="khmer-font small fw-bold text-muted mb-2 d-block">កម្រិតអាទិភាព</label>
+                                    <div class="d-flex justify-content-between gap-2">
+                                        <div v-for="color in COLOR_OPTIONS" :key="color.id" 
+                                            class="d-flex align-items-center cursor-pointer p-2 px-3 rounded-2 transition-all flex-grow-1 justify-content-center" 
+                                            :style="editingItem.color_id === color.id ? { background: color.hex + '15' } : {}"
+                                            @click="editingItem.color_id = color.id">
+                                            <div class="rounded-circle me-2 d-flex align-items-center justify-content-center transition-all" 
+                                                :style="{ width: '18px', height: '18px', backgroundColor: color.hex }">
+                                                <i v-if="editingItem.color_id === color.id" class="bi bi-check text-white" style="font-size: 0.8rem;"></i>
+                                            </div>
+                                            <span class="khmer-font small transition-all" :style="editingItem.color_id === color.id ? { color: color.hex, fontWeight: 'bold' } : { color: '#666' }">{{ color.label }}</span>
                                         </div>
-                                        <span class="khmer-font small" :class="{'fw-bold': editingItem.color_id === color.id}">{{ color.label }}</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="p-4 d-flex justify-content-between align-items-center border-top">
+                    <div class="p-4 d-flex justify-content-between align-items-center border-top bg-white">
                         <button type="button" class="btn btn-link text-decoration-none text-muted khmer-font p-0" data-bs-dismiss="modal">
                             <i class="bi bi-x-circle me-1"></i> បោះបង់
                         </button>
-                        
-                        <button class="btn khmer-font px-5 py-2 rounded-3 shadow-sm text-white border-0" 
-                                :disabled="isSaving" 
-                                @click="updateMeeting"
-                                :style="{ background: activeGradient }">
+                        <button class="btn khmer-font px-5 py-2 rounded-3 shadow-sm text-white border-0 transition-all" 
+                                :disabled="isSaving" @click="updateMeeting" :style="{ background: activeGradient }">
                             <i v-if="!isSaving" class="bi bi-check2-circle me-2"></i>
                             <span v-else class="spinner-border spinner-border-sm me-2"></span>
                             {{ isSaving ? 'កំពុងរក្សាទុក...' : 'រក្សាទុកទិន្នន័យ' }}
@@ -287,7 +237,7 @@
                 </div>
             </div>
         </div>
-
+        
         <nav v-if="pagination.last_page > 1" class="mt-5 d-flex justify-content-center">
             <ul class="pagination shadow-sm rounded-3 overflow-hidden border-0 bg-white">
                 <li class="page-item" :class="{ disabled: currentPage === 1 }">
@@ -368,33 +318,43 @@
         }
     }
 
+    const participantDisplayNames = computed(() => {
+        if (!editingItem.value.participants?.length) return 'ជ្រើសរើសអ្នកចូលរួម...';
+        
+        return editingItem.value.participants.map(email => {
+            const found = allUsers.value.find(u => u.email === email);
+            return found ? found.name : email;
+        }).join(', ');
+    });
+
     const toggleDropdown = () => {
         showUserDropdown.value = !showUserDropdown.value
         if (showUserDropdown.value && allUsers.value.length === 0) fetchApiUsers()
     }
 
-    const isUserSelected = (user) => {
-        return editingItem.value.participants?.some(p => p.id === user.id)
-    }
-
     const toggleUserSelection = (user) => {
-        if (!editingItem.value.participants) editingItem.value.participants = []
-        const index = editingItem.value.participants.findIndex(p => p.id === user.id)
+        if (!editingItem.value.participants) editingItem.value.participants = [];
+        
+        const index = editingItem.value.participants.indexOf(user.email);
+        
         if (index > -1) {
-            editingItem.value.participants.splice(index, 1)
+            editingItem.value.participants.splice(index, 1);
         } else {
-            editingItem.value.participants.push(user)
+            editingItem.value.participants.push(user.email);
         }
+    };
+
+    const isUserSelected = (user) => {
+        return editingItem.value.participants?.includes(user.email)
     }
 
     const openEditModal = (item) => {
-        // Clone the item
         editingItem.value = JSON.parse(JSON.stringify(item));
-        
-        // 1. Reset the newly selected file ref
         selectedFile.value = null;
 
-        if (!Array.isArray(editingItem.value.participants)) {
+       if (item.participant_emails && Array.isArray(item.participant_emails)) {
+            editingItem.value.participants = [...item.participant_emails];
+        } else {
             editingItem.value.participants = [];
         }
         
@@ -402,7 +362,7 @@
         if (!modalInstance && modalElement.value) modalInstance = new Modal(modalElement.value);
         modalInstance?.show();
     };
-
+    
     const updateMeeting = async () => {
         isSaving.value = true
         try {
@@ -412,34 +372,45 @@
 
             Object.keys(editingItem.value).forEach(key => {
                 const value = editingItem.value[key]
-                if (key !== 'attachment' && key !== 'participants' && value !== null) {
+                if (!['attachment', 'participants', 'participant_emails'].includes(key) && value !== null) {
                     data.append(key, value)
                 }
             })
 
-            // 3. Append Participant IDs
-            if (editingItem.value.participants?.length > 0) {
-                editingItem.value.participants.forEach((u, i) => {
-                    data.append(`participant_ids[${i}]`, u.id)
+            if (editingItem.value.participants && editingItem.value.participants.length > 0) {
+                editingItem.value.participants.forEach((email) => {
+                    data.append('participant_emails[]', email)
+                    data.append('participants[]', email)
                 })
+            } else {
+                data.append('participant_emails[]', '')
+                data.append('participants[]', '')
             }
 
-            // 4. Append the ACTUAL file object if a new one was selected
             if (selectedFile.value) {
-                console.log("Appending new file:", selectedFile.value.name);
                 data.append('attachment', selectedFile.value)
             }
 
-            // 5. Send to service
             await ScheduleService.update(editingItem.value.id, data)
             
             modalInstance?.hide()
             await fetchMeetings(currentPage.value)
             
-            Swal.fire({ icon: 'success', title: 'រក្សាទុកជោគជ័យ', timer: 1500, showConfirmButton: false })
+            Swal.fire({ 
+                icon: 'success', 
+                title: 'រក្សាទុកជោគជ័យ', 
+                timer: 1500, 
+                showConfirmButton: false,
+                customClass: { popup: 'khmer-font' }
+            })
         } catch (error) {
-            console.error("Update Error:", error.response?.data);
-            Swal.fire({ icon: 'error', title: 'បរាជ័យ', text: error.response?.data?.message || 'មានកំហុសបច្ចេកទេស' })
+            console.error("Backend Error Details:", error.response?.data)
+            Swal.fire({ 
+                icon: 'error', 
+                title: 'បរាជ័យ', 
+                text: error.response?.data?.message || 'ទិន្នន័យអ្នកចូលរួមមិនអាចរក្សាទុកបាន',
+                customClass: { popup: 'khmer-font' }
+            })
         } finally {
             isSaving.value = false
         }
@@ -449,7 +420,7 @@
         const file = event.target.files[0];
         if (file) {
             if (file.type === 'application/pdf') {
-                selectedFile.value = file; // This triggers the (1) state above
+                selectedFile.value = file;
             } else {
                 Swal.fire({ icon: 'error', title: 'Error', text: 'សូមជ្រើសរើសឯកសារ PDF ប៉ុណ្ណោះ' });
                 event.target.value = ''; 
