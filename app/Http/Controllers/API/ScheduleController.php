@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use App\Models\Schedule;
 use Carbon\Carbon;
 
@@ -129,7 +130,10 @@ class ScheduleController extends Controller
 
                 if ($request->hasFile('attachment')) {
                     $file = $request->file('attachment');
-                    $path = $file->store('attachments', 'public');
+                    $nameWithoutExtension = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                    $extension = $file->getClientOriginalExtension();
+                    $filename = $nameWithoutExtension . '_' . now()->format('Y-m-d_H-i-s') . '.' . $extension;
+                    $path = $file->storeAs('attachments', $filename, 'public');
                     $data['attachment'] = $path; 
                 }
 
@@ -146,6 +150,7 @@ class ScheduleController extends Controller
                 if (isset($path)) {
                     Storage::disk('public')->delete($path);
                 }
+
                 return response()->json([
                     'status'  => 'error',
                     'message' => 'បរាជ័យក្នុងការរក្សាទុក!',
@@ -185,10 +190,20 @@ class ScheduleController extends Controller
             $data = $request->validated();
 
             if ($request->hasFile('attachment')) {
-                if ($schedule->attachment) {
+                if ($schedule->attachment && Storage::disk('public')->exists($schedule->attachment)) {
                     Storage::disk('public')->delete($schedule->attachment);
                 }
-                $data['attachment'] = $request->file('attachment')->store('attachments', 'public');
+
+                $file = $request->file('attachment');
+                
+                $nameWithoutExtension = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                
+                $extension = $file->getClientOriginalExtension();
+                
+                $filename = $nameWithoutExtension . '_' . now()->format('Y-m-d_H-i-s') . '.' . $extension;
+                $path = $file->storeAs('attachments', $filename, 'public');
+                
+                $data['attachment'] = $path; 
             }
 
             $schedule->update($data);

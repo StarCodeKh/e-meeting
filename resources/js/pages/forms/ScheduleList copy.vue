@@ -222,35 +222,13 @@
                                     <i class="bi bi-link-45deg text-muted me-2"></i>
                                     <input v-model="editingItem.link" type="url" class="form-control border-0 bg-transparent shadow-none" placeholder="លីងតំណភ្ជាប់...">
                                 </div>
-
-                                <div class="bg-light rounded-3 border p-1 px-3 d-flex align-items-center transition-all" 
-                                    :style="selectedFile ? { borderColor: activeTheme, backgroundColor: '#fff' } : {}">
-                                    
-                                    <i class="bi bi-file-earmark-pdf me-2" 
-                                    :style="{ color: selectedFile || editingItem.attachment ? activeTheme : '#6c757d' }"></i>
-                                    
+                                <div class="bg-light rounded-3 border p-1 px-3 d-flex align-items-center">
+                                    <i class="bi bi-file-earmark-pdf text-muted me-2"></i>
                                     <label class="form-control border-0 bg-transparent shadow-none mb-0 flex-grow-1 cursor-pointer khmer-font text-muted">
-                                        <span v-if="selectedFile" class="fw-bold" :style="{ color: activeTheme }">
-                                            {{ selectedFile.name }}
-                                        </span>
-                                        
-                                        <span v-else-if="editingItem.attachment" class="text-dark">
-                                            {{ editingItem.attachment.split('/').pop() }} 
-                                        </span>
-                                        
-                                        <span v-else>
-                                            ភ្ជាប់ឯកសារពិភាក្សា (PDF)...
-                                        </span>
-
+                                        {{ selectedFile ? selectedFile.name : 'ភ្ជាប់ឯកសារពិភាក្សា (PDF)...' }}
                                         <input type="file" class="d-none" @change="handleFileChange" accept=".pdf">
                                     </label>
-
-                                    <div class="d-flex align-items-center">
-                                        <i v-if="selectedFile" class="bi bi-x-circle text-danger cursor-pointer me-2" @click.stop="selectedFile = null"></i>
-                                        
-                                        <i class="bi bi-cloud-arrow-up" 
-                                        :style="{ color: selectedFile ? activeTheme : '#6c757d' }"></i>
-                                    </div>
+                                    <i class="bi bi-cloud-arrow-up text-muted"></i>
                                 </div>
                             </div>
 
@@ -326,12 +304,7 @@
     const modalElement = ref(null)
     let modalInstance = null 
 
-    const showUserDropdown = ref(false)
-    const userSearchQuery = ref('')
-    const allUsers = ref([])
-    const isFetchingUsers = ref(false)
-
-    // --- Constants ---
+    // --- Constants (Matching Create Form) ---
     const TABS = [
         { id: 'meeting', label: 'កិច្ចប្រជុំ', icon: 'bi bi-camera-video', theme: '#e54d42', gradient: 'linear-gradient(135deg, #ff6b6b, #e54d42)' },
         { id: 'appointment', label: 'ការណាត់', icon: 'bi bi-calendar-event', theme: '#4285f4', gradient: 'linear-gradient(135deg, #6ab0ff, #4285f4)' },
@@ -344,119 +317,135 @@
         { id: 'green', hex: '#51cf66', label: 'ធម្មតា' }
     ]
 
-    // --- Computed ---
+    // --- Computed Styling ---
     const activeTab = computed(() => TABS.find(t => t.id === editingItem.value.type) || TABS[0])
     const activeTheme = computed(() => activeTab.value.theme)
     const activeGradient = computed(() => activeTab.value.gradient)
+    
 
-    const filteredUsers = computed(() => {
-        if (!allUsers.value) return []
-        const query = userSearchQuery.value.toLowerCase().trim()
-        return allUsers.value.filter(u => u.name?.toLowerCase().includes(query))
+    // --- Style & Format Helpers ---
+    const getBadgeClass = (color) => ({
+        'bg-success-subtle text-success': color === 'green',
+        'bg-danger-subtle text-danger': color === 'red',
+        'bg-warning-subtle text-warning': color === 'yellow',
+        'bg-primary-subtle text-primary': !color || color === 'blue'
     })
 
-    // --- Methods ---
-    const fetchApiUsers = async () => {
-        isFetchingUsers.value = true
-        try {
-            const res = await api.get('/users?per_page=100')
-            allUsers.value = res.data?.data || []
-        } catch (error) {
-            console.error("Fetch Error:", error)
-        } finally {
-            isFetchingUsers.value = false
-        }
+    const getBorderClass = (color) => ({
+        'border-success': color === 'green',
+        'border-danger': color === 'red',
+        'border-warning': color === 'yellow',
+        'border-primary': !color || color === 'blue'
+    })
+
+    const toKhmerNum = (num) => {
+        if (!num) return ''
+        const kh = ['០', '១', '២', '៣', '៤', '៥', '៦', '៧', '៨', '៩']
+        return num.toString().replace(/\d/g, d => kh[d])
     }
 
-    const toggleDropdown = () => {
-        showUserDropdown.value = !showUserDropdown.value
-        if (showUserDropdown.value && allUsers.value.length === 0) fetchApiUsers()
+    // Returns AM/PM for the time inputs in the pill
+    const getAMPM = (timeStr) => {
+        if (!timeStr) return 'AM';
+        const hour = parseInt(timeStr.split(':')[0]);
+        return hour >= 12 ? 'PM' : 'AM';
     }
 
-    const isUserSelected = (user) => {
-        return editingItem.value.participants?.some(p => p.id === user.id)
-    }
 
-    const toggleUserSelection = (user) => {
-        if (!editingItem.value.participants) editingItem.value.participants = []
-        const index = editingItem.value.participants.findIndex(p => p.id === user.id)
-        if (index > -1) {
-            editingItem.value.participants.splice(index, 1)
-        } else {
-            editingItem.value.participants.push(user)
-        }
-    }
 
-    const openEditModal = (item) => {
-        // Clone the item
-        editingItem.value = JSON.parse(JSON.stringify(item));
+
+    const showUserDropdown = ref(false)
+const userSearchQuery = ref('')
+const allUsers = ref([]) // From API
+const isFetchingUsers = ref(false)
+
+// Fetch Users from API
+const fetchApiUsers = async () => {
+    isFetchingUsers.value = true;
+    try {
+        const res = await api.get('/users?per_page=100');
         
-        // 1. Reset the newly selected file ref
-        selectedFile.value = null;
+        const usersArray = res.data?.data || [];
 
-        if (!Array.isArray(editingItem.value.participants)) {
-            editingItem.value.participants = [];
+        if (Array.isArray(usersArray)) {
+            allUsers.value = usersArray.map(u => ({
+                id: u.id,
+                name: u.name,
+                email: u.email,
+                avatar: u.avatar_url
+            }));
         }
-        
-        showUserDropdown.value = false;
-        if (!modalInstance && modalElement.value) modalInstance = new Modal(modalElement.value);
-        modalInstance?.show();
-    };
+    } catch (error) {
+        console.error("User Fetch Error:", error.response?.data?.message || error.message);
+    } finally {
+        isFetchingUsers.value = false;
+    }
+}
 
-    const updateMeeting = async () => {
-        isSaving.value = true
-        try {
-            const data = new FormData()
-            
-            data.append('_method', 'PUT')
+const filteredUsers = computed(() => {
+    if (!allUsers.value) return [];
+    
+    // Normalize search query
+    const query = userSearchQuery.value.toLowerCase().trim();
+    
+    // If no search, show everyone
+    if (!query) return allUsers.value;
 
-            Object.keys(editingItem.value).forEach(key => {
-                const value = editingItem.value[key]
-                if (key !== 'attachment' && key !== 'participants' && value !== null) {
-                    data.append(key, value)
-                }
-            })
+    return allUsers.value.filter(u => 
+        u.name?.toLowerCase().includes(query) || 
+        u.email?.toLowerCase().includes(query)
+    );
+});
 
-            // 3. Append Participant IDs
-            if (editingItem.value.participants?.length > 0) {
-                editingItem.value.participants.forEach((u, i) => {
-                    data.append(`participant_ids[${i}]`, u.id)
-                })
-            }
 
-            // 4. Append the ACTUAL file object if a new one was selected
-            if (selectedFile.value) {
-                console.log("Appending new file:", selectedFile.value.name);
-                data.append('attachment', selectedFile.value)
-            }
+// Toggle Dropdown and Load Users
+const toggleDropdown = () => {
+    showUserDropdown.value = !showUserDropdown.value
+    if (showUserDropdown.value && allUsers.value.length === 0) {
+        fetchApiUsers()
+    }
+}
 
-            // 5. Send to service
-            await ScheduleService.update(editingItem.value.id, data)
-            
-            modalInstance?.hide()
-            await fetchMeetings(currentPage.value)
-            
-            Swal.fire({ icon: 'success', title: 'រក្សាទុកជោគជ័យ', timer: 1500, showConfirmButton: false })
-        } catch (error) {
-            console.error("Update Error:", error.response?.data);
-            Swal.fire({ icon: 'error', title: 'បរាជ័យ', text: error.response?.data?.message || 'មានកំហុសបច្ចេកទេស' })
-        } finally {
-            isSaving.value = false
-        }
+// Filter users based on search
+// const filteredUsers = computed(() => {
+//     return allUsers.value.filter(u => 
+//         u.name.toLowerCase().includes(userSearchQuery.value.toLowerCase())
+//     )
+// })
+
+// Check if user is already in the participants list
+const isUserSelected = (user) => {
+    return editingItem.value.participants?.some(p => p.id === user.id)
+}
+
+// Add/Remove user from selection
+const toggleUserSelection = (user) => {
+    if (!editingItem.value.participants) {
+        editingItem.value.participants = []
     }
 
-    const handleFileChange = (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            if (file.type === 'application/pdf') {
-                selectedFile.value = file; // This triggers the (1) state above
-            } else {
-                Swal.fire({ icon: 'error', title: 'Error', text: 'សូមជ្រើសរើសឯកសារ PDF ប៉ុណ្ណោះ' });
-                event.target.value = ''; 
-            }
-        }
-    };
+    const index = editingItem.value.participants.findIndex(p => p.id === user.id)
+    if (index > -1) {
+        editingItem.value.participants.splice(index, 1) // Remove
+    } else {
+        editingItem.value.participants.push(user) // Add
+    }
+}
 
+
+
+
+    // Optional: Close dropdown when clicking outside
+    onMounted(() => {
+        window.addEventListener('click', (e) => {
+            const header = document.querySelector('.pill-multiselect-header');
+            if (header && !header.contains(e.target)) {
+                showUserDropdown.value = false;
+            }
+        });
+    });
+
+    // --- Logic ---
     const fetchMeetings = async (page = 1) => {
         isLoading.value = true
         try {
@@ -464,13 +453,100 @@
             meetings.value = data.data
             pagination.value = data.meta
             currentPage.value = data.meta.current_page
-        } catch (e) { console.error(e) } finally { isLoading.value = false }
+        } catch (error) {
+            console.error('Fetch Error:', error)
+        } finally {
+            isLoading.value = false
+        }
     }
 
-    const toKhmerNum = (n) => n?.toString().replace(/\d/g, d => ['០','១','២','៣','៤','៥','៦','៧','៨','៩'][d])
-    const getAMPM = (t) => t && parseInt(t.split(':')[0]) >= 12 ? 'PM' : 'AM'
-    const getBadgeClass = (c) => ({ 'bg-danger-subtle text-danger': c === 'red', 'bg-warning-subtle text-warning': c === 'yellow', 'bg-success-subtle text-success': c === 'green' })
-    const getBorderClass = (c) => ({ 'border-danger': c === 'red', 'border-warning': c === 'yellow', 'border-success': c === 'green' })
+const openEditModal = (item) => {
+    // 1. Assign/Clone the data FIRST
+    editingItem.value = JSON.parse(JSON.stringify(item));
+
+    // 2. Now log it (it will show the data from the item)
+    console.log('Current Participants:', editingItem.value.participants);
+
+    // 3. Ensure it is an array for the multiselect logic
+    if (!editingItem.value.participants) {
+        editingItem.value.participants = [];
+    } else if (typeof editingItem.value.participants === 'string') {
+        try {
+            editingItem.value.participants = JSON.parse(editingItem.value.participants);
+        } catch (e) {
+            editingItem.value.participants = [];
+        }
+    }
+
+    // Reset UI states
+    showUserDropdown.value = false;
+    selectedFile.value = null;
+
+    // Show Bootstrap Modal
+    if (!modalInstance && modalElement.value) {
+        modalInstance = new Modal(modalElement.value);
+    }
+    modalInstance?.show();
+};
+
+    const handleFileChange = (event) => {
+        const file = event.target.files[0]
+        if (file && file.type === 'application/pdf') {
+            selectedFile.value = file
+        } else {
+            Swal.fire({ icon: 'error', title: 'ឯកសារមិនត្រឹមត្រូវ', text: 'សូមជ្រើសរើសឯកសារ PDF ប៉ុណ្ណោះ' })
+        }
+    }
+
+    const updateMeeting = async () => {
+        isSaving.value = true
+        try {
+            const data = new FormData()
+            data.append('_method', 'PUT') 
+
+            // 1. Append standard fields
+            Object.keys(editingItem.value).forEach(key => {
+                const value = editingItem.value[key]
+                // Skip UI helpers and the participants objects
+                if (!['attachment', 'participants', 'participants_display', 'participant_emails'].includes(key) && value !== null) {
+                    data.append(key, value)
+                }
+            })
+
+            // 2. Append Participant IDs as an array (The "Standard" Way)
+            if (editingItem.value.participants && editingItem.value.participants.length > 0) {
+                editingItem.value.participants.forEach((user, index) => {
+                    data.append(`participant_ids[${index}]`, user.id)
+                })
+            }
+
+            // 3. Append File
+            if (selectedFile.value) data.append('attachment', selectedFile.value)
+
+            await ScheduleService.update(editingItem.value.id, data)
+            
+            modalInstance?.hide()
+            await fetchMeetings(currentPage.value)
+            
+            Swal.fire({ 
+                icon: 'success', 
+                title: 'រក្សាទុកជោគជ័យ', 
+                timer: 1500, 
+                showConfirmButton: false,
+                customClass: { popup: 'khmer-font' }
+            })
+        } catch (error) {
+            Swal.fire({ 
+                icon: 'error', 
+                title: 'បរាជ័យ', 
+                text: error.response?.data?.message || 'មានកំហុសបច្ចេកទេស' 
+            })
+        } finally {
+            isSaving.value = false
+        }
+    }
+
+    
 
     const confirmDelete = async (id) => {
         if (!id) return
@@ -502,19 +578,6 @@
             }
         }
     }
-    
-    onMounted(() => {
-        fetchMeetings()
-        window.addEventListener('click', (e) => {
-            if (!e.target.closest('.pill-multiselect-header') && !e.target.closest('.bg-white.rounded-3.border.mt-1')) {
-                showUserDropdown.value = false
-            }
-        })
-    })
+
+    onMounted(() => fetchMeetings())
 </script>
-
-
-<style scoped>
-    @import "@/css/schedule-list.css";
-</style>
-
