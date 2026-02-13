@@ -131,7 +131,7 @@
 }
 
 .row-active td { 
-    border-bottom: 1px solid rgba(215, 58, 73, 0.3);
+    border-bottom: 1px solid rgba(214, 13, 33, 0.709);
 }
 
 .row-upcoming { 
@@ -140,13 +140,13 @@
 }
 
 .row-upcoming td { 
-    border-bottom: 1px solid rgba(241, 196, 15, 0.15);
+    border-bottom: 1px solid rgba(241, 196, 15, 0.859);
 }
 
 .row-completed { 
     background: rgba(149, 165, 166, 0.05) !important; 
     position: relative;
-    opacity: 0.7;
+    opacity: 0.8;
     filter: grayscale(0.5);
 }
 
@@ -172,7 +172,7 @@
     color: #ff7b7b;
 }
 .row-active .icon-sm {
-    text-shadow: 0 0 8px rgba(255, 123, 123, 0.5);
+    text-shadow: 0 0 8px rgb(255, 0, 0);
 }
 
 .status-badge {
@@ -200,9 +200,8 @@
 }
 
 .status-badge.completed { 
-    background: #76c893; 
-    opacity: 0.6; 
-    color: #e9ecef;
+    background: rgb(25 135 84); 
+    color: white;
 }
 
 .btn-action {
