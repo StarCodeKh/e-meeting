@@ -28,7 +28,7 @@
             </div>
 
             <div v-if="isLoading" class="row">
-                <div v-for="n in 6" :key="n" class="col-12 col-md-6 col-lg-4">
+                <div v-for="n in 6" :key="n" class="col-12 col-md-6 col-lg-4 mb-4">
                     <div class="card border-0 shadow-sm rounded-3 p-4 skeleton-card animate-pulse">
                         <div class="skeleton-line mb-3" style="width: 30%;"></div>
                         <div class="skeleton-line mb-2" style="width: 80%;"></div>
@@ -38,7 +38,7 @@
             </div>
 
             <div v-else class="row">
-                <div v-for="item in meetings" :key="item.id" class="col-12 col-md-6 col-lg-4">
+                <div v-for="item in meetings" :key="item.id" class="col-12 col-md-6 col-lg-4 mb-4">
                     <div class="card border-0 shadow-sm rounded-3 h-100 meeting-card border-start border-4" :class="getBorderClass(item.color_id)">
                         <div class="card-body p-4 d-flex flex-column">
                             <div class="d-flex justify-content-between align-items-start mb-3">
@@ -241,19 +241,34 @@
                 </div>
             </div>
             
-            <nav v-if="pagination.last_page > 1" class="mt-5 d-flex justify-content-center">
-                <ul class="pagination shadow-sm rounded-3 overflow-hidden border-0 bg-white">
+            <nav v-if="pagination.last_page > 1" class="mt-5 d-flex flex-column align-items-center gap-3">
+                <div class="khmer-font text-muted small">
+                    ទំព័រទី {{ toKhmerNum(currentPage) }} នៃ {{ toKhmerNum(pagination.last_page) }}
+                </div>
+
+                <ul class="pagination gap-2 mb-0">
                     <li class="page-item" :class="{ disabled: currentPage === 1 }">
-                        <button class="page-link py-2 px-3 border-0" @click="changePage(currentPage - 1)"><i class="bi bi-chevron-left"></i></button>
+                        <button class="page-link rounded-3 border-0 shadow-sm transition-all" @click="changePage(currentPage - 1)">
+                            <i class="bi bi-arrow-left"></i>
+                        </button>
                     </li>
-                    <li v-for="page in pagination.links?.slice(1, -1)" :key="page.label" 
-                        class="page-item" :class="{ active: page.active }">
-                        <button class="page-link py-2 px-3 border-0 khmer-font" @click="changePage(parseInt(page.label))">
+
+                    <li v-for="page in pagination.links?.slice(1, -1)" :key="page.label" class="page-item d-none d-md-block" :class="{ active: page.active }">
+                        <button class="page-link rounded-3 border-0 shadow-sm khmer-font transition-all" :style="page.active ? { background: activeGradient, color: 'white' } : {}" @click="changePage(parseInt(page.label))">
                             {{ toKhmerNum(page.label) }}
                         </button>
                     </li>
+
+                    <li class="page-item d-md-none active">
+                        <button class="page-link rounded-3 border-0 shadow-sm khmer-font" :style="{ background: activeGradient, color: 'white' }">
+                            {{ toKhmerNum(currentPage) }}
+                        </button>
+                    </li>
+
                     <li class="page-item" :class="{ disabled: currentPage === pagination.last_page }">
-                        <button class="page-link py-2 px-3 border-0" @click="changePage(currentPage + 1)"><i class="bi bi-chevron-right"></i></button>
+                        <button class="page-link rounded-3 border-0 shadow-sm transition-all" @click="changePage(currentPage + 1)">
+                            <i class="bi bi-arrow-right"></i>
+                        </button>
                     </li>
                 </ul>
             </nav>
