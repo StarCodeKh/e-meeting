@@ -224,7 +224,7 @@
 
     const TABS = [
         { id: 'meeting', label: 'កិច្ចប្រជុំ', theme: '#e54d42', gradient: 'linear-gradient(135deg, #ff6b6b, #e54d42)', icon: 'bi bi-camera-video' },
-        { id: 'appointment', label: 'ការណាត់', theme: '#4285f4', gradient: 'linear-gradient(135deg, #6ab0ff, #4285f4)', icon: 'bi bi-calendar-event' },
+        { id: 'appointment', label: 'ការណាត់', theme: '#fcc419', gradient: 'linear-gradient(135deg, #ffd43b, #fcc419)', icon: 'bi bi-calendar-event' },
         { id: 'task', label: 'ការងារ', theme: '#34a853', gradient: 'linear-gradient(135deg, #51cf66, #34a853)', icon: 'bi bi-check2-circle' }
     ]
 

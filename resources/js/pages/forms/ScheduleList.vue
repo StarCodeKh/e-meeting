@@ -284,7 +284,7 @@
     // --- Constants ---
     const TABS = [
         { id: 'meeting', label: 'កិច្ចប្រជុំ', icon: 'bi bi-camera-video', theme: '#e54d42', gradient: 'linear-gradient(135deg, #ff6b6b, #e54d42)' },
-        { id: 'appointment', label: 'ការណាត់', icon: 'bi bi-calendar-event', theme: '#4285f4', gradient: 'linear-gradient(135deg, #6ab0ff, #4285f4)' },
+        { id: 'appointment', label: 'ការណាត់', icon: 'bi bi-calendar-event', theme: '#fcc419', gradient: 'linear-gradient(135deg, #ffd43b, #fcc419)' },
         { id: 'task', label: 'ការងារ', icon: 'bi bi-check2-circle', theme: '#34a853', gradient: 'linear-gradient(135deg, #51cf66, #34a853)' }
     ]
 
@@ -474,16 +474,20 @@
         }
     }
     
-    onMounted(() => {
-        fetchMeetings()
+    onMounted(async () => {
+        await fetchMeetings()
+        fetchApiUsers() 
         window.addEventListener('click', (e) => {
-            if (!e.target.closest('.pill-multiselect-header') && !e.target.closest('.bg-white.rounded-3.border.mt-1')) {
+            const isHeaderClick = e.target.closest('.pill-multiselect-header')
+            const isListClick = e.target.closest('.bg-white.rounded-3.border.mt-1')
+            
+            if (!isHeaderClick && !isListClick) {
                 showUserDropdown.value = false
             }
         })
     })
-</script>
 
+</script>
 
 <style scoped>
     @import "@/css/schedule-list.css";
