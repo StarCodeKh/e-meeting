@@ -93,7 +93,7 @@
             </div>
 
             <div class="modal fade" id="editMeetingModal" ref="modalElement" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered" style="max-width: 650px;">
+                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: 650px;">
                     <div class="modal-content border-0 shadow-lg rounded-3 overflow-hidden" :style="{ borderTop: `6px solid ${activeTheme}` }">
                         
                         <div class="d-flex bg-white border-bottom p-2 gap-2 justify-content-center">
