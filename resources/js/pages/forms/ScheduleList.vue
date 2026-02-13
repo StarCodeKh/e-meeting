@@ -93,10 +93,7 @@
                 <div class="modal-content border-0 shadow-lg rounded-3 overflow-hidden" :style="{ borderTop: `6px solid ${activeTheme}` }">
                     
                     <div class="d-flex bg-white border-bottom p-2 gap-2 justify-content-center">
-                        <button v-for="tab in TABS" :key="tab.id" 
-                            class="btn border-0 rounded-3 px-4 py-2 khmer-font transition-all d-flex align-items-center justify-content-center flex-grow-1" 
-                            :style="editingItem.type === tab.id ? { background: tab.theme, color: 'white' } : { color: '#666', background: 'transparent' }" 
-                            @click="editingItem.type = tab.id">
+                        <button v-for="tab in TABS" :key="tab.id" class="btn border-0 rounded-3 px-4 py-2 khmer-font transition-all d-flex align-items-center justify-content-center flex-grow-1" :style="editingItem.type === tab.id ? { background: tab.theme, color: 'white' } : { color: '#666', background: 'transparent' }" @click="editingItem.type = tab.id">
                             <i :class="tab.icon" class="me-2" :style="{ color: editingItem.type === tab.id ? 'white' : tab.theme }"></i> 
                             {{ tab.label }}
                         </button>
