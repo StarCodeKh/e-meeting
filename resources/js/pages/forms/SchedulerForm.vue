@@ -4,136 +4,152 @@
             <div class="custom-modal shadow-lg" :style="{ borderColor: activeTheme }">
                 
                 <div class="modal-tabs">
-                    <button v-for="tab in TABS" :key="tab.id" class="tab-item khmer-font" 
-                        :style="form.type === tab.id ? { background: tab.theme, color: 'white' } : {}" 
-                        @click="form.type = tab.id">
+                    <button v-for="tab in TABS" :key="tab.id" class="tab-item khmer-font" :style="form.type === tab.id ? { background: tab.theme, color: 'white' } : {}" @click="form.type = tab.id">
                         <i :class="tab.icon" class="me-1"></i> {{ tab.label }}
                     </button>
                 </div>
-
+            
                 <form @submit.prevent="handleSave" class="modal-inner">
-                    <div class="title-section mb-4">
-                        <input v-model="form.title" type="text" placeholder="បញ្ចូលចំណងជើង..." class="title-input khmer-font" :style="{ borderBottomColor: activeTheme }" required />
+                    <div class="mb-4">
+                        <input v-model="form.title" type="text" class="form-control khmer-font fs-4 fw-bold border-0 border-bottom bg-transparent rounded-0 px-0 shadow-none pb-2 transition-all" :style="{ borderBottomColor: form.title ? activeTheme : '#eee' }" placeholder="បញ្ចូលចំណងជើង..." required>
                     </div>
 
-                    <div class="form-content">
-                        <div class="form-row">
-                            <i class="bi bi-calendar3 icon-gray"></i>
-                            <div class="datetime-pill-container d-flex align-items-center flex-grow-1">
-                                <DatePicker v-model="form.date" :popover="{ visibility: 'click' }" color="blue">
-                                    <template #default="{ inputValue, inputEvents }">
-                                        <input class="date-input-clean khmer-font" :value="inputValue" v-on="inputEvents" readonly placeholder="ជ្រើសរើសថ្ងៃ..." />
-                                    </template>
-                                </DatePicker>
-
-                                <div class="vr mx-2 opacity-25" style="height: 20px;"></div>
-
-                                <div class="time-picker-minimal d-flex align-items-center">
-                                    <div class="time-box">
-                                        <input v-model="form.start_time" type="time" class="time-field-inline" />
-                                        <span class="ampm-text">{{ getAMPM(form.start_time) }}</span>
+                    <div class="modal-body p-0">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <div class="bg-light p-2 rounded-3 d-flex flex-column flex-md-row align-items-center px-3 border gap-2">
+                                    <div class="d-flex align-items-center w-100 w-md-auto">
+                                        <i class="bi bi-calendar3 me-2 transition-all" :style="{ color: form.date ? activeTheme : '#6c757d' }"></i>
+                                        <DatePicker v-model="form.date" :popover="{ visibility: 'click' }" color="blue">
+                                            <template #default="{ inputValue, inputEvents }">
+                                                <input class="form-control form-control-sm border-0 bg-transparent shadow-none khmer-font" 
+                                                    :value="inputValue" v-on="inputEvents" readonly placeholder="ជ្រើសរើសថ្ងៃ..." />
+                                            </template>
+                                        </DatePicker>
                                     </div>
-                                    <span class="separator">-</span>
-                                    <div class="time-box">
-                                        <input v-model="form.end_time" type="time" class="time-field-inline" />
-                                        <span class="ampm-text">{{ getAMPM(form.end_time) }}</span>
+
+                                    <div class="vr mx-2 opacity-25 d-none d-md-block" style="height: 20px;"></div>
+                                    
+                                    <div class="d-flex align-items-center gap-1 justify-content-between flex-grow-1 w-100 w-md-auto">
+                                        <div class="d-flex align-items-center gap-1">
+                                            <input v-model="form.start_time" type="time" class="border-0 bg-transparent fw-bold p-0" style="width: 75px; font-size: 0.9rem;">
+                                            <span class="badge rounded-3 px-2 py-1 transition-all" :style="{ background: activeTheme, fontSize: '0.7rem' }">{{ getAMPM(form.start_time) }}</span>
+                                        </div>
+                                        <span class="mx-1 text-muted small">-</span>
+                                        <div class="d-flex align-items-center gap-1">
+                                            <input v-model="form.end_time" type="time" class="border-0 bg-transparent fw-bold p-0" style="width: 75px; font-size: 0.9rem;">
+                                            <span class="badge rounded-3 px-2 py-1 transition-all" :style="{ background: activeTheme, fontSize: '0.7rem' }">{{ getAMPM(form.end_time) }}</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="form-row" v-if="form.type !== 'task'">
-                            <i class="bi bi-people icon-gray"></i>
-                            <div class="position-relative flex-grow-1">
-                                <div class="pill-multiselect-header d-flex justify-content-between align-items-center" @click="showUserDropdown = !showUserDropdown">
-                                    <span class="selected-text text-truncate khmer-font">
-                                        {{ selectedUsers.length > 0 ? selectedUsers.map(u => u.name).join(', ') : 'ជ្រើសរើសអ្នកចូលរួម...' }}
+                            <div class="col-12 position-relative" v-if="form.type !== 'task'">
+                                <div class="input-group bg-light rounded-3 border pill-multiselect-header cursor-pointer transition-all" @click="showUserDropdown = !showUserDropdown">
+                                    <span class="input-group-text border-0 bg-transparent">
+                                        <i class="bi bi-people transition-all" :style="{ color: selectedUsers.length ? activeTheme : '#6c757d' }"></i>
                                     </span>
-                                    <i class="bi bi-chevron-down small opacity-50"></i>
-                                </div>
-
-                                <div v-if="showUserDropdown" class="multiselect-dropdown-card shadow-lg border">
-                                    <div class="search-container p-2 border-bottom">
-                                        <div class="search-box-inner d-flex align-items-center px-2">
-                                            <i class="bi bi-search opacity-50 me-2"></i>
-                                            <input v-model="userSearch" type="text" placeholder="ស្វែងរកឈ្មោះ..." class="search-input-none flex-grow-1" />
-                                        </div>
-                                    </div>
-                                    <div class="options-list" style="max-height: 200px; overflow-y: auto;">
-                                        <div v-for="user in filteredUsers" :key="user.email" class="option-row d-flex align-items-center" @click="toggleUser(user)">
-                                            <div class="checkbox-box me-3" :class="{ 'checked': isUserSelected(user) }">
-                                                <i v-if="isUserSelected(user)" class="bi bi-check text-white"></i>
-                                            </div>
-                                            <div class="d-flex flex-column">
-                                                <span class="option-name khmer-font" style="font-size: 14px;">{{ user.name }}</span>
-                                                <span class="text-muted" style="font-size: 11px;">{{ user.email }}</span>
-                                            </div>
-                                        </div>
-                                        <div v-if="filteredUsers.length === 0" class="p-3 text-center text-muted small khmer-font">មិនមានទិន្នន័យ</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <i class="bi bi-geo-alt icon-gray"></i>
-                            <div class="pill-group w-100 d-flex gap-2">
-                                <input v-model="form.location" type="text" placeholder="ទីតាំង" class="pill-input flex-grow-1" />
-                                <input v-if="form.type === 'meeting'" v-model="form.room" type="text" placeholder="បន្ទប់" class="pill-input w-25" />
-                            </div>
-                        </div>
-
-                        <div class="form-row align-items-start">
-                            <i class="bi bi-card-text icon-gray mt-2"></i>
-                            <textarea v-model="form.description" rows="2" placeholder="ពណ៌នាការងារលម្អិត..." class="pill-input khmer-font w-100 py-2"></textarea>
-                        </div>
-
-                        <div class="form-row">
-                            <i class="bi bi-link-45deg icon-gray"></i>
-                            <input v-model="form.link" type="url" placeholder="លីងតំណភ្ជាប់..." class="pill-input w-100" />
-                        </div>
-
-                        <div class="form-row align-items-center">
-                            <i class="bi bi-file-earmark-pdf icon-gray"></i>
-                            <div class="flex-grow-1">
-                                <div class="file-upload-wrapper">
-                                    <input type="file" id="fileInput" accept=".pdf" class="d-none" @change="handleFileChange" />
-                                    <label for="fileInput" class="pill-input khmer-font d-flex align-items-center justify-content-between cursor-pointer w-100">
-                                        <span class="text-truncate" :class="{ 'text-muted': !selectedFileName }">
-                                            {{ selectedFileName || 'ភ្ជាប់ឯកសារពិភាក្សា (PDF)...' }}
+                                    <div class="form-control khmer-font border-0 bg-transparent shadow-none py-2 d-flex align-items-center overflow-hidden">
+                                        <span class="text-truncate" :class="{ 'text-muted': !selectedUsers.length }">
+                                            {{ selectedUsers.length > 0 ? selectedUsers.map(u => u.name).join(', ') : 'ជ្រើសរើសអ្នកចូលរួម...' }}
                                         </span>
-                                        <i v-if="!selectedFileName" class="bi bi-cloud-arrow-up fs-5"></i>
-                                        <i v-else class="bi bi-x-circle text-danger fs-5" @click.prevent="removeFile"></i>
+                                    </div>
+                                    <i class="bi px-3 transition-all" :class="showUserDropdown ? 'bi-chevron-up' : 'bi-chevron-down'" style="font-size: 0.8rem; color: #6c757d"></i>
+                                </div>
+                                
+                                <div v-if="showUserDropdown" class="bg-white rounded-3 border mt-1 w-100 overflow-hidden shadow-sm position-absolute z-3">
+                                    <div class="p-2 border-bottom bg-light">
+                                        <input v-model="userSearch" type="text" class="form-control form-control-sm khmer-font shadow-none" placeholder="ស្វែងរកឈ្មោះ..." @click.stop>
+                                    </div>
+                                    <div class="overflow-auto" style="max-height: 200px;">
+                                        <div v-for="user in filteredUsers" :key="user.email" 
+                                            class="d-flex align-items-center px-3 py-2 border-bottom-faint cursor-pointer hover-bg-light transition-all" 
+                                            @click.stop="toggleUser(user)">
+                                            <div class="rounded-circle d-flex align-items-center justify-content-center me-2 flex-shrink-0 transition-all" 
+                                                :style="{ width: '30px', height: '30px', background: isUserSelected(user) ? activeTheme : '#eee', color: isUserSelected(user) ? 'white' : '#666' }">
+                                                {{ user.name?.charAt(0) }}
+                                            </div>
+                                            <div class="flex-grow-1 khmer-font small fw-bold text-truncate" :style="isUserSelected(user) ? { color: activeTheme } : {}">{{ user.name }}</div>
+                                            <i v-if="isUserSelected(user)" class="bi bi-check-lg" :style="{ color: activeTheme }"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-8">
+                                <div class="bg-light rounded-3 border p-1 px-3 d-flex align-items-center h-100">
+                                    <i class="bi bi-geo-alt me-2 transition-all" :style="{ color: form.location ? activeTheme : '#6c757d' }"></i>
+                                    <input v-model="form.location" type="text" class="form-control border-0 bg-transparent shadow-none khmer-font" placeholder="ទីតាំង">
+                                </div>
+                            </div>
+
+                            <div class="col-md-4" v-if="form.type === 'meeting'">
+                                <div class="bg-light rounded-3 border p-1 px-3 d-flex align-items-center h-100">
+                                    <i class="bi bi-door-open me-2 transition-all" :style="{ color: form.room ? activeTheme : '#6c757d' }"></i>
+                                    <input v-model="form.room" type="text" class="form-control border-0 bg-transparent shadow-none khmer-font" placeholder="បន្ទប់">
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="bg-light rounded-3 border p-1 px-3 d-flex align-items-start">
+                                    <i class="bi bi-card-text mt-2 me-2 transition-all" :style="{ color: form.description ? activeTheme : '#6c757d' }"></i>
+                                    <textarea v-model="form.description" rows="2" class="form-control khmer-font border-0 bg-transparent shadow-none py-2" placeholder="ពណ៌នាការងារលម្អិត..."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="bg-light rounded-3 border p-1 px-3 d-flex align-items-center h-100">
+                                    <i class="bi bi-link-45deg me-2 transition-all" :style="{ color: form.link ? activeTheme : '#6c757d' }"></i>
+                                    <input v-model="form.link" type="url" class="form-control border-0 bg-transparent shadow-none small" placeholder="លីងតំណភ្ជាប់">
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="bg-light rounded-3 border p-1 px-3 d-flex align-items-center h-100 transition-all" :style="selectedFileName ? { borderColor: activeTheme, backgroundColor: '#fff' } : {}">
+                                    <i class="bi bi-file-earmark-pdf me-2 transition-all" :style="{ color: selectedFileName ? activeTheme : '#6c757d' }"></i>
+                                    <label class="form-control border-0 bg-transparent shadow-none mb-0 flex-grow-1 cursor-pointer khmer-font text-muted p-0 small text-truncate">
+                                        <input type="file" class="d-none" @change="handleFileChange" accept=".pdf">
+                                        <span v-if="selectedFileName" :style="{ color: activeTheme }">{{ selectedFileName }}</span>
+                                        <span v-else>ភ្ជាប់ PDF...</span>
                                     </label>
+                                    <i v-if="selectedFileName" class="bi bi-x-circle text-danger ms-1 cursor-pointer" @click.stop="removeFile"></i>
                                 </div>
                                 <small v-if="fileError" class="text-danger khmer-font small mt-1 d-block">{{ fileError }}</small>
                             </div>
-                        </div>
 
-                        <div class="mt-3">
-                            <label class="khmer-font small text-muted mb-2 d-block">កម្រិតអាទិភាព</label>
-                            <div class="color-row-container">
-                                <div v-for="color in COLOR_OPTIONS" :key="color.id" class="color-option" @click="form.color_id = color.id">
-                                    <div class="color-bubble" :style="{ backgroundColor: color.hex }" :class="{ 'selected': form.color_id === color.id }">
-                                        <i v-if="form.color_id === color.id" class="bi bi-check-lg text-white"></i>
+                            <div class="col-12">
+                                <div class="p-3 border rounded-3 bg-white mt-2">
+                                    <label class="khmer-font small fw-bold text-muted mb-2 d-block">កម្រិតអាទិភាព</label>
+                                    <div class="d-flex justify-content-between gap-2">
+                                        <div v-for="color in COLOR_OPTIONS" :key="color.id" 
+                                            class="d-flex align-items-center cursor-pointer p-2 px-3 rounded-2 transition-all flex-grow-1 justify-content-center" 
+                                            :style="form.color_id === color.id ? { background: color.hex + '15' } : {}"
+                                            @click="form.color_id = color.id">
+                                            <div class="rounded-circle me-2 d-flex align-items-center justify-content-center transition-all" 
+                                                :style="{ width: '18px', height: '18px', backgroundColor: color.hex }">
+                                                <i v-if="form.color_id === color.id" class="bi bi-check text-white" style="font-size: 0.8rem;"></i>
+                                            </div>
+                                            <span class="khmer-font small transition-all" :style="form.color_id === color.id ? { color: color.hex, fontWeight: 'bold' } : { color: '#666' }">{{ color.label }}</span>
+                                        </div>
                                     </div>
-                                    <span class="color-text khmer-font">{{ color.label }}</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="modal-footer-custom d-flex justify-content-between mt-5 pt-3 border-top">
-                        <button type="button" class="btn-cancel khmer-font d-flex align-items-center" @click="closeModal">
-                            <i class="bi bi-x-circle me-2"></i> បោះបង់
+                    <div class="p-4 d-flex justify-content-between align-items-center border-top bg-white mt-4">
+                        <button type="button" class="btn btn-link text-decoration-none text-muted khmer-font p-0" @click="closeModal">
+                            <i class="bi bi-x-circle me-1"></i> បោះបង់
                         </button>
-                        <button type="submit" class="btn-save-dynamic khmer-font d-flex align-items-center text-white border-0 shadow-sm" :disabled="loading" :style="{ background: activeGradient }">
-                            <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>
-                            <i v-else class="bi bi-check2-circle me-2"></i> 
+                        <button type="submit" class="btn khmer-font px-5 py-2 rounded-3 shadow-sm text-white border-0 transition-all" 
+                                :disabled="loading" :style="{ background: activeGradient }">
+                            <i v-if="!loading" class="bi bi-check2-circle me-2"></i>
+                            <span v-else class="spinner-border spinner-border-sm me-2"></span>
                             {{ loading ? 'កំពុងរក្សាទុក...' : 'រក្សាទុកទិន្នន័យ' }}
                         </button>
                     </div>
                 </form>
+
             </div>
         </div>
     </Transition>
@@ -327,38 +343,4 @@
 <style scoped>
     /* Use @ to start from resources/js/ */
     @import "@/css/scheduler-form.css";
-
-    .datetime-pill-container:focus-within {
-        background: #ffffff;
-        border-color: v-bind(activeTheme);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    }
-    .ampm-text {
-        font-size: 10px;
-        font-weight: 800;
-        color: white;
-        background: v-bind(activeTheme); 
-        padding: 4px 10px;
-        border-radius: 5px;
-        text-transform: uppercase;
-        min-width: 35px;
-        text-align: center;
-    }
-
-    .cursor-pointer {
-        cursor: pointer;
-    }
-    .file-upload-wrapper label:hover {
-        background: #f8f9fa;
-        border-color: #dee2e6;
-    }
-    .icon-gray {
-        width: 24px;
-        font-size: 1.2rem;
-        color: v-bind(activeTheme); 
-    }
-    .bi-file-earmark-pdf {
-        color: v-bind(activeTheme); 
-    }
-
 </style>

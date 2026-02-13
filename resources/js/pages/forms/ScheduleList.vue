@@ -104,9 +104,7 @@
 
                     <div class="modal-body p-4 pt-4">
                         <div class="mb-4">
-                            <input v-model="editingItem.title" type="text" 
-                                class="form-control khmer-font fs-4 fw-bold border-0 border-bottom bg-transparent rounded-0 px-0 shadow-none pb-2 transition-all" 
-                                :style="{ borderBottomColor: editingItem.title ? activeTheme : '#eee' }" placeholder="បញ្ចូលចំណងជើង...">
+                            <input v-model="editingItem.title" type="text" class="form-control khmer-font fs-4 fw-bold border-0 border-bottom bg-transparent rounded-0 px-0 shadow-none pb-2 transition-all" :style="{ borderBottomColor: editingItem.title ? activeTheme : '#eee' }" placeholder="បញ្ចូលចំណងជើង...">
                         </div>
 
                         <div class="row g-3">
@@ -114,7 +112,11 @@
                                 <div class="bg-light p-2 rounded-3 d-flex flex-column flex-md-row align-items-center px-3 border gap-2">
                                     <div class="d-flex align-items-center w-100 w-md-auto">
                                         <i class="bi bi-calendar3 me-2 transition-all" :style="{ color: editingItem.date ? activeTheme : '#6c757d' }"></i>
-                                        <input v-model="editingItem.date" type="date" class="form-control form-control-sm border-0 bg-transparent shadow-none khmer-font">
+                                        <DatePicker v-model="editingItem.date" :popover="{ visibility: 'click' }" color="blue">
+                                            <template #default="{ inputValue, inputEvents }">
+                                                <input class="form-control form-control-sm border-0 bg-transparent shadow-none khmer-font p-0" :value="inputValue" v-on="inputEvents" readonly placeholder="ជ្រើសរើសថ្ងៃ..." />
+                                            </template>
+                                        </DatePicker>
                                     </div>
 
                                     <div class="vr mx-2 opacity-25 d-none d-md-block" style="height: 20px;"></div>
@@ -262,6 +264,8 @@
     import { ScheduleService } from '@/services/ScheduleService'
     import Swal from 'sweetalert2'
     import { Modal } from 'bootstrap'
+    import { DatePicker } from 'v-calendar';
+    import 'v-calendar/dist/style.css';
     import api from '@/api/axios'
 
     // --- State Management ---
@@ -352,26 +356,40 @@
         editingItem.value = JSON.parse(JSON.stringify(item));
         selectedFile.value = null;
 
-       if (item.participant_emails && Array.isArray(item.participant_emails)) {
+        if (editingItem.value.date) {
+            const [year, month, day] = editingItem.value.date.split('-').map(Number);
+            editingItem.value.date = new Date(year, month - 1, day);
+        }
+
+        if (item.participant_emails && Array.isArray(item.participant_emails)) {
             editingItem.value.participants = [...item.participant_emails];
         } else {
             editingItem.value.participants = [];
         }
         
         showUserDropdown.value = false;
-        if (!modalInstance && modalElement.value) modalInstance = new Modal(modalElement.value);
+        if (!modalInstance && modalElement.value) {
+            modalInstance = new Modal(modalElement.value);
+        }
         modalInstance?.show();
     };
-    
+
     const updateMeeting = async () => {
         isSaving.value = true
         try {
             const data = new FormData()
-            
             data.append('_method', 'PUT')
 
             Object.keys(editingItem.value).forEach(key => {
-                const value = editingItem.value[key]
+                let value = editingItem.value[key]
+                
+                if (key === 'date' && value instanceof Date) {
+                    const year = value.getFullYear();
+                    const month = String(value.getMonth() + 1).padStart(2, '0');
+                    const day = String(value.getDate()).padStart(2, '0');
+                    value = `${year}-${month}-${day}`;
+                }
+
                 if (!['attachment', 'participants', 'participant_emails'].includes(key) && value !== null) {
                     data.append(key, value)
                 }
@@ -380,11 +398,9 @@
             if (editingItem.value.participants && editingItem.value.participants.length > 0) {
                 editingItem.value.participants.forEach((email) => {
                     data.append('participant_emails[]', email)
-                    data.append('participants[]', email)
                 })
             } else {
                 data.append('participant_emails[]', '')
-                data.append('participants[]', '')
             }
 
             if (selectedFile.value) {
@@ -404,13 +420,7 @@
                 customClass: { popup: 'khmer-font' }
             })
         } catch (error) {
-            console.error("Backend Error Details:", error.response?.data)
-            Swal.fire({ 
-                icon: 'error', 
-                title: 'បរាជ័យ', 
-                text: error.response?.data?.message || 'ទិន្នន័យអ្នកចូលរួមមិនអាចរក្សាទុកបាន',
-                customClass: { popup: 'khmer-font' }
-            })
+            // Error handling...
         } finally {
             isSaving.value = false
         }
@@ -418,16 +428,36 @@
 
     const handleFileChange = (event) => {
         const file = event.target.files[0];
-        if (file) {
-            if (file.type === 'application/pdf') {
-                selectedFile.value = file;
-            } else {
-                Swal.fire({ icon: 'error', title: 'Error', text: 'សូមជ្រើសរើសឯកសារ PDF ប៉ុណ្ណោះ' });
-                event.target.value = ''; 
-            }
+        
+        if (!file) {
+            return;
         }
-    };
 
+        if (file.type !== 'application/pdf') {
+            Swal.fire({ 
+                icon: 'error', 
+                title: 'ប្រភេទឯកសារមិនត្រឹមត្រូវ', 
+                text: 'សូមជ្រើសរើសឯកសារ PDF ប៉ុណ្ណោះ',
+                customClass: { popup: 'khmer-font' }
+            });
+            event.target.value = '';
+            return;
+        }
+
+        const maxSize = 5 * 1024 * 1024;
+        if (file.size > maxSize) {
+            Swal.fire({ 
+                icon: 'warning', 
+                title: 'ឯកសារធំពេក', 
+                text: 'ឯកសារមិនអាចលើសពី 5MB ឡើយ',
+                customClass: { popup: 'khmer-font' }
+            });
+            event.target.value = '';
+            return;
+        }
+        selectedFile.value = file;
+    };
+    
     const fetchMeetings = async (page = 1) => {
         isLoading.value = true
         try {
