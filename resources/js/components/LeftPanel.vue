@@ -80,18 +80,10 @@
 						<div v-for="n in paddingDays" :key="'p'+n" class="grid-cell empty"></div>
 					</template>
 					
-					<div v-for="day in displayDays" 
-						:key="day.dateString" 
-						class="grid-cell transition-all" 
-						:class="{ 'is-today': day.isToday, 'is-selected': isSelected(day.dateObj) }" 
-						@click="handleDateClick(day)">
-						
+					<div v-for="day in displayDays" :key="day.dateString" class="grid-cell transition-all" :class="{ 'is-today': day.isToday, 'is-selected': isSelected(day.dateObj) }" @click="handleDateClick(day)">
 						<span class="day-num">{{ toKhmerNum(day.date) }}</span>
-						
 						<div class="dot-container">
-							<span v-for="e in day.events.slice(0, 3)" 
-								:key="e.id" 
-								:class="['status-dot', e.colorClass]"></span>
+							<span v-for="e in day.events.slice(0, 3)" :key="e.id" :class="['status-dot', e.colorClass]"></span>
 						</div>
 					</div>
 				</div>
@@ -106,7 +98,7 @@
 
     // --- State ---
     const currentView = ref('month')
-    const referenceDate = ref(new Date()) // ថ្ងៃបច្ចុប្បន្ន
+    const referenceDate = ref(new Date())
     const meetings = ref([])
     const currentSlideIndex = ref(0)
     let slideInterval = null
@@ -171,10 +163,8 @@
         if (slideInterval) clearInterval(slideInterval)
     }
 
-    // ចាប់យកការផ្លាស់ប្តូរថ្ងៃ ដើម្បី Update កិច្ចប្រជុំក្នុង API
     watch(referenceDate, (newDate, oldDate) => {
         currentSlideIndex.value = 0
-        // Update API តែនៅពេលប្តូរខែ ឬឆ្នាំប៉ុណ្ណោះ ដើម្បីកាត់បន្ថយការហៅ API ច្រើនដង
         if (newDate.getMonth() !== oldDate.getMonth() || newDate.getFullYear() !== oldDate.getFullYear()) {
             fetchMeetings()
         }
@@ -184,7 +174,7 @@
     const generateDayObject = (dateObj) => {
         const dateStr = dateObj.toLocaleDateString('en-CA')
         return {
-            date: dateObj.getDate(), // លេខថ្ងៃធម្មតា (បម្លែងជាខ្មែរតាមក្រោយក្នុង Template)
+            date: dateObj.getDate(),
             dateObj: new Date(dateObj),
             dateString: dateStr,
             isToday: new Date().toDateString() === dateObj.toDateString(),
