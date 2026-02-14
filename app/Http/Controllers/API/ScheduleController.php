@@ -7,6 +7,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Http\Requests\ScheduleRequest;
 use App\Http\Resources\ScheduleResource;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
@@ -42,6 +43,7 @@ class ScheduleController extends Controller
             ], 500);
         }
     }
+    
     // បង្ហាញទិន្នន័យជាសាធារណៈ (Public)
     public function schedulesPublic(Request $request)
     {
@@ -101,13 +103,22 @@ class ScheduleController extends Controller
             }
 
             if ($request->filled('search')) {
-                $query->where('title', 'LIKE', '%' . $request->search . '%');
+                $search = $request->search;
+                $tableName = (new Schedule())->getTable();
+                $columns = Schema::getColumnListing($tableName);
+
+                $query->where(function($q) use ($columns, $search) {
+                    foreach ($columns as $column) {
+                        $q->orWhere($column, 'LIKE', "%{$search}%");
+                    }
+                });
             }
 
             $perPage = $request->input('per_page', 15);
             $schedules = $query->orderBy('date', 'desc')
                             ->orderBy('start_time', 'asc')
-                            ->paginate($perPage);
+                            ->paginate($perPage)
+                            ->withQueryString();
 
             return ScheduleResource::collection($schedules);
 
@@ -116,6 +127,7 @@ class ScheduleController extends Controller
             return response()->json([
                 'status'  => 'error',
                 'message' => 'មិនអាចទាញយកទិន្នន័យបានទេ',
+                'error'   => config('app.debug') ? $e->getMessage() : null // បង្ហាញ error បើស្ថិតក្នុង mode debug
             ], 500);
         }
     }

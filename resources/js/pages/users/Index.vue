@@ -273,33 +273,21 @@
     }
 
     // --- 4. CRUD Operations ---
-    // const fetchUsers = async () => {
-    //     isLoading.value = true
-    //     try {
-    //         const response = await UserService.getAll(pagination.value.current_page, searchQuery.value)
-    //         users.value = response.data
-    //         pagination.value = response.meta
-    //     } catch (e) {
-    //         alertPop('កំហុស!', 'error', 'មិនអាចទាញយកទិន្នន័យបានទេ')
-    //     } finally { isLoading.value = false }
-    // }
-
     const fetchUsers = async () => {
-    isLoading.value = true;
-    try {
-        // បញ្ជូន pagination និង searchQuery ទៅកាន់ API
-        const response = await UserService.getAll(
-            pagination.value.current_page, 
-            searchQuery.value // <--- ត្រូវប្រាកដថាមានចំណុចនេះ
-        );
-        users.value = response.data;
-        pagination.value = response.meta;
-    } catch (e) {
-        alertPop('កំហុស!', 'error', 'មិនអាចទាញយកទិន្នន័យបានទេ');
-    } finally {
-        isLoading.value = false;
-    }
-};
+        isLoading.value = true;
+        try {
+            const response = await UserService.getAll(
+                pagination.value.current_page, 
+                searchQuery.value 
+            );
+            users.value = response.data;
+            pagination.value = response.meta;
+        } catch (e) {
+            alertPop('កំហុស!', 'error', 'មិនអាចទាញយកទិន្នន័យបានទេ');
+        } finally {
+            isLoading.value = false;
+        }
+    };
 
     const openEditModal = (user = null) => {
         serverErrors.value = {};

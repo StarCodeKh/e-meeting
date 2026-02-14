@@ -37,6 +37,25 @@
                 </div>
             </div>
 
+            <div v-else-if="meetings.length === 0" class="col-12 text-center">
+                <div class="card border-0 shadow-sm rounded-3 p-5 bg-white">
+                    <div class="mb-4">
+                        <div class="display-1 text-muted opacity-25">
+                            <i class="bi bi-search"></i>
+                        </div>
+                    </div>
+                    <h4 class="khmer-font fw-bold text-dark">រកមិនឃើញលទ្ធផល!</h4>
+                    <p class="khmer-font text-muted mb-4">
+                        មិនមានកិច្ចប្រជុំណាដែលត្រូវនឹងពាក្យថា <span class="text-primary fw-bold">"{{ searchQuery }}"</span> ឡើយ។
+                    </p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <button class="btn btn-light khmer-font px-4 rounded-3 border" @click="searchQuery = ''; fetchMeetings(1)">
+                            បង្ហាញទាំងអស់ទ្បើងវិញ
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <div v-else class="row">
                 <div v-for="item in meetings" :key="item.id" class="col-12 col-md-6 col-lg-4 mb-4">
                     <div class="card border-0 shadow-sm rounded-3 h-100 meeting-card border-start border-4" :class="getBorderClass(item.color_id)">
