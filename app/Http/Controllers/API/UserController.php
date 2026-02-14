@@ -12,7 +12,7 @@ use App\Models\User;
 
 class UserController extends Controller
 {
-    // ១. ទាញយកបញ្ជីឈ្មោះ User (Index)
+    // ទាញយកបញ្ជីឈ្មោះ User (Index)
     public function index(Request $request)
     {
         try {
@@ -44,7 +44,7 @@ class UserController extends Controller
         }
     }
 
-    // ២. បង្កើត User ថ្មី
+    // បង្កើត User ថ្មី
     public function store(UserRequest $request)
     {
         DB::beginTransaction();
@@ -74,7 +74,7 @@ class UserController extends Controller
         }
     }
 
-    // ៣. បង្ហាញព័ត៌មាន User ម្នាក់
+    // បង្ហាញព័ត៌មាន User ម្នាក់
     public function show(User $user)
     {
         try {
@@ -98,7 +98,7 @@ class UserController extends Controller
         }
     }
 
-    // ៤. កែប្រែព័ត៌មាន User
+    // កែប្រែព័ត៌មាន User
     public function update(UserRequest $request, User $user)
     {
         DB::beginTransaction();
@@ -131,7 +131,35 @@ class UserController extends Controller
         }
     }
 
-    // ៥. លុប User (Soft Delete)
+    // ទាញយកព័ត៌មាន Profile ផ្ទាល់ខ្លួន (CurrentUser)
+    public function profile()
+    {
+        try {
+            $user = auth()->user();
+            
+            if (!$user) {
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => 'សូមចូលប្រព័ន្ធជាមុនសិន'
+                ], 401);
+            }
+
+            return (new UserResource($user))
+                ->additional([
+                    'status' => 'success',
+                    'message' => 'ទាញយកទិន្នន័យ Profile ជោគជ័យ'
+                ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'មានបញ្ហាបច្ចេកទេស',
+                'error'   => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // លុប User (Soft Delete)
     public function destroy(User $user)
     {
         try {

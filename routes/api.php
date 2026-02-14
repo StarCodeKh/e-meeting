@@ -32,6 +32,7 @@ use App\Http\Controllers\Api\ActionController;
 
     Route::middleware('auth:api')->group(function () {
         // User Management API
+        Route::get('/user-profile', [UserController::class, 'profile']);
         Route::apiResource('users', UserController::class);
         // Schedule API
         Route::get('schedules/calendar', [ScheduleController::class, 'calendarShow']);
