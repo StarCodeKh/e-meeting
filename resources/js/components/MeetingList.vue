@@ -14,30 +14,26 @@
             <div class="row g-0">
                 <div class="col-6 pe-5">
                     <div class="column-title khmer-font text-center fw-bold text-muted mb-5">ព្រឹក</div>
-                    <div v-for="m in morningMeetings" :key="m.id" class="meeting-entry left-side mb-5">
-                        <div class="timeline-card shadow-sm border-start border-3 rounded-3" :class="getDynamicBorder(m.colorClass)" @click="$emit('select', m)">
-                            <div class="time-floating-box shadow-sm d-flex flex-column align-items-center justify-content-center" :class="m.colorClass">
-                                <div class="val fw-bold lh-1 text-white fs-4">
-                                    {{ m.time }}
+                    <div v-if="morningMeetings && morningMeetings.length > 0">
+                        <div v-for="m in morningMeetings" :key="m.id" class="meeting-entry left-side mb-5">
+                            <div class="timeline-card shadow-sm border-start border-3 rounded-3" :class="getDynamicBorder(m.colorClass)" @click="$emit('select', m)">
+                                <div class="time-floating-box shadow-sm d-flex flex-column align-items-center justify-content-center" :class="m.colorClass">
+                                    <div class="val fw-bold lh-1 text-white fs-4">{{ m.time }}</div>
+                                    <span class="badge bg-white bg-opacity-25 rounded-1 fw-normal px-2 py-1 small lh-1 khmer-font mt-2">{{ m.period }}</span>
                                 </div>
-                                <span class="badge bg-white bg-opacity-25 rounded-1 fw-normal px-2 py-1 small lh-1 khmer-font mt-2">
-                                    {{ m.period }}
-                                </span>
+                                <div class="card-body ps-5 py-3">
+                                    <h6 class="khmer-font fw-bold text-dark mb-1">{{ m.title }}</h6>
+                                    <p class="khmer-font text-muted x-small mb-3">{{ m.description }}</p>
+                                </div>
                             </div>
-                
-                            <div class="card-body ps-5 py-3">
-                                <h6 class="khmer-font fw-bold text-dark mb-1">{{ m.title }}</h6>
-                                <p class="khmer-font text-muted x-small mb-3">{{ m.description }}</p>
+                        </div>
+                    </div>
 
-                                <div class="d-flex align-items-center gap-2 flex-wrap">
-                                    <a v-if="m.link && m.link !== '#'" :href="m.link" target="_blank" :class="['tag-video-conf khmer-font text-decoration-none hover-effect', m.tagClass]">
-                                        <i class="bi bi-camera-video-fill me-1"></i> VIDEO CONFERENCE
-                                    </a>
-
-                                    <a v-if="m.attachmentUrl" :href="m.attachmentUrl" target="_blank" :class="['tag-video-conf khmer-font text-decoration-none hover-effect', m.tagClass]">
-                                        <i class="bi bi-file-earmark-pdf-fill text-danger me-1"></i> ឯកសារ PDF
-                                    </a>
-                                </div>
+                    <div v-else class="meeting-entry left-side mb-5">
+                        <div class="timeline-card shadow-sm border-start border-3 border-secondary rounded-3 bg-light opacity-75">
+                            <div class="card-body ps-4 py-4 text-center">
+                                <i class="bi bi-sunrise text-muted fs-3 mb-2"></i>
+                                <h6 class="khmer-font text-muted mb-0">មិនមានកិច្ចប្រជុំពេលព្រឹកឡើយ</h6>
                             </div>
                         </div>
                     </div>
@@ -45,30 +41,33 @@
 
                 <div class="col-6 ps-5">
                     <div class="column-title khmer-font text-center fw-bold text-muted mb-5">រសៀល</div>
-                    <div v-for="(m, idx) in afternoonMeetings" :key="m.id" class="meeting-entry right-side mb-5" :style="{ marginTop: idx === 0 ? '70px' : '0px' }" >
-                        <div class="timeline-card shadow-sm border-start border-3 rounded-3" :class="getDynamicBorder(m.colorClass)" @click="$emit('select', m)">
-                            <div class="time-floating-box shadow-sm d-flex flex-column align-items-center justify-content-center" :class="m.colorClass">
-                                <div class="val fw-bold lh-1 text-white fs-4">
-                                    {{ m.time }}
-                                </div>
-                                <span class="badge bg-white bg-opacity-25 rounded-1 fw-normal px-2 py-1 small lh-1 khmer-font mt-2">
-                                    {{ m.period }}
-                                </span>
-                            </div>
+                    <div v-if="afternoonMeetings && afternoonMeetings.length > 0">
+                        <div v-for="(m, idx) in afternoonMeetings" :key="m.id" 
+                            class="meeting-entry right-side mb-5" 
+                            :style="{ marginTop: idx === 0 ? '70px' : '0px' }">
                             
-                            <div class="card-body ps-5 py-3">
-                                <h6 class="khmer-font fw-bold text-dark mb-1">{{ m.title }}</h6>
-                                <p class="khmer-font text-muted x-small mb-3">{{ m.description }}</p>
-
-                                <div class="d-flex align-items-center gap-2 flex-wrap">
-                                    <a v-if="m.link && m.link !== '#'" :href="m.link" target="_blank" :class="['tag-video-conf khmer-font text-decoration-none hover-effect', m.tagClass]">
-                                        <i class="bi bi-camera-video-fill me-1"></i> VIDEO CONFERENCE
-                                    </a>
-
-                                    <a v-if="m.attachmentUrl" :href="m.attachmentUrl" target="_blank" :class="['tag-video-conf khmer-font text-decoration-none hover-effect', m.tagClass]">
-                                        <i class="bi bi-file-earmark-pdf-fill text-danger me-1"></i> ឯកសារ PDF
-                                    </a>
+                            <div class="timeline-card shadow-sm border-start border-3 rounded-3" 
+                                :class="getDynamicBorder(m.colorClass)" @click="$emit('select', m)">
+                                
+                                <div class="time-floating-box shadow-sm d-flex flex-column align-items-center justify-content-center" :class="m.colorClass">
+                                    <div class="val fw-bold lh-1 text-white fs-4">{{ m.time }}</div>
+                                    <span class="badge bg-white bg-opacity-25 rounded-1 fw-normal px-2 py-1 small lh-1 khmer-font mt-2">{{ m.period }}</span>
                                 </div>
+                                
+                                <div class="card-body ps-5 py-3">
+                                    <h6 class="khmer-font fw-bold text-dark mb-1">{{ m.title }}</h6>
+                                    <p class="khmer-font text-muted x-small mb-3">{{ m.description }}</p>
+                                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                                        </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-else class="meeting-entry right-side mb-5" style="margin-top: 70px;">
+                        <div class="timeline-card shadow-sm border-start border-3 border-secondary rounded-3 bg-light opacity-75">
+                            <div class="card-body ps-4 py-4 text-center">
+                                <i class="bi bi-sunset text-muted fs-3 mb-2"></i>
+                                <h6 class="khmer-font text-muted mb-0">មិនមានកិច្ចប្រជុំពេលរសៀលឡើយ</h6>
                             </div>
                         </div>
                     </div>
