@@ -14,7 +14,6 @@
             <div class="row g-0">
                 <div class="col-6 pe-5">
                     <div class="column-title khmer-font text-center fw-bold text-muted mb-5">ព្រឹក</div>
-                    
                     <div v-for="m in morningMeetings" :key="m.id" class="meeting-entry left-side mb-5">
                         <div class="timeline-card shadow-sm border-start border-3 rounded-3" :class="getDynamicBorder(m.colorClass)" @click="$emit('select', m)">
                             <div class="time-floating-box shadow-sm d-flex flex-column align-items-center justify-content-center" :class="m.colorClass">
@@ -45,8 +44,7 @@
                 </div>
 
                 <div class="col-6 ps-5">
-            
-                <div class="column-title khmer-font text-center fw-bold text-muted mb-5">រសៀល</div>
+                    <div class="column-title khmer-font text-center fw-bold text-muted mb-5">រសៀល</div>
                     <div v-for="(m, idx) in afternoonMeetings" :key="m.id" class="meeting-entry right-side mb-5" :style="{ marginTop: idx === 0 ? '70px' : '0px' }" >
                         <div class="timeline-card shadow-sm border-start border-3 rounded-3" :class="getDynamicBorder(m.colorClass)" @click="$emit('select', m)">
                             <div class="time-floating-box shadow-sm d-flex flex-column align-items-center justify-content-center" :class="m.colorClass">

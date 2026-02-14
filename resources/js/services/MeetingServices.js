@@ -29,8 +29,7 @@ export const MeetingServices = {
 
             if (!Array.isArray(rawData)) return [];
 
-            return rawData.map(item => this._transformMeeting(item))
-                          .sort((a, b) => a.startTime.localeCompare(b.startTime));
+            return rawData.map(item => this._transformMeeting(item)) .sort((a, b) => a.startTime.localeCompare(b.startTime));
         } catch (error) {
             console.error("❌ MeetingServices Error:", error);
             return [];
