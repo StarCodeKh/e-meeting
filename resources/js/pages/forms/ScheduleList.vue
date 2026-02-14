@@ -467,14 +467,18 @@
             await ScheduleService.update(editingItem.value.id, data)
             modalInstance?.hide()
             await fetchMeetings(currentPage.value)
-            
-            Swal.fire({ 
-                icon: 'success', 
-                title: 'រក្សាទុកជោគជ័យ', 
-                timer: 1500, 
+
+            Swal.fire({
+                icon: 'success',
+                title: 'រក្សាទុកជោគជ័យ',
+                toast: true,
+                position: 'top-end',
                 showConfirmButton: false,
+                timer: 2500,
+                timerProgressBar: true,
                 customClass: { popup: 'khmer-font' }
             })
+
         } catch (error) {
             console.error("Update Error:", error)
         } finally {
@@ -486,22 +490,32 @@
         const file = event.target.files[0];
         if (!file) return;
         if (file.type !== 'application/pdf') {
-            Swal.fire({ icon: 'error', title: 'Error', text: 'សូមជ្រើសរើស PDF ប៉ុណ្ណោះ', customClass: { popup: 'khmer-font' } });
+            Swal.fire({ 
+                icon: 'error', 
+                title: 'សូមជ្រើសរើស PDF ប៉ុណ្ណោះ', 
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                customClass: { popup: 'khmer-font' }
+            });
             event.target.value = ''; return;
         }
         if (file.size > 5 * 1024 * 1024) {
-            Swal.fire({ icon: 'warning', title: 'Error', text: 'ឯកសារមិនអាចលើសពី 5MB', customClass: { popup: 'khmer-font' } });
+            Swal.fire({ 
+            icon: 'warning', 
+            title: 'ឯកសារមិនអាចលើសពី 5MB', 
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            customClass: { popup: 'khmer-font' }
+        });
             event.target.value = ''; return;
         }
         selectedFile.value = file;
-    };
-
-    // --- Helpers ---
-    const getInitials = (name) => {
-        if (!name) return '';
-        const parts = name.trim().split(/\s+/);
-        if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
-        return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
     };
 
     const toKhmerNum = (n) => n?.toString().replace(/\d/g, d => ['០','១','២','៣','៤','៥','៦','៧','៨','៩'][d])
@@ -532,10 +546,28 @@
         if (result.isConfirmed) {
             try {
                 await ScheduleService.delete(id)
-                Swal.fire({ title: 'ជោគជ័យ!', icon: 'success', timer: 2000, showConfirmButton: false })
+                Swal.fire({
+                    icon: 'success',
+                    title: 'លុបចេញជោគជ័យ',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 2500,
+                    timerProgressBar: true,
+                    customClass: { popup: 'khmer-font' }
+                })
                 fetchMeetings(currentPage.value)
             } catch (error) {
-                Swal.fire({ title: 'កំហុស!', text: 'មិនអាចលុបទិន្នន័យបានទេ!', icon: 'error' })
+                Swal.fire({
+                    icon: 'error',
+                    title: 'មិនអាចលុបទិន្នន័យបានទេ!',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 2500,
+                    timerProgressBar: true,
+                    customClass: { popup: 'khmer-font' }
+                })
             }
         }
     }

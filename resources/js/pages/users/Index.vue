@@ -334,7 +334,6 @@
             }
 
             if (editingUser.value.id) {
-                // Laravel ត្រូវការចំណុចនេះដើម្បីយល់ថាជាការ Update ក្នុងទម្រង់ Multipart
                 formData.append('_method', 'PUT')
                 await UserService.update(editingUser.value.id, formData)
             } else {
@@ -351,7 +350,8 @@
                 position: 'top-end',
                 showConfirmButton: false,
                 timer: 2500,
-                timerProgressBar: true
+                timerProgressBar: true,
+                customClass: { popup: 'khmer-font' }
             })
 
             // --- ចំណុចបន្ថែម៖ សម្អាត File និង Preview ក្រោយរក្សាទុកជោគជ័យ ---
