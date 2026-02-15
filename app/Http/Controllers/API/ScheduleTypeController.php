@@ -3,20 +3,18 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\ScheduleType; // កុំភ្លេច Import Model
-use Illuminate\Support\Facades\DB;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Http\JsonResponse;
+use App\Models\ScheduleType;
+use App\Models\Priority;
 
 class ScheduleTypeController extends Controller
 {
-    /**
-     * ទាញយកជម្រើសទាំងអស់សម្រាប់ប្រើក្នុង Form
-     */
-    public function index() 
+    public function index(): JsonResponse
     {
         try {
-            $types = ScheduleType::where('is_active', true)->orderBy('sort_order', 'asc')->get();
-            $priorities = DB::table('priorities')->orderBy('sort_order', 'asc')->get();
+            $types = ScheduleType::active()->get();
+            $priorities = Priority::ordered()->get();
 
             return response()->json([
                 'status' => 'success',
@@ -25,10 +23,17 @@ class ScheduleTypeController extends Controller
                     'priorities' => $priorities
                 ]
             ], 200);
+
         } catch (\Exception $e) {
+            Log::error("Schedule Type Index Error: " . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage()
+                'message' => 'មានបញ្ហាបច្ចេកទេសក្នុងការទាញយកទិន្នន័យ។' 
             ], 500);
         }
     }
