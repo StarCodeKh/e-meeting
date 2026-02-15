@@ -157,21 +157,29 @@
 
 <script setup>
     import { ref, reactive, computed, onMounted } from 'vue'
+    import { getScheduleFormOptions } from '@/services/ScheduleTypes';
     import { DatePicker } from 'v-calendar';
     import 'v-calendar/dist/style.css';
     import api from '@/api/axios'
     import { alertStore } from '@/stores/alert'
 
+    // --- Props & Emits ---
     const props = defineProps({ modelValue: Boolean })
     const emit = defineEmits(['update:modelValue', 'refresh'])
 
-    // --- State ---
+    // --- State Management ---
     const loading = ref(false)
     const showUserDropdown = ref(false)
     const userSearch = ref('')
     const users = ref([]) 
-    const selectedUsers = ref([]) 
+    const selectedUsers = ref([])
+    const scheduleTypes = ref([])
+    const priorities = ref([])
+    const selectedFileName = ref('')
+    const fileError = ref('')
+    const selectedFile = ref(null)
 
+    // --- Helpers for Initialization ---
     const getCurrentTime = (addHours = 0) => {
         const now = new Date();
         now.setHours(now.getHours() + addHours);
@@ -179,17 +187,17 @@
     }
 
     const getInitialForm = () => ({
-        type: 'meeting', 
+        type: '', // ទុកឱ្យ API កំណត់ Default ក្នុង onMounted
         title: '', 
         description: '',
         date: new Date().toISOString().split('T')[0],
         start_time: getCurrentTime(), 
         end_time: getCurrentTime(1),
-        participants: '', 
+        participants: [], // កំណត់ជា Array ដើម្បីងាយស្រួល Map
         location: '', 
         room: '', 
         link: '', 
-        color_id: 'green'
+        color_id: '' 
     })
 
     const form = reactive(getInitialForm())
@@ -207,11 +215,64 @@
         }
     }
 
-    onMounted(() => {
-        fetchUsers();
+    // --- Computed Properties ---
+    const TABS = computed(() => {
+        if (!scheduleTypes.value.length) return [];
+        return scheduleTypes.value.map(type => ({
+            id: type.slug,
+            label: type.name,
+            theme: type.color_hex,
+            gradient: type.color_gradient,
+            icon: type.icon
+        }));
     });
 
-    // --- Helpers ---
+    const COLOR_OPTIONS = computed(() => {
+        if (!priorities.value.length) return [];
+        return priorities.value.map(p => ({
+            id: p.slug,
+            hex: p.color_hex,
+            label: p.name
+        }));
+    });
+
+    const activeTab = computed(() => {
+        if (!TABS.value.length) return { theme: '#e54d42', gradient: '' };
+        return TABS.value.find(t => t.id === form.type) || TABS.value[0];
+    })
+
+    const activeTheme = computed(() => activeTab.value.theme)
+    const activeGradient = computed(() => activeTab.value.gradient)
+
+    const filteredUsers = computed(() => {
+        const s = userSearch.value.toLowerCase().trim();
+        return users.value.filter(u => 
+            u.name.toLowerCase().includes(s) || u.email.toLowerCase().includes(s)
+        );
+    })
+
+    // --- Lifecycle Logic ---
+    onMounted(async () => {
+        fetchUsers(); 
+        try {
+            const response = await getScheduleFormOptions(); 
+            scheduleTypes.value = response.types || [];
+            priorities.value = response.priorities || [];
+
+            // កំណត់តម្លៃ Default ពី Database ឱ្យ Form
+            if (scheduleTypes.value.length > 0 && !form.type) {
+                form.type = scheduleTypes.value[0].slug;
+            }
+            if (priorities.value.length > 0 && !form.color_id) {
+                const defaultColor = priorities.value.find(p => p.slug === 'green') || priorities.value[0];
+                form.color_id = defaultColor.slug;
+            }
+        } catch (err) {
+            console.error("Failed to load options:", err);
+        }
+    });
+
+    // --- Interaction Methods ---
     const getAMPM = (timeStr) => {
         if (!timeStr) return '--';
         const hour = parseInt(timeStr.split(':')[0]);
@@ -225,69 +286,28 @@
         } else { 
             selectedUsers.value.splice(index, 1); 
         }
-        // Update form ឱ្យមានតែ Array នៃ Email
         form.participants = selectedUsers.value.map(u => u.email);
     }
 
     const isUserSelected = (user) => selectedUsers.value.some(u => u.email === user.email);
 
-    const filteredUsers = computed(() => {
-        const s = userSearch.value.toLowerCase();
-        return users.value.filter(u => 
-            u.name.toLowerCase().includes(s) || u.email.toLowerCase().includes(s)
-        );
-    })
-
-    const TABS = [
-        { id: 'meeting', label: 'កិច្ចប្រជុំ', theme: '#e54d42', gradient: 'linear-gradient(135deg, #ff6b6b, #e54d42)', icon: 'bi bi-camera-video' },
-        { id: 'appointment', label: 'ការណាត់', theme: '#fcc419', gradient: 'linear-gradient(135deg, #ffd43b, #fcc419)', icon: 'bi bi-calendar-event' },
-        { id: 'task', label: 'ការងារ', theme: '#34a853', gradient: 'linear-gradient(135deg, #51cf66, #34a853)', icon: 'bi bi-check2-circle' }
-    ]
-
-    const COLOR_OPTIONS = [
-        { id: 'red', hex: '#ff6b6b', label: 'បន្ទាន់' },
-        { id: 'yellow', hex: '#fcc419', label: 'មធ្យម' },
-        { id: 'green', hex: '#51cf66', label: 'ធម្មតា' }
-    ]
-
-    const activeTab = computed(() => TABS.find(t => t.id === form.type) || TABS[0])
-    const activeTheme = computed(() => activeTab.value.theme)
-    const activeGradient = computed(() => activeTab.value.gradient)
-
-    const closeModal = () => {
-        showUserDropdown.value = false;
-        emit('update:modelValue', false);
-    }
-
-    const selectedFileName = ref('')
-    const fileError = ref('')
-    const selectedFile = ref(null)
-
-    // ១. មុខងារចាប់យក File និងឆែកប្រភេទ
     const handleFileChange = (event) => {
         const file = event.target.files[0];
         fileError.value = '';
-
         if (file) {
             if (file.type !== 'application/pdf') {
                 fileError.value = 'សូមជ្រើសរើសតែឯកសារប្រភេទ PDF ប៉ុណ្ណោះ!';
-                selectedFile.value = null;
-                selectedFileName.value = '';
                 return;
             }
-            
-            // បើលើសពី 5MB (Optional)
             if (file.size > 5 * 1024 * 1024) {
                 fileError.value = 'ឯកសារមិនអាចធំជាង 5MB ឡើយ!';
                 return;
             }
-
             selectedFile.value = file;
             selectedFileName.value = file.name;
         }
     }
 
-    // ២. លុប File ចេញវិញ
     const removeFile = () => {
         selectedFile.value = null;
         selectedFileName.value = '';
@@ -295,38 +315,40 @@
         if (input) input.value = '';
     }
 
-    // ៣. កែសម្រួល handleSave ដើម្បីផ្ញើជា FormData
+    const closeModal = () => {
+        showUserDropdown.value = false;
+        emit('update:modelValue', false);
+    }
+
+    // --- Submit Logic ---
     const handleSave = async () => {
         loading.value = true;
         try {
             const formData = new FormData();
             
-            // បំពេញទិន្នន័យចូលក្នុង FormData
             Object.keys(form).forEach(key => {
                 if (key === 'date') {
                     const formattedDate = form.date instanceof Date ? form.date.toISOString().split('T')[0] : form.date;
                     formData.append(key, formattedDate);
                 } else if (key === 'participants') {
-                    // ប្រសិនបើជា Array ត្រូវបញ្ជូនតាមរយៈ loop
+                    // ប្រសិនបើជា Array ត្រូវ Loop append ម្តងមួយៗ
                     form.participants.forEach(email => formData.append('participants[]', email));
                 } else {
                     formData.append(key, form[key] || '');
                 }
             });
 
-            // បន្ថែម File ប្រសិនបើមាន
             if (selectedFile.value) {
                 formData.append('attachment', selectedFile.value);
             }
 
-            // ផ្ញើទៅ API (Headers នឹងត្រូវបានកំណត់អូតូជា multipart/form-data ដោយ Axios)
             await api.post('/schedules', formData);
 
             alertStore.show('រក្សាទុកជោគជ័យ', 'success');
             emit('refresh');
             closeModal();
             
-            // Reset State
+            // Reset state ក្រោយជោគជ័យ
             Object.assign(form, getInitialForm());
             selectedUsers.value = [];
             removeFile();

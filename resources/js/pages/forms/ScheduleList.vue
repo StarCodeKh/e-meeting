@@ -299,8 +299,9 @@
 </template>
 
 <script setup>
-    import { ref, computed, onMounted } from 'vue'
+    import { ref, computed, onMounted, onUnmounted } from 'vue'
     import { ScheduleService } from '@/services/ScheduleService'
+    import { getScheduleFormOptions } from '@/services/ScheduleTypes';
     import DashboardLayout from '@/components/layouts/DashboardLayout.vue'
     import HeaderBar from '@/components/HeaderBar.vue'
     import Swal from 'sweetalert2'
@@ -315,7 +316,7 @@
     const currentPage = ref(1)
     const isLoading = ref(false)
     const searchQuery = ref('')
-    const editingItem = ref({})
+    const editingItem = ref({}) // វត្ថុចម្បងសម្រាប់ Form
     const isSaving = ref(false)
     const selectedFile = ref(null)
     const modalElement = ref(null)
@@ -327,23 +328,46 @@
     const allUsers = ref([])
     const isFetchingUsers = ref(false)
 
-    // --- Constants ---
-    const TABS = [
-        { id: 'meeting', label: 'កិច្ចប្រជុំ', icon: 'bi bi-camera-video', theme: '#e54d42', gradient: 'linear-gradient(135deg, #ff6b6b, #e54d42)' },
-        { id: 'appointment', label: 'ការណាត់', icon: 'bi bi-calendar-event', theme: '#fcc419', gradient: 'linear-gradient(135deg, #ffd43b, #fcc419)' },
-        { id: 'task', label: 'ការងារ', icon: 'bi bi-check2-circle', theme: '#34a853', gradient: 'linear-gradient(135deg, #51cf66, #34a853)' }
-    ]
+    const scheduleTypes = ref([])
+    const priorities = ref([])
 
-    const COLOR_OPTIONS = [
-        { id: 'red', hex: '#ff6b6b', label: 'បន្ទាន់' },
-        { id: 'yellow', hex: '#fcc419', label: 'មធ្យម' },
-        { id: 'green', hex: '#51cf66', label: 'ធម្មតា' }
-    ]
+    // --- Dynamic Options (Computed from Database) ---
+    const TABS = computed(() => {
+        if (!scheduleTypes.value.length) return [];
+        return scheduleTypes.value.map(type => ({
+            id: type.slug,
+            label: type.name,
+            theme: type.color_hex,
+            gradient: type.color_gradient,
+            icon: type.icon
+        }));
+    });
 
-    // --- Computed Properties ---
-    const activeTab = computed(() => TABS.find(t => t.id === editingItem.value.type) || TABS[0])
-    const activeTheme = computed(() => activeTab.value.theme)
-    const activeGradient = computed(() => activeTab.value.gradient)
+    const COLOR_OPTIONS = computed(() => {
+        if (!priorities.value.length) return [];
+        return priorities.value.map(p => ({
+            id: p.slug,
+            hex: p.color_hex,
+            label: p.name
+        }));
+    });
+
+    // --- UI Computed Properties ---
+    const activeTab = computed(() => {
+        if (!TABS.value.length) return { theme: '#e54d42', gradient: '' };
+        // ប្រើ editingItem.type ដើម្បីឱ្យប៊ូតុង Tabs ប្តូរពណ៌តាមការជ្រើសរើស
+        return TABS.value.find(t => t.id === editingItem.value.type) || TABS.value[0];
+    })
+
+    const activeTheme = computed(() => {
+        const tab = TABS.value.find(t => t.id === editingItem.value.type);
+        return tab ? tab.theme : '#6c757d';
+    });
+
+    const activeGradient = computed(() => {
+        const tab = TABS.value.find(t => t.id === editingItem.value.type);
+        return tab ? tab.gradient : 'linear-gradient(135deg, #6c757d, #495057)';
+    });
 
     const filteredUsers = computed(() => {
         if (!allUsers.value) return []
@@ -490,34 +514,17 @@
         const file = event.target.files[0];
         if (!file) return;
         if (file.type !== 'application/pdf') {
-            Swal.fire({ 
-                icon: 'error', 
-                title: 'សូមជ្រើសរើស PDF ប៉ុណ្ណោះ', 
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true,
-                customClass: { popup: 'khmer-font' }
-            });
+            Swal.fire({ icon: 'error', title: 'សូមជ្រើសរើស PDF ប៉ុណ្ណោះ', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, customClass: { popup: 'khmer-font' } });
             event.target.value = ''; return;
         }
         if (file.size > 5 * 1024 * 1024) {
-            Swal.fire({ 
-            icon: 'warning', 
-            title: 'ឯកសារមិនអាចលើសពី 5MB', 
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true,
-            customClass: { popup: 'khmer-font' }
-        });
+            Swal.fire({ icon: 'warning', title: 'ឯកសារមិនអាចលើសពី 5MB', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, customClass: { popup: 'khmer-font' } });
             event.target.value = ''; return;
         }
         selectedFile.value = file;
     };
 
+    // --- Helpers ---
     const toKhmerNum = (n) => n?.toString().replace(/\d/g, d => ['០','១','២','៣','៤','៥','៦','៧','៨','៩'][d])
     const getAMPM = (t) => t && parseInt(t.split(':')[0]) >= 12 ? 'PM' : 'AM'
     const getBadgeClass = (c) => ({ 'bg-danger-subtle text-danger': c === 'red', 'bg-warning-subtle text-warning': c === 'yellow', 'bg-success-subtle text-success': c === 'green' })
@@ -525,61 +532,61 @@
 
     const confirmDelete = async (id) => {
         if (!id) return
-
         const result = await Swal.fire({
-        title: 'តើអ្នកប្រាកដទេ?',
+            title: 'តើអ្នកប្រាកដទេ?',
             text: "ទិន្នន័យនេះនឹងត្រូវលុបចេញពីប្រព័ន្ធ!",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
             cancelButtonColor: '#6c757d',
-            confirmButtonText: '<i class="bi bi-trash3 me-2"></i> យល់ព្រមលុប',
-            cancelButtonText: '<i class="bi bi-x-circle me-2"></i> បោះបង់',
-            reverseButtons: true,
-            customClass: { 
-                popup: 'khmer-font shadow-lg rounded-4', 
-                confirmButton: 'khmer-font rounded-3 px-4 py-2', 
-                cancelButton: 'khmer-font rounded-3 px-4 py-2' 
-            }
+            confirmButtonText: 'យល់ព្រមលុប',
+            cancelButtonText: 'បោះបង់',
+            customClass: { popup: 'khmer-font' }
         })
 
         if (result.isConfirmed) {
             try {
                 await ScheduleService.delete(id)
-                Swal.fire({
-                    icon: 'success',
-                    title: 'លុបចេញជោគជ័យ',
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 2500,
-                    timerProgressBar: true,
-                    customClass: { popup: 'khmer-font' }
-                })
                 fetchMeetings(currentPage.value)
+                Swal.fire({ icon: 'success', title: 'លុបចេញជោគជ័យ', toast: true, position: 'top-end', timer: 2000, showConfirmButton: false });
             } catch (error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'មិនអាចលុបទិន្នន័យបានទេ!',
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 2500,
-                    timerProgressBar: true,
-                    customClass: { popup: 'khmer-font' }
-                })
+                console.error(error);
             }
         }
     }
     
+    // --- Lifecycle Hooks ---
+    const handleClickOutside = (e) => {
+        if (!e.target.closest('.pill-multiselect-header') && !e.target.closest('.bg-white.rounded-3.border.mt-1')) {
+            showUserDropdown.value = false
+        }
+    };
+
     onMounted(async () => {
         await fetchMeetings()
         fetchApiUsers() 
-        window.addEventListener('click', (e) => {
-            if (!e.target.closest('.pill-multiselect-header') && !e.target.closest('.bg-white.rounded-3.border.mt-1')) {
-                showUserDropdown.value = false
+
+        try {
+            const response = await getScheduleFormOptions(); 
+            scheduleTypes.value = response.types || [];
+            priorities.value = response.priorities || [];
+
+            // កែសម្រួល៖ ប្រើ editingItem ជំនួស form ដើម្បីកំណត់តម្លៃ Default
+            if (scheduleTypes.value.length > 0 && !editingItem.value.type) {
+                editingItem.value.type = scheduleTypes.value[0].slug;
             }
-        })
+            if (priorities.value.length > 0 && !editingItem.value.color_id) {
+                editingItem.value.color_id = priorities.value[0].slug;
+            }
+        } catch (err) {
+            console.error("Error loading schedule options:", err);
+        }
+
+        window.addEventListener('click', handleClickOutside)
+    })
+
+    onUnmounted(() => {
+        window.removeEventListener('click', handleClickOutside)
     })
 
 </script>

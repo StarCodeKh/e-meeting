@@ -9,6 +9,7 @@ use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\Api\RolePermissionController;
 use App\Http\Controllers\Api\ModuleController;
 use App\Http\Controllers\Api\ActionController;
+use App\Http\Controllers\Api\ScheduleTypeController;
 
     // Endpoint to get RSA public key
     Route::get('/public-key', function () {
@@ -16,7 +17,10 @@ use App\Http\Controllers\Api\ActionController;
             'public_key' => file_get_contents(storage_path('rsa/private.pem'))
         ]);
     });
-    
+
+    // Route សម្រាប់ទាញយក Types និង Priorities ក្នុងពេលតែមួយ
+    Route::get('/schedule-form-options', [ScheduleTypeController::class, 'index']);
+
     // Authentication API
     Route::prefix('auth')->group(function () {
         Route::post('register', [AuthController::class, 'register']);
