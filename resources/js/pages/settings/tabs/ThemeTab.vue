@@ -4,7 +4,6 @@
         <div class="accent-color-section mb-5">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h6 class="khmer-font fw-bold mb-0 text-muted small text-uppercase">ពណ៌ចម្បង</h6>
-                
                 <button @click="handleReset" 
                         class="btn btn-sm btn-outline-secondary khmer-font py-1 px-3 rounded-pill shadow-sm transition-all"
                         style="font-size: 0.75rem;">
@@ -13,12 +12,14 @@
             </div>
 
             <div class="d-flex flex-wrap gap-3 p-3 bg-light rounded-3 border">
-                <div v-for="color in allColorOptions" :key="color" 
-                     class="color-bubble shadow-sm" 
-                     :style="{ backgroundColor: color }" 
-                     :class="{ 'selected-color': customColor === color }" 
-                     @click="customColor = color">
+                <div v-for="color in allColorOptions" :key="color" class="color-bubble shadow-sm" :style="{ backgroundColor: color }" :class="{ 'selected-color': customColor === color }" @click="customColor = color">
                     <i v-if="customColor === color" class="bi bi-check-lg text-white"></i>
+                </div>
+
+                <div class="color-bubble shadow-sm custom-picker-wrapper" :style="{ backgroundColor: isCustomHex ? customColor : '#ffffff' }" :class="{ 'selected-color': isCustomHex }">
+                    <input type="color" v-model="customColor" class="custom-color-input" title="រើសពណ៌តាមចិត្ត">
+                    <i v-if="isCustomHex" class="bi bi-pencil-fill text-white shadow-icon"></i>
+                    <i v-else class="bi bi-plus-lg text-secondary"></i>
                 </div>
             </div>
         </div>
@@ -248,6 +249,41 @@
 <style scoped>
     .khmer-font { font-family: 'Kantumruy Pro', sans-serif; }
 
+    .color-bubble {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        position: relative;
+        border: 2px solid transparent;
+    }
+
+    .selected-color {
+        transform: scale(1.15);
+        border-color: #000;
+    }
+
+    .custom-picker-wrapper {
+        overflow: hidden;
+        border: 2px dashed #ccc;
+    }
+
+    .custom-color-input {
+        position: absolute;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+    }
+
+    .shadow-icon {
+        text-shadow: 0px 0px 3px rgba(0,0,0,0.5);
+    }
+
     .priority-card { border-width: 2px !important; }
     .priority-active { box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; z-index: 2; }
 
@@ -261,8 +297,4 @@
     .is-selected { border: 2px solid white; box-shadow: 0 15px 30px rgba(0,0,0,0.15) !important; }
 
     .transition-all { transition: all 0.4s ease; }
-
-    .transition-all {
-    transition: all 0.3s ease;
-}
 </style>
