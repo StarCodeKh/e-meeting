@@ -8,16 +8,10 @@
             <aside class="col-xl-3 col-lg-4">
                 <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
                     <div class="p-2">
-                         <h5 class="khmer-font fw-bold mb-4 text-dark opacity-75 px-2">ការកំណត់ប្រព័ន្ធ</h5>
+                        <h5 class="khmer-font fw-bold mb-4 text-dark opacity-75 px-2">ការកំណត់ប្រព័ន្ធ</h5>
                     </div>
                     <nav class="nav flex-column gap-2">
-                        <button 
-                            v-for="tab in tabs" 
-                            :key="tab.id"
-                            @click="currentTabId = tab.id"
-                            :class="['nav-pill-custom khmer-font', { active: currentTabId === tab.id }]"
-                            type="button"
-                        >
+                        <button v-for="tab in tabs" :key="tab.id" @click="currentTabId = tab.id" :class="['nav-pill-custom khmer-font', { active: currentTabId === tab.id }]" type="button">
                             <div class="d-flex align-items-center gap-3">
                                 <i :class="[tab.icon, 'fs-5']"></i>
                                 <span>{{ tab.label }}</span>
@@ -59,7 +53,6 @@
     const currentTabId = ref('profile')
 
     // 2. The "Source of Truth" Data Array
-    // markRaw tells Vue: "Don't observe this as a reactive object, just use it as a component."
     const tabs = [
         { 
             id: 'profile', 
