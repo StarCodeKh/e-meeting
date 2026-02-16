@@ -34,7 +34,7 @@
                          @click="handlePriorityUpdate(p)">
                         
                         <div class="d-flex justify-content-between align-items-start mb-2">
-                            <span class="badge rounded-pill px-3 shadow-sm transition-all" 
+                            <span class="badge rounded-3 px-3 shadow-sm transition-all" 
                                   :style="{ 
                                       backgroundColor: activePriority === p.slug ? 'var(--accent-color)' : p.color_hex, 
                                       color: 'white' 

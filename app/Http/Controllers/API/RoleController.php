@@ -3,110 +3,140 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use Spatie\Permission\Models\Permission;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Role;
 
 class RoleController extends Controller
 {
     /**
-     * Display a list of roles
+     * ទាញយកបញ្ជី Roles ជាមួយ Pagination & Search
      */
-    public function index(): JsonResponse
+    public function index(Request $request)
     {
-        $roles = Role::all();
+        $roles = Role::with('permissions')
+            ->when($request->search, function ($query, $search) {
+                $query->where('name', 'like', "%{$search}%");
+            })
+            ->orderBy('id', 'desc')
+            ->paginate($request->get('per_page', 10));
 
-        return response()->json([
-            'success' => true,
-            'data'    => $roles
-        ], 200);
+        return response()->json($roles);
     }
 
     /**
-     * Store a newly created role
+     * ទាញយក Permissions ទាំងអស់សម្រាប់បង្ហាញក្នុង Form
      */
-    public function store(Request $request): JsonResponse
+    public function getPermissions()
     {
-        // Validate request
+        return response()->json([
+            'status' => 'success',
+            'data' => Permission::all()
+        ]);
+    }
+
+    /**
+     * បង្កើត Role ថ្មី (Standard Dynamic)
+     */
+    public function store(Request $request) {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|unique:roles,name',
+            'permissions' => 'nullable|array'
         ]);
 
-        // Check duplicate role name
-        if (Role::where('name', $request->name)->exists()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Role name already exists'
-            ], 409);
+        DB::beginTransaction();
+        try {
+            $role = Role::create(['name' => $request->name, 'guard_name' => 'web']);
+
+            if ($request->has('permissions')) {
+                // ចម្រោះយកតែ Permission ណាដែលមានឈ្មោះក្នុង Table permissions ពិតមែន
+                $validPermissions = Permission::whereIn('name', $request->permissions)
+                                            ->pluck('name')
+                                            ->toArray();
+                
+                $role->syncPermissions($validPermissions);
+            }
+
+            DB::commit();
+            return response()->json(['message' => 'Created successfully']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Role Store Error: " . $e->getMessage());
+            return response()->json(['message' => 'Error: ' . $e->getMessage()], 500);
         }
+    }
 
-        // Create role
-        $role = Role::create([
-            'name' => $request->name,
+    /**
+     * បង្ហាញទិន្នន័យ Role មួយតាម ID
+     */
+    public function show($id)
+    {
+        $role = Role::with('permissions')->findOrFail($id);
+        return response()->json([
+            'status' => 'success',
+            'data' => $role
         ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Role created successfully',
-            'data'    => $role
-        ], 201);
     }
 
     /**
-     * Display the specified role
+     * ធ្វើបច្ចុប្បន្នភាព Role (Standard Dynamic)
      */
-    public function show(Role $role): JsonResponse
+    public function update(Request $request, $id)
     {
-        return response()->json([
-            'success' => true,
-            'data'    => $role
-        ], 200);
-    }
+        $role = Role::findOrFail($id);
 
-    /**
-     * Update the specified role
-     */
-    public function update(Request $request, Role $role): JsonResponse
-    {
-        // Validate request
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:roles,name,' . $id,
+            'permissions' => 'nullable|array',
+            'permissions.*' => 'exists:permissions,name'
         ]);
 
-        // Check duplicate role name (ignore current role)
-        if (
-            Role::where('name', $request->name)
-                ->where('id', '!=', $role->id)
-                ->exists()
-        ) {
+        DB::beginTransaction();
+        try {
+            $role->update(['name' => $request->name]);
+
+            // syncPermissions នឹងចាត់ចែងលុបសិទ្ធិចាស់ និងបន្ថែមសិទ្ធិថ្មីដោយស្វ័យប្រវត្តិ
+            if ($request->has('permissions')) {
+                $role->syncPermissions($request->permissions);
+            }
+
+            DB::commit();
             return response()->json([
-                'success' => false,
-                'message' => 'Role name already exists'
-            ], 409); // Conflict
+                'status' => 'success',
+                'message' => 'កែប្រែទិន្នន័យបានជោគជ័យ',
+                'data' => $role->load('permissions')
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Role Update Error: " . $e->getMessage());
+            return response()->json(['message' => 'មានបញ្ហាបច្ចេកទេស: ' . $e->getMessage()], 500);
         }
-
-        // Update role
-        $role->update([
-            'name' => $request->name,
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Role updated successfully',
-            'data'    => $role
-        ], 200);
     }
 
     /**
-     * Remove the specified role
+     * លុប Role ចេញពីប្រព័ន្ធ
      */
-    public function destroy(Role $role): JsonResponse
+    public function destroy($id)
     {
-        $role->delete();
+        try {
+            $role = Role::findOrFail($id);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Role deleted successfully'
-        ], 200);
+            if ($role->name === 'admin' || $role->id === 1) {
+                return response()->json(['message' => 'មិនអាចលុបតួនាទី Admin បានទេ!'], 403);
+            }
+
+            $role->delete();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'លុបទិន្នន័យបានជោគជ័យ'
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'មិនអាចលុបបាន: ' . $e->getMessage()], 500);
+        }
     }
 }

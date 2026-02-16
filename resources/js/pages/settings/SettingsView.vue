@@ -28,18 +28,23 @@
             <main class="col-xl-9 col-lg-8">
                 <div class="card border-0 shadow-sm rounded-4 bg-white h-100 p-4 p-md-5">
                     <transition name="fade-slide" mode="out-in">
-                        <div v-if="activeTab" :key="currentTabId">
+                        <div v-if="activeTab" :key="activeTab.id">
                             <div class="mb-4">
                                 <h4 class="khmer-font fw-bold text-primary">{{ activeTab.label }}</h4>
                                 <p class="text-muted small khmer-font">សូមពិនិត្យ និងកែប្រែព័ត៌មានរបស់អ្នកនៅទីនេះ</p>
                                 <hr class="opacity-10">
                             </div>
-                            <component :is="activeTab.component" />
+                            
+                            <keep-alive>
+                                <component :is="activeTab.component" />
+                            </keep-alive>
                         </div>
-                        <div v-else class="text-center py-5">
+
+                        <div v-else class="text-center py-5" key="no-access">
                             <p class="text-muted khmer-font">អ្នកមិនមានសិទ្ធិចូលប្រើផ្នែកនេះទេ។</p>
                         </div>
                     </transition>
+                    
                 </div>
             </main>
         </div>
@@ -55,18 +60,19 @@
     import ProfileTab from './tabs/ProfileTab.vue'
     import SecurityTab from './tabs/SecurityTab.vue'
     import ThemeTab from './tabs/ThemeTab.vue'
+    import RoleTab from './tabs/RoleTab.vue'
     import Modules from './tabs/Modules.vue'
+    import PermissionTab from './tabs/PermissionTab.vue'
 
     // ១. កំណត់ Role របស់ User
     const currentUserRole = ref('admin')
+    const currentTabId = ref('profile')
 
     const ROLE_LEVELS = {
         'admin': 3,
         'manager': 2,
         'user': 1
     }
-
-    const currentTabId = ref('profile')
 
     // ៣. បញ្ជី Tab ជាមួយលក្ខខណ្ឌ Role (Standard Dynamic)
     const tabs = [
@@ -80,7 +86,7 @@
         { 
             id: 'security', 
             label: 'សុវត្ថិភាព', 
-            icon: 'bi bi-shield-lock', 
+            icon: 'bi bi-shield-exclamation', 
             component: markRaw(SecurityTab),
             minRole: 'user'
         },
@@ -92,12 +98,26 @@
             minRole: 'manager'
         },
         { 
+            id: 'role', 
+            label: 'គ្រប់គ្រងតួនាទី',
+            icon: 'bi bi-shield-lock', 
+            component: markRaw(RoleTab),
+            minRole: 'admin'
+        },
+        { 
         id: 'modules', 
             label: 'គ្រប់គ្រងម៉ូឌុល', 
             icon: 'bi bi-box-seam', 
             component: markRaw(Modules),
             minRole: 'admin'
         },
+        { 
+            id: 'permission', 
+            label: 'កំណត់សិទ្ធិប្រើប្រាស់', 
+            icon: 'bi bi-key-fill', 
+            component: markRaw(PermissionTab),
+            minRole: 'admin'
+        }
     ]
 
     // ៤. Logic: Filter យកតែ Tab ណាដែល User មានសិទ្ធិគ្រប់គ្រាន់ (Dynamic Permission)
@@ -111,7 +131,8 @@
 
     // ៥. Logic: ស្វែងរក Tab ដែលត្រូវបង្ហាញ (Fallback ទៅ Tab ដំបូងដែលវាអាចមើលឃើញ)
     const activeTab = computed(() => {
-        return visibleTabs.value.find(t => t.id === currentTabId.value) || visibleTabs.value[0]
+        const found = visibleTabs.value.find(t => t.id === currentTabId.value)
+        return found || (visibleTabs.value.length > 0 ? visibleTabs.value[0] : null)
     })
 </script>
 

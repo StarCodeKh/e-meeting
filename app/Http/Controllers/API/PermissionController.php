@@ -4,84 +4,83 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
 use Spatie\Permission\Models\Permission;
 
 class PermissionController extends Controller
 {
     /**
-     * Display a list of permissions
-     * GET /api/permissions
+     * ទាញយកបញ្ជីសិទ្ធិ (GET /api/permissions)
      */
-    public function index(): JsonResponse
+    public function index(Request $request)
     {
-        $permissions = Permission::all();
+        $permissions = Permission::when($request->search, function ($query, $search) {
+                $query->where('name', 'like', "%{$search}%");
+            })
+            ->latest()
+            ->get();
 
         return response()->json([
-            'success' => true,
-            'data' => $permissions,
-        ], 200);
+            'status' => 'success',
+            'data' => $permissions
+        ]);
     }
 
     /**
-     * Store a newly created permission
-     * POST /api/permissions
+     * បង្កើតសិទ្ធិថ្មី (POST /api/permissions)
      */
-    public function store(Request $request): JsonResponse
+    public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:permissions,name',
+        $request->validate([
+            'name' => 'required|string|unique:permissions,name',
         ]);
 
-        $permission = Permission::create($validated);
+        $permission = Permission::create([
+            'name' => strtolower(str_replace(' ', '_', $request->name)),
+            'guard_name' => 'web' // ឬ 'api' តាមការកំណត់ក្នុង App របស់បង
+        ]);
 
         return response()->json([
-            'success' => true,
+            'status' => 'success',
             'message' => 'Permission created successfully',
-            'data' => $permission,
+            'data' => $permission
         ], 201);
     }
 
     /**
-     * Display a single permission
-     * GET /api/permissions/{permission}
+     * បង្ហាញសិទ្ធិមួយតាម ID (GET /api/permissions/{permission})
      */
-    public function show(Permission $permission): JsonResponse
+    public function show($id)
     {
-        return response()->json([
-            'data' => $permission
-        ], 200);
+        $permission = Permission::findOrFail($id);
+        return response()->json(['data' => $permission]);
     }
 
     /**
-     * Update the specified permission
-     * PUT /api/permissions/{permission}
+     * កែប្រែសិទ្ធិ (PUT /api/permissions/{permission})
      */
-    public function update(Request $request, Permission $permission): JsonResponse
+    public function update(Request $request, $id)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:permissions,name,' . $permission->id,
+        $permission = Permission::findOrFail($id);
+        
+        $request->validate([
+            'name' => 'required|string|unique:permissions,name,' . $id,
         ]);
 
-        $permission->update($validated);
+        $permission->update([
+            'name' => strtolower(str_replace(' ', '_', $request->name))
+        ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Permission updated successfully',
-            'data' => $permission,
-        ], 200);
+        return response()->json(['message' => 'Updated successfully', 'data' => $permission]);
     }
 
     /**
-     * Remove the specified permission
-     * DELETE /api/permissions/{permission}
+     * លុបសិទ្ធិ (DELETE /api/permissions/{permission})
      */
-    public function destroy(Permission $permission): JsonResponse
+    public function destroy($id)
     {
+        $permission = Permission::findOrFail($id);
         $permission->delete();
 
-        return response()->json([
-            'message' => 'Permission deleted successfully'
-        ], 200);
+        return response()->json(['message' => 'Deleted successfully']);
     }
 }

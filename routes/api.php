@@ -48,14 +48,24 @@ use App\Http\Controllers\Api\ScheduleTypeController;
         Route::apiResource('schedules', ScheduleController::class);
 
         // Roles
-        Route::apiResource('roles', RoleController::class)->except(['create', 'edit']);
+        // Route::apiResource('roles', RoleController::class)->except(['create', 'edit']);
+        
         // Permissions
-        Route::apiResource('permissions', PermissionController::class)->except(['create', 'edit']);
+        Route::apiResource('permissions', PermissionController::class);
+
+        // Route::get('permissions', [RoleController::class, 'getPermissions']);
+        Route::apiResource('roles', RoleController::class);
 
         // Role-Permission Management
         Route::post('/roles/{role}/permissions/toggle', [RolePermissionController::class, 'togglePermission']);
         Route::post('/roles/{role}/modules/toggle', [RolePermissionController::class, 'toggleModule']);
         Route::get('/modules-actions', [RolePermissionController::class, 'getModulesAndActions']);
+
+        // Modules and Actions
+        Route::get('/modules', [ModuleController::class, 'index']);
+        Route::post('/modules', [ModuleController::class, 'store']);
+        Route::get('/actions', [ActionController::class, 'index']);
+        Route::post('/actions', [ActionController::class, 'store']);
 
         // Modules
         Route::apiResource('modules', ModuleController::class);
