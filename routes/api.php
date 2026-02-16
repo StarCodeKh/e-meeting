@@ -57,11 +57,8 @@ use App\Http\Controllers\Api\ScheduleTypeController;
         Route::post('/roles/{role}/modules/toggle', [RolePermissionController::class, 'toggleModule']);
         Route::get('/modules-actions', [RolePermissionController::class, 'getModulesAndActions']);
 
-        // Modules and Actions
-        Route::get('/modules', [ModuleController::class, 'index']);
-        Route::post('/modules', [ModuleController::class, 'store']);
-        Route::get('/actions', [ActionController::class, 'index']);
-        Route::post('/actions', [ActionController::class, 'store']);
+        // Modules
+        Route::apiResource('modules', ModuleController::class);
     });
 
 

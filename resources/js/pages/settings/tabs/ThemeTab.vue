@@ -1,5 +1,5 @@
 <template>
-    <div class="theme-selection p-4" :style="dynamicStyles">
+    <div class="theme-selection" :style="dynamicStyles">
         
         <div class="accent-color-section mb-5">
             <div class="d-flex justify-content-between align-items-center mb-3">

@@ -11,7 +11,11 @@
                         <h5 class="khmer-font fw-bold mb-4 text-dark opacity-75 px-2">ការកំណត់ប្រព័ន្ធ</h5>
                     </div>
                     <nav class="nav flex-column gap-2">
-                        <button v-for="tab in tabs" :key="tab.id" @click="currentTabId = tab.id" :class="['nav-pill-custom khmer-font', { active: currentTabId === tab.id }]" type="button">
+                        <button v-for="tab in visibleTabs" 
+                                :key="tab.id" 
+                                @click="currentTabId = tab.id" 
+                                :class="['nav-pill-custom khmer-font', { active: currentTabId === tab.id }]" 
+                                type="button">
                             <div class="d-flex align-items-center gap-3">
                                 <i :class="[tab.icon, 'fs-5']"></i>
                                 <span>{{ tab.label }}</span>
@@ -32,6 +36,9 @@
                             </div>
                             <component :is="activeTab.component" />
                         </div>
+                        <div v-else class="text-center py-5">
+                            <p class="text-muted khmer-font">អ្នកមិនមានសិទ្ធិចូលប្រើផ្នែកនេះទេ។</p>
+                        </div>
                     </transition>
                 </div>
             </main>
@@ -48,41 +55,70 @@
     import ProfileTab from './tabs/ProfileTab.vue'
     import SecurityTab from './tabs/SecurityTab.vue'
     import ThemeTab from './tabs/ThemeTab.vue'
+    import Modules from './tabs/Modules.vue'
 
-    // 1. Manage current selection by ID
+    // ១. កំណត់ Role របស់ User
+    const currentUserRole = ref('admin')
+
+    const ROLE_LEVELS = {
+        'admin': 3,
+        'manager': 2,
+        'user': 1
+    }
+
     const currentTabId = ref('profile')
 
-    // 2. The "Source of Truth" Data Array
+    // ៣. បញ្ជី Tab ជាមួយលក្ខខណ្ឌ Role (Standard Dynamic)
     const tabs = [
         { 
             id: 'profile', 
             label: 'ព័ត៌មានគណនី', 
             icon: 'bi bi-person-circle', 
-            component: markRaw(ProfileTab) 
+            component: markRaw(ProfileTab),
+            minRole: 'user'
         },
         { 
             id: 'security', 
             label: 'សុវត្ថិភាព', 
             icon: 'bi bi-shield-lock', 
-            component: markRaw(SecurityTab) 
+            component: markRaw(SecurityTab),
+            minRole: 'user'
         },
         { 
             id: 'theme', 
             label: 'ប្រភេទរចនាប័ណ្ណ', 
             icon: 'bi bi-palette', 
-            component: markRaw(ThemeTab) 
-        }
+            component: markRaw(ThemeTab),
+            minRole: 'manager'
+        },
+        { 
+        id: 'modules', 
+            label: 'គ្រប់គ្រងម៉ូឌុល', 
+            icon: 'bi bi-box-seam', 
+            component: markRaw(Modules),
+            minRole: 'admin'
+        },
     ]
 
-    // 3. Logic: Find active data based on selection
+    // ៤. Logic: Filter យកតែ Tab ណាដែល User មានសិទ្ធិគ្រប់គ្រាន់ (Dynamic Permission)
+    const visibleTabs = computed(() => {
+        const userLevel = ROLE_LEVELS[currentUserRole.value] || 0
+        return tabs.filter(tab => {
+            const requiredLevel = ROLE_LEVELS[tab.minRole] || 0
+            return userLevel >= requiredLevel
+        })
+    })
+
+    // ៥. Logic: ស្វែងរក Tab ដែលត្រូវបង្ហាញ (Fallback ទៅ Tab ដំបូងដែលវាអាចមើលឃើញ)
     const activeTab = computed(() => {
-        return tabs.find(t => t.id === currentTabId.value) || tabs[0]
+        return visibleTabs.value.find(t => t.id === currentTabId.value) || visibleTabs.value[0]
     })
 </script>
 
 <style scoped>
     @import "@/css/settings-style.css";
+
     .fade-slide-enter-active, .fade-slide-leave-active { transition: all 0.2s ease; }
-    .fade-slide-enter-from { opacity: 0; transform: translateX(10px); }
-    .fade-slide-leave-to { opacity: 0; transform: translateX(-10px); }
+    .fade-slide-enter-from { opacity: 0; transform: translateX(20px); }
+    .fade-slide-leave-to { opacity: 0; transform: translateX(-20px); }
 </style>

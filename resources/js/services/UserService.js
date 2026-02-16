@@ -74,7 +74,6 @@ export const UserService = {
 
     async update(id, formData) {
         try {
-            // Laravel Trick: ប្រើ POST រួច Append _method=PUT ដើម្បីឱ្យចាប់បាន multipart/form-data
             if (formData instanceof FormData && !formData.has('_method')) {
                 formData.append('_method', 'PUT');
             }
@@ -106,8 +105,6 @@ export const UserService = {
         const errors = error.response?.data?.errors || null;
         
         console.error(`[User Service Error]: ${message}`, errors);
-        
-        // អ្នកអាចបោះ Object error ទៅវិញដើម្បីឱ្យ UI បង្ហាញ Validation message
         throw { message, errors, status: error.response?.status };
     }
 };
