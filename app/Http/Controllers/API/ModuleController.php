@@ -15,7 +15,6 @@ class ModuleController extends Controller
      */
     public function index(): JsonResponse
     {
-        // ប្រើ orderBy ដើម្បីឱ្យ sort_order ដើរបានត្រឹមត្រូវក្នុង Table
         $modules = Module::orderBy('sort_order', 'asc')->get();
         
         return response()->json([

@@ -20,7 +20,6 @@ use App\Http\Controllers\Api\ScheduleTypeController;
 
     // Route សម្រាប់ទាញយក Types និង Priorities ក្នុងពេលតែមួយ
     Route::get('/schedule-form-options', [ScheduleTypeController::class, 'index']);
-    // Route សម្រាប់ Update ពណ៌តាម slug
     Route::post('/schedule-types/update', [ScheduleTypeController::class, 'updateTypeColor']);
     Route::post('/priorities/update', [ScheduleTypeController::class, 'updatePriority']);
 
@@ -47,26 +46,10 @@ use App\Http\Controllers\Api\ScheduleTypeController;
         Route::get('schedules/all', [ScheduleController::class, 'scheduleAll']);
         Route::apiResource('schedules', ScheduleController::class);
 
-        // Roles
-        // Route::apiResource('roles', RoleController::class)->except(['create', 'edit']);
-        
         // Permissions
         Route::apiResource('permissions', PermissionController::class);
-
-        // Route::get('permissions', [RoleController::class, 'getPermissions']);
+        // Roles
         Route::apiResource('roles', RoleController::class);
-
-        // Role-Permission Management
-        Route::post('/roles/{role}/permissions/toggle', [RolePermissionController::class, 'togglePermission']);
-        Route::post('/roles/{role}/modules/toggle', [RolePermissionController::class, 'toggleModule']);
-        Route::get('/modules-actions', [RolePermissionController::class, 'getModulesAndActions']);
-
-        // Modules and Actions
-        Route::get('/modules', [ModuleController::class, 'index']);
-        Route::post('/modules', [ModuleController::class, 'store']);
-        Route::get('/actions', [ActionController::class, 'index']);
-        Route::post('/actions', [ActionController::class, 'store']);
-
         // Modules
         Route::apiResource('modules', ModuleController::class);
     });

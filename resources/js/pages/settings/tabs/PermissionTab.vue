@@ -43,81 +43,88 @@
                         </div>
                     </div>
 
-                    <div class="table-responsive" style="max-height: 550px;">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="bg-light sticky-top" style="z-index: 1;">
-                                <tr class="small text-muted khmer-font text-uppercase">
-                                    <th class="ps-4 py-3">ឈ្មោះសិទ្ធិ</th>
-                                    <th class="py-3">Guard</th>
-                                    <th class="text-end pe-4 py-3">សកម្មភាព</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-if="loadingData">
-                                    <td colspan="3" class="text-center py-5">
-                                        <div class="spinner-border spinner-border-sm text-primary"></div>
-                                        <div class="mt-2 small text-muted">កំពុងទាញទិន្នន័យ...</div>
-                                    </td>
-                                </tr>
+                    <div class="rounded- overflow-hidden">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="bg-light sticky-top" style="z-index: 1;">
+                                    <tr class="small text-muted khmer-font text-uppercase">
+                                        <th class="ps-4 py-3">ឈ្មោះសិទ្ធិ</th>
+                                        <th class="py-3">Guard</th>
+                                        <th class="text-end pe-4 py-3">សកម្មភាព</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-if="loadingData">
+                                        <td colspan="3" class="text-center py-5">
+                                            <div class="spinner-border spinner-border-sm text-primary"></div>
+                                            <div class="mt-2 small text-muted">កំពុងទាញទិន្នន័យ...</div>
+                                        </td>
+                                    </tr>
 
-                                <tr v-for="perm in filteredPermissions" :key="perm.id" class="transition-all">
-                                    <td class="ps-4">
-                                        <div class="d-flex align-items-center">
-                                            <div class="bg-primary-subtle text-primary rounded-2 p-1 me-2" style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;">
-                                                <i class="bi bi-lock-fill small"></i>
+                                    <tr v-for="perm in permissions" :key="perm.id" class="transition-all">
+                                        <td class="ps-4">
+                                            <div class="d-flex align-items-center">
+                                                <div class="bg-primary-subtle text-primary rounded-2 p-1 me-2" style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;">
+                                                    <i class="bi bi-lock-fill small"></i>
+                                                </div>
+                                                <code class="text-dark fw-bold">{{ perm.name }}</code>
                                             </div>
-                                            <code class="text-dark fw-bold">{{ perm.name }}</code>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-light text-secondary border fw-normal rounded-3 px-2">
-                                            {{ perm.guard_name }}
-                                        </span>
-                                    </td>
-                                    <td class="text-end pe-4">
-                                        <button @click="confirmDelete(perm.id)" 
-                                            class="btn btn-sm btn-outline-danger border-0 rounded-3" 
-                                            title="លុបចេញ">
-                                            <i class="bi bi-trash3"></i>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-light text-secondary border fw-normal rounded-3 px-2">
+                                                {{ perm.guard_name }}
+                                            </span>
+                                        </td>
+                                        <td class="text-end pe-4">
+                                            <button @click="confirmDelete(perm.id)" class="btn btn-sm btn-outline-danger border-0 rounded-3">
+                                                <i class="bi bi-trash3"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                    <tr v-if="!loadingData && permissions.length === 0">
+                                        <td colspan="3" class="text-center py-5 text-muted khmer-font">
+                                            មិនមានទិន្នន័យឡើយ
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="p-4 border-top bg-light/50">
+                            <nav v-if="meta.last_page > 1" class="d-flex flex-column align-items-center gap-3">
+                                <div class="khmer-font text-muted small">
+                                    ទំព័រទី {{ toKhmerNum(meta.current_page) }} នៃ {{ toKhmerNum(meta.last_page) }}
+                                </div>
+
+                                <ul class="pagination gap-2 mb-0">
+                                    <li class="page-item" :class="{ disabled: meta.current_page === 1 }">
+                                        <button class="page-link rounded-3 border-0 shadow-sm transition-all" @click="fetchPermissions(meta.current_page - 1)">
+                                            <i class="bi bi-arrow-left"></i>
                                         </button>
-                                    </td>
-                                </tr>
+                                    </li>
 
-                                <tr v-if="!loadingData && filteredPermissions.length === 0">
-                                    <td colspan="3" class="text-center py-5">
-                                        <i class="bi bi-shield-exclamation fs-2 text-muted mb-2 d-block"></i>
-                                        <span class="text-muted khmer-font">មិនមានទិន្នន័យឡើយ</span>
-                                    </td>
-                                </tr>
+                                    <li v-for="page in meta.last_page" :key="page" class="page-item d-none d-md-block" :class="{ active: meta.current_page === page }">
+                                        <button class="page-link rounded-3 border-0 shadow-sm khmer-font transition-all" 
+                                            :style="meta.current_page === page ? { background: '#3498db', color: 'white' } : {}" 
+                                            @click="fetchPermissions(page)">
+                                            {{ toKhmerNum(page) }}
+                                        </button>
+                                    </li>
 
-                                <nav v-if="meta.last_page > 1" class="d-flex justify-content-between align-items-center mt-3">
-                                    <small class="text-muted khmer-font">
-                                        បង្ហាញ {{ (meta.current_page - 1) * meta.per_page + 1 }} ដល់ 
-                                        {{ Math.min(meta.current_page * meta.per_page, meta.total) }} 
-                                        នៃទិន្នន័យសរុប {{ meta.total }}
-                                    </small>
-                                    <ul class="pagination pagination-sm mb-0 shadow-sm">
-                                        <li class="page-item" :class="{ disabled: meta.current_page === 1 }">
-                                            <button class="page-link border-0" @click="fetchPermissions(meta.current_page - 1)">
-                                                <i class="bi bi-chevron-left"></i>
-                                            </button>
-                                        </li>
-                                        
-                                        <li v-for="page in meta.last_page" :key="page" 
-                                            class="page-item" :class="{ active: meta.current_page === page }">
-                                            <button class="page-link border-0" @click="fetchPermissions(page)">{{ page }}</button>
-                                        </li>
+                                    <li class="page-item d-md-none active">
+                                        <button class="page-link rounded-3 border-0 shadow-sm khmer-font" :style="{ background: '#3498db', color: 'white' }">
+                                            {{ toKhmerNum(meta.current_page) }}
+                                        </button>
+                                    </li>
 
-                                        <li class="page-item" :class="{ disabled: meta.current_page === meta.last_page }">
-                                            <button class="page-link border-0" @click="fetchPermissions(meta.current_page + 1)">
-                                                <i class="bi bi-chevron-right"></i>
-                                            </button>
-                                        </li>
-                                    </ul>
-                                </nav>
-
-                            </tbody>
-                        </table>
+                                    <li class="page-item" :class="{ disabled: meta.current_page === meta.last_page }">
+                                        <button class="page-link rounded-3 border-0 shadow-sm transition-all" @click="fetchPermissions(meta.current_page + 1)">
+                                            <i class="bi bi-arrow-right"></i>
+                                        </button>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
                     </div>
                 </div>
                 <div class="mt-2 text-end">
@@ -137,11 +144,17 @@
 
     // --- States ---
     const permissions = ref([]);
-    const meta = ref({ current_page: 1, last_page: 1, per_page: 10, total: 0 }); // បន្ថែម meta
+    const meta = ref({ current_page: 1, last_page: 1, per_page: 5, total: 0 }); // បន្ថែម meta
     const loading = ref(false);
     const loadingData = ref(false);
     const search = ref('');
     const form = ref({ name: '' });
+
+    const toKhmerNum = (num) => {
+        if (!num) return '០';
+        const khmerNumbers = ['០', '១', '២', '៣', '៤', '៥', '៦', '៧', '៨', '៩'];
+        return num.toString().replace(/\d/g, (d) => khmerNumbers[d]);
+    };
 
     // --- ១. ទាញទិន្នន័យ (Fetch Data) ---
     const fetchPermissions = async (page = 1) => {
@@ -182,7 +195,7 @@
         try {
             await PermissionService.create({ name: form.value.name });
             form.value.name = '';
-            await fetchPermissions(1); // ត្រឡប់ទៅទំព័រទី១ វិញ
+            await fetchPermissions(1);
             toast('success', 'រក្សាទុកជោគជ័យ');
         } catch (e) {
             Swal.fire({ icon: 'error', title: 'បរាជ័យ', text: e.message || 'ឈ្មោះនេះមានរួចហើយ!' });
