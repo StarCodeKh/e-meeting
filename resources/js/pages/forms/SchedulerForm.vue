@@ -187,13 +187,13 @@
     }
 
     const getInitialForm = () => ({
-        type: '', // ទុកឱ្យ API កំណត់ Default ក្នុង onMounted
+        type: '',
         title: '', 
         description: '',
         date: new Date().toISOString().split('T')[0],
         start_time: getCurrentTime(), 
         end_time: getCurrentTime(1),
-        participants: [], // កំណត់ជា Array ដើម្បីងាយស្រួល Map
+        participants: [],
         location: '', 
         room: '', 
         link: '', 

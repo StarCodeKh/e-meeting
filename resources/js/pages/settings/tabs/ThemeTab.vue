@@ -5,7 +5,7 @@
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h6 class="khmer-font fw-bold mb-0 text-muted small text-uppercase">ពណ៌ចម្បង</h6>
                 <button @click="handleReset" 
-                        class="btn btn-sm btn-outline-secondary khmer-font py-1 px-3 rounded-pill shadow-sm transition-all"
+                        class="btn btn-sm btn-outline-secondary khmer-font py-1 px-3 rounded-3 shadow-sm transition-all"
                         style="font-size: 0.75rem;">
                     <i class="bi bi-arrow-counterclockwise me-1"></i> កំណត់ឡើងវិញ
                 </button>

@@ -316,7 +316,7 @@
     const currentPage = ref(1)
     const isLoading = ref(false)
     const searchQuery = ref('')
-    const editingItem = ref({}) // វត្ថុចម្បងសម្រាប់ Form
+    const editingItem = ref({})
     const isSaving = ref(false)
     const selectedFile = ref(null)
     const modalElement = ref(null)
@@ -355,7 +355,6 @@
     // --- UI Computed Properties ---
     const activeTab = computed(() => {
         if (!TABS.value.length) return { theme: '#e54d42', gradient: '' };
-        // ប្រើ editingItem.type ដើម្បីឱ្យប៊ូតុង Tabs ប្តូរពណ៌តាមការជ្រើសរើស
         return TABS.value.find(t => t.id === editingItem.value.type) || TABS.value[0];
     })
 
