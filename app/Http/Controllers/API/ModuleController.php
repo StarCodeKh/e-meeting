@@ -13,16 +13,18 @@ class ModuleController extends Controller
     /**
      * ទាញយកទិន្នន័យទាំងអស់ (តម្រៀបតាមលំដាប់ sort_order)
      */
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $modules = Module::orderBy('sort_order', 'asc')->get();
-        
-        return response()->json([
-            'success' => true,
-            'data' => $modules
-        ]);
-    }
+        $modules = Module::query()
+            ->when($request->search, function ($query, $search) {
+                $query->where('name', 'like', "%{$search}%")
+                    ->orWhere('code', 'like', "%{$search}%");
+            })
+            ->orderBy('sort_order', 'asc')
+            ->paginate($request->integer('per_page', 5));
 
+        return response()->json($modules);
+    }
     /**
      * បង្កើតម៉ូឌុលថ្មី
      */
