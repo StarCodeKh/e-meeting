@@ -30,10 +30,9 @@
                             <tr v-if="isLoading">
                                 <td colspan="3" class="text-center py-5">
                                     <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
-                                    <div class="mt-2 small text-muted khmer-font">កំពុងទាញទិន្នន័យ...</div>
+                                    <div class="mt-2 small text-muted khmer-font">កំពុងដំណើរការ...</div>
                                 </td>
                             </tr>
-                            
                             <tr v-for="role in roles" :key="role.id" class="cursor-pointer">
                                 <td class="ps-4">
                                     <span class="fw-bold text-dark fs-6">{{ role.name }}</span>
@@ -180,6 +179,30 @@
             cancelEdit()
         } catch (e) { toast('error', e.message) }
         finally { saving.value = false }
+    }
+
+    const handleDelete = async (id) => {
+        const result = await Swal.fire({
+            title: 'តើអ្នកប្រាកដទេ?',
+            text: "ការលុបនេះមិនអាចយកមកវិញបានឡើយ!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'បាទ លុបចេញ!',
+            cancelButtonText: 'បោះបង់',
+            reverseButtons: true
+        })
+
+        if (result.isConfirmed) {
+            try {
+                await RoleService.delete(id)
+                toast('success', 'លុបតួនាទីរួចរាល់!')
+                await fetchInitialData()
+            } catch (e) {
+                toast('error', e.message || 'មិនអាចលុបបានទេ!')
+            }
+        }
     }
 
     // Grouping Logic (Fixed)

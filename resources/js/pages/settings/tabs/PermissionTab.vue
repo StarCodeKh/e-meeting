@@ -89,6 +89,33 @@
                                         <span class="text-muted khmer-font">មិនមានទិន្នន័យឡើយ</span>
                                     </td>
                                 </tr>
+
+                                <nav v-if="meta.last_page > 1" class="d-flex justify-content-between align-items-center mt-3">
+                                    <small class="text-muted khmer-font">
+                                        បង្ហាញ {{ (meta.current_page - 1) * meta.per_page + 1 }} ដល់ 
+                                        {{ Math.min(meta.current_page * meta.per_page, meta.total) }} 
+                                        នៃទិន្នន័យសរុប {{ meta.total }}
+                                    </small>
+                                    <ul class="pagination pagination-sm mb-0 shadow-sm">
+                                        <li class="page-item" :class="{ disabled: meta.current_page === 1 }">
+                                            <button class="page-link border-0" @click="fetchPermissions(meta.current_page - 1)">
+                                                <i class="bi bi-chevron-left"></i>
+                                            </button>
+                                        </li>
+                                        
+                                        <li v-for="page in meta.last_page" :key="page" 
+                                            class="page-item" :class="{ active: meta.current_page === page }">
+                                            <button class="page-link border-0" @click="fetchPermissions(page)">{{ page }}</button>
+                                        </li>
+
+                                        <li class="page-item" :class="{ disabled: meta.current_page === meta.last_page }">
+                                            <button class="page-link border-0" @click="fetchPermissions(meta.current_page + 1)">
+                                                <i class="bi bi-chevron-right"></i>
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </nav>
+
                             </tbody>
                         </table>
                     </div>
@@ -102,55 +129,64 @@
 </template>
 
 <script setup>
-    import { ref, computed, onMounted } from 'vue';
+
+    import { ref, computed, watch, onMounted } from 'vue'; 
     import { PermissionService } from '@/services/PermissionService';
     import Swal from 'sweetalert2';
+    import _ from 'lodash';
 
     // --- States ---
     const permissions = ref([]);
+    const meta = ref({ current_page: 1, last_page: 1, per_page: 10, total: 0 }); // បន្ថែម meta
     const loading = ref(false);
     const loadingData = ref(false);
     const search = ref('');
     const form = ref({ name: '' });
 
     // --- ១. ទាញទិន្នន័យ (Fetch Data) ---
-    const fetchPermissions = async () => {
+    const fetchPermissions = async (page = 1) => {
         loadingData.value = true;
         try {
-            const res = await PermissionService.getAll(1, search.value);
+            // បញ្ជូនទាំង page និង search ទៅកាន់ API
+            const res = await PermissionService.getAll({ 
+                page: page, 
+                search: search.value,
+                per_page: 5 
+            });
             
-            if (res && res.status === 'success') {
-                permissions.value = res.data; 
-            } else {
-                permissions.value = res.data || res || [];
-            }
+            // Laravel Paginate បោះមកមាន data នៅក្នុង res.data
+            permissions.value = res.data || [];
+            
+            // រក្សាទុក Meta សម្រាប់ Pagination UI
+            meta.value = {
+                current_page: res.current_page || 1,
+                last_page: res.last_page || 1,
+                per_page: res.per_page || 10,
+                total: res.total || 0
+            };
         } catch (e) {
             console.error("Fetch Error:", e);
-            permissions.value = [];
         } finally {
             loadingData.value = false;
         }
     };
 
+    watch(search, _.debounce(() => {
+        fetchPermissions(1);
+    }, 500));
+
     // --- ២. រក្សាទុក (Save Data) ---
     const handleSave = async () => {
+        if(!form.value.name) return;
         loading.value = true;
         try {
             await PermissionService.create({ name: form.value.name });
-            
             form.value.name = '';
-            await fetchPermissions();
-            
+            await fetchPermissions(1); // ត្រឡប់ទៅទំព័រទី១ វិញ
             toast('success', 'រក្សាទុកជោគជ័យ');
         } catch (e) {
-            Swal.fire({ 
-                icon: 'error', 
-                title: 'បរាជ័យ', 
-                text: e.message || 'ឈ្មោះនេះមានរួចហើយ!' 
-            });
-        } finally { 
-            loading.value = false; 
-        }
+            Swal.fire({ icon: 'error', title: 'បរាជ័យ', text: e.message || 'ឈ្មោះនេះមានរួចហើយ!' });
+        } finally { loading.value = false; }
     };
 
     // --- ៣. លុប (Delete Data) ---

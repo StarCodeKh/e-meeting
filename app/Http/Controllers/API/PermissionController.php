@@ -13,18 +13,13 @@ class PermissionController extends Controller
      */
     public function index(Request $request)
     {
-        $permissions = Permission::when($request->search, function ($query, $search) {
-                $query->where('name', 'like', "%{$search}%");
-            })
+        $permissions = Permission::query()
+            ->when($request->search, fn($q, $s) => $q->where('name', 'like', "%{$s}%"))
             ->latest()
-            ->get();
+            ->paginate($request->integer('per_page', 5));
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $permissions
-        ]);
+        return response()->json($permissions);
     }
-
     /**
      * បង្កើតសិទ្ធិថ្មី (POST /api/permissions)
      */
@@ -36,7 +31,7 @@ class PermissionController extends Controller
 
         $permission = Permission::create([
             'name' => strtolower(str_replace(' ', '_', $request->name)),
-            'guard_name' => 'web' // ឬ 'api' តាមការកំណត់ក្នុង App របស់បង
+            'guard_name' => 'web'
         ]);
 
         return response()->json([

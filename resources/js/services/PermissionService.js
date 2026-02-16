@@ -2,86 +2,59 @@ import api from '@/api/axios';
 
 export const PermissionService = {
     /**
-     * ទាញយកបញ្ជី Permission ទាំងអស់ (គាំទ្រ Pagination & Search)
+     * getAll ឱ្យកាន់តែ Dynamic គាំទ្រទាំង page, search, និង per_page
      */
-    async getAll(page = 1, search = '') {
+    async getAll(params = {}) {
         try {
-            const response = await api.get('/permissions', { 
-                params: { 
-                    page, 
-                    search: search || undefined 
-                } 
-            });
-            return response.data; 
-        } catch (error) {
-            this.handleError(error);
-        }
+            // ប្រើ params ជា Object តែម្តង ដើម្បីងាយស្រួលពង្រីកថ្ងៃក្រោយ
+            const { data } = await api.get('/permissions', { params });
+            return data; 
+        } catch (error) { this.handleError(error); }
     },
 
-    /**
-     * ទាញយក Permission មួយតាម ID
-     */
     async getById(id) {
         try {
-            const response = await api.get(`/permissions/${id}`);
-            return response.data.data || response.data;
-        } catch (error) {
-            this.handleError(error);
-        }
+            const { data } = await api.get(`/permissions/${id}`);
+            return data.data || data;
+        } catch (error) { this.handleError(error); }
     },
 
     /**
-     * បង្កើត Permission ថ្មី
+     * ប្រើ Helper ខាងក្រោមដើម្បីសម្អាតឈ្មោះ (Slugify)
      */
-    async create(data) {
+    async create(payload) {
         try {
-            if (data.name) {
-                data.name = data.name.trim().toLowerCase().replace(/\s+/g, '_');
-            }
-            const response = await api.post('/permissions', data);
-            return response.data;
-        } catch (error) {
-            this.handleError(error);
-        }
+            const data = { ...payload, name: this.formatName(payload.name) };
+            const res = await api.post('/permissions', data);
+            return res.data;
+        } catch (error) { this.handleError(error); }
     },
 
-    /**
-     * ធ្វើបច្ចុប្បន្នភាព Permission
-     */
-    async update(id, data) {
+    async update(id, payload) {
         try {
-            if (data.name) {
-                data.name = data.name.trim().toLowerCase().replace(/\s+/g, '_');
-            }
-            const response = await api.put(`/permissions/${id}`, data);
-            return response.data;
-        } catch (error) {
-            this.handleError(error);
-        }
+            const data = { ...payload, name: this.formatName(payload.name) };
+            const res = await api.put(`/permissions/${id}`, data);
+            return res.data;
+        } catch (error) { this.handleError(error); }
     },
 
-    /**
-     * លុប Permission
-     */
     async delete(id) {
         try {
-            const response = await api.delete(`/permissions/${id}`);
-            return response.data;
-        } catch (error) {
-            this.handleError(error);
-        }
+            const { data } = await api.delete(`/permissions/${id}`);
+            return data;
+        } catch (error) { this.handleError(error); }
     },
 
-    /**
-     * មុខងារចាប់កំហុស (Error Handling) - ដូច RoleService
-     */
+    // --- Helpers ---
+    
+    formatName(name) {
+        return name ? name.trim().toLowerCase().replace(/\s+/g, '_') : name;
+    },
+
     handleError(error) {
-        const message = error.response?.data?.message || 'មានបញ្ហាបច្ចេកទេសកើតឡើង';
-        const errors = error.response?.data?.errors || null;
-        
         throw { 
-            message, 
-            errors, 
+            message: error.response?.data?.message || 'មានបញ្ហាបច្ចេកទេស', 
+            errors: error.response?.data?.errors || null, 
             status: error.response?.status 
         };
     }
