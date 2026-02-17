@@ -10,21 +10,20 @@ use Illuminate\Http\JsonResponse;
 
 class ModuleController extends Controller
 {
-    /**
-     * ទាញយកទិន្នន័យទាំងអស់ (តម្រៀបតាមលំដាប់ sort_order)
-     */
-    public function index(Request $request): JsonResponse
-    {
-        $modules = Module::query()
-            ->when($request->search, function ($query, $search) {
-                $query->where('name', 'like', "%{$search}%")
-                    ->orWhere('code', 'like', "%{$search}%");
-            })
-            ->orderBy('sort_order', 'asc')
-            ->paginate($request->integer('per_page', 5));
-
-        return response()->json($modules);
+    public function index(Request $request) {
+        $user = $request->user();
+        $query = Module::query()
+            ->when($request->search, function ($q, $search) {
+                $q->where(function($sub) use ($search) {
+                    $sub->where('label', 'like', "%{$search}%")->orWhere('key_name', 'like', "%{$search}%");
+                });
+            })->orderBy('sort_order', 'asc');
+        if ($request->boolean('is_menu')) {
+            return $query->where('is_active', true)->get()->filter(fn($module) => empty($module->permission_name) || $user->can($module->permission_name))->values();
+        }
+        return $query->paginate($request->integer('per_page', 100));
     }
+
     /**
      * បង្កើតម៉ូឌុលថ្មី
      */
@@ -33,6 +32,7 @@ class ModuleController extends Controller
         $validated = $request->validate([
             'key_name'   => 'required|string|unique:modules,key_name',
             'label'      => 'required|string|max:255',
+            'path'       => 'required|string', 
             'sort_order' => 'nullable|integer',
             'is_active'  => 'nullable|boolean',
             'icon'       => 'nullable|string',
@@ -56,19 +56,21 @@ class ModuleController extends Controller
         $module = Module::findOrFail($id);
 
         $validated = $request->validate([
-            'key_name'   => ['required', 'string', Rule::unique('modules')->ignore($module->id)],
-            'label'      => 'required|string|max:255',
-            'sort_order' => 'nullable|integer',
-            'is_active'  => 'nullable|boolean',
-            'icon'       => 'nullable|string',
-            'description'=> 'nullable|string'
+            'key_name'        => ['required', 'string', Rule::unique('modules')->ignore($module->id)],
+            'label'           => 'required|string|max:255',
+            'path'            => 'required|string', 
+            'permission_name' => 'nullable|string',
+            'sort_order'      => 'nullable|integer',
+            'is_active'       => 'nullable|boolean',
+            'icon'            => 'nullable|string',
+            'description'     => 'nullable|string'
         ]);
 
         $module->update($validated);
 
         return response()->json([
             'success' => true,
-            'message' => 'Module updated successfully',
+            'message' => 'កែប្រែម៉ូឌុលជោគជ័យ',
             'data'    => $module
         ]);
     }

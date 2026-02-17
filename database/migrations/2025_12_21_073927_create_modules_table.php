@@ -16,7 +16,9 @@ return new class extends Migration
             $table->string('key_name', 50)->unique();
             $table->string('label', 100);
             $table->string('icon')->nullable();
+            $table->string('path')->default('/'); 
             $table->string('description')->nullable();
+            $table->string('permission_name')->nullable();
             $table->integer('sort_order')->default(0);
             $table->boolean('is_active')->default(true);
             $table->timestamps();
