@@ -2,8 +2,9 @@
 
 namespace App\Http\Resources;
 
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\Request;
+use Spatie\Permission\Models\Role;
 
 class UserResource extends JsonResource
 {
@@ -15,7 +16,8 @@ class UserResource extends JsonResource
             'name'          => $this->name,
             'email'         => $this->email,
             'phone'         => $this->phone ?? 'N/A',
-            'role'          => strtoupper($this->role),
+            'role'          => $this->roles->pluck('name')->first() ?: 'user',
+            'permissions'   => $this->getAllPermissions()->pluck('name')->values(),
             'status'        => $this->status,
             'avatar_url'    => $this->avatar ? asset('storage/' . $this->avatar) : null,
             'last_login'    => $this->last_login_at?->diffForHumans() ?? 'Never',
@@ -23,4 +25,5 @@ class UserResource extends JsonResource
             'created_at'    => $this->created_at->format('Y-m-d H:i'),
         ];
     }
+
 }

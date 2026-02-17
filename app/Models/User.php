@@ -5,15 +5,15 @@ namespace App\Models;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
-// use Spatie\Permission\Traits\HasRoles;
+use Spatie\Permission\Traits\HasRoles;
+use Spatie\Permission\Models\Permission;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class User extends Authenticatable implements JWTSubject
 {
-    use Notifiable;
-    // use Notifiable, HasRoles;
+    use Notifiable, HasRoles, SoftDeletes;
 
-    use SoftDeletes;
+    protected $guard_name = 'api';
 
     protected $fillable = [
         'user_id', 'name', 'username', 'email', 'phone', 

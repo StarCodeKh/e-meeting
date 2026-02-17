@@ -9,6 +9,7 @@ use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use App\Http\Requests\UserRequest;
+use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\User;
@@ -109,12 +110,14 @@ class UserController extends Controller
         try {
             $data = $request->validated();
 
+            // ១. រៀបចំ Password
             if ($request->filled('password')) {
                 $data['password'] = Hash::make($request->password);
             } else {
                 unset($data['password']);
             }
 
+            // ២. រៀបចំ Avatar
             if ($request->hasFile('avatar')) {
                 if ($user->avatar && Storage::disk('public')->exists(str_replace('storage/', '', $user->avatar))) {
                     Storage::disk('public')->delete(str_replace('storage/', '', $user->avatar));
@@ -129,14 +132,27 @@ class UserController extends Controller
                 $data['avatar'] = $path;
             }
 
+            // ៣. Update ព័ត៌មានទូទៅក្នុងតារាង users
             $user->update($data);
+
+            // ៤. ✅ បន្ថែម៖ Sync Role ទៅកាន់តារាង model_has_roles
+            // ប្រសិនបើក្នុង Form បងបោះ Key 'role' ឬ 'roles' មក
+            if ($request->has('role')) {
+                // ត្រង់នេះ $request->role នឹងក្លាយជា ['admin']
+                $roleName = is_array($request->role) ? $request->role[0] : $request->role;
+                
+                if ($roleName) {
+                    $role = Role::firstOrCreate(['name' => $roleName, 'guard_name' => 'api']);
+                    $user->syncRoles($role->name);
+                }
+            }
 
             DB::commit();
 
             return response()->json([
                 'status'  => 'success',
                 'message' => 'កែប្រែព័ត៌មានអ្នកប្រើប្រាស់ជោគជ័យ!',
-                'data'    => new UserResource($user->fresh())
+                'data'    => new UserResource($user->fresh(['roles'])) // Load roles ទៅជាមួយ Resource
             ], 200);
 
         } catch (\Exception $e) {
@@ -163,6 +179,7 @@ class UserController extends Controller
                 ], 401);
             }
 
+            // UserResource នឹងរៀបចំ Key 'permissions' ឱ្យដោយស្វ័យប្រវត្តិ
             return (new UserResource($user))
                 ->additional([
                     'status' => 'success',

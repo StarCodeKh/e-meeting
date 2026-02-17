@@ -17,7 +17,7 @@
 
             <div class="d-flex align-items-center gap-2 bg-white-capsule p-1 shadow-sm">
                 <template v-for="tab in navigationTabs" :key="tab.id">
-                    <a v-if="tab.external" :href="tab.path" target="_blank" rel="noopener noreferrer" class="nav-tab-box text-decoration-none" :class="{ 'active-capsule': route.path === tab.path }">
+                    <a v-if="tab.external" :href="tab.path" target="_blank" rel="noopener noreferrer" class="nav-tab-box text-decoration-none">
                         <i class="bi" :class="tab.icon"></i>
                     </a>
                     <router-link v-else :to="tab.path" class="nav-tab-box text-decoration-none" active-class="active-capsule">
@@ -38,8 +38,8 @@
 
                 <div class="position-relative">
                     <div class="nav-square-btn shadow-sm" :class="{ 'active-nav-btn': isDropdownOpen }" @click="isDropdownOpen = !isDropdownOpen" role="button">
-                        <i v-if="!user.avatar" class="bi bi-person-fill"></i>
-                        <img v-else :src="user.avatar" class="rounded-circle" style="width: 24px; height: 24px; object-fit: cover;">
+                        <img v-if="user.avatar" :src="user.avatar" class="rounded-circle" style="width: 24px; height: 24px; object-fit: cover;">
+                        <i v-else class="bi bi-person-fill"></i>
                     </div>
 
                     <transition name="dropdown-fade">
@@ -47,8 +47,8 @@
                             <li class="px-3 py-3 border-bottom mb-1 text-center">
                                 <div v-if="isLoadingUser" class="spinner-border spinner-border-sm text-primary mb-2"></div>
                                 <template v-else>
-                                    <div class="fw-bold text-dark khmer-font lh-1">{{ user.name || 'កំពុងទាញទិន្នន័យ...' }}</div>
-                                    <small class="text-muted">{{ user.role }}</small>
+                                    <div class="fw-bold text-dark khmer-font lh-1">{{ user.name || 'StarCode KH' }}</div>
+                                    <small class="text-muted text-uppercase" style="font-size: 0.75rem;">{{ user.role }}</small>
                                 </template>
                             </li>
                             <li>
@@ -72,7 +72,6 @@
         </div>
 
         <CreateEventModal v-model="showModal" />
-        
         <div v-if="isDropdownOpen" class="dropdown-backdrop" @click="isDropdownOpen = false"></div>
     </header>
 </template>
@@ -84,24 +83,22 @@
     import { UserService } from '@/services/UserService'
     import CreateEventModal from '../pages/forms/SchedulerForm.vue'
 
-    // 1. Core Utilities
     const router = useRouter()
     const route = useRoute()
 
-    // 2. Component States
     const showModal = ref(false)
     const isDropdownOpen = ref(false)
     const isLoggingOut = ref(false)
     const isLoadingUser = ref(true)
 
-    // 3. Reactive Data (User Info)
-    const user = reactive({ 
+    // ប្តូរមកប្រើ ref ដើម្បីងាយស្រួល Update Object ទាំងមូល
+    const user = ref({ 
         name: '',
         role: '',
-        avatar: null 
+        avatar: null,
+        permissions: []
     })
 
-    // 4. Navigation Config
     const navigationTabs = [
         { id: 'home', icon: 'bi-house-fill', path: '/', label: 'ទំព័រដើម' },
         { id: 'calendar', icon: 'bi-calendar3', path: '/calendar', label: 'កាលវិភាគ' },
@@ -112,19 +109,26 @@
         { id: 'settings', icon: 'bi-gear-fill', path: '/settings' }
     ]
 
-    // 5. Logic: ទាញទិន្នន័យ User
     const fetchAuthUser = async () => {
         try {
             isLoadingUser.value = true
             const response = await UserService.getProfile() 
-            const userData = response.data 
-            user.name = userData.name
-            user.role = userData.role?.name || 'User'
-            user.avatar = userData.avatar_url
+            
+            // Laravel Resource ជាទូទៅបោះទិន្នន័យមកក្នុង response.data.data
+            const userData = response.data.data || response.data 
+
+            if (userData) {
+                user.value = {
+                    name: userData.name,
+                    // ឆែកមើលបើ role ជា Object យក .name បើជា String យកផ្ទាល់ (ADMIN)
+                    role: typeof userData.role === 'object' ? userData.role?.name : (userData.role || 'User'),
+                    avatar: userData.avatar_url,
+                    permissions: userData.permissions || []
+                }
+            }
         } catch (error) {
             console.error('Fetch User Error:', error)
-            // បើ Token ហួសសុពលភាព (401) រុញទៅ Login
-            if (error.status === 401) {
+            if (error.response?.status === 401) {
                 router.push('/login')
             }
         } finally {
@@ -132,7 +136,6 @@
         }
     }
 
-    // 6. Logic: ការចាកចេញ (Logout)
     const confirmLogout = () => {
         Swal.fire({
             title: 'តើអ្នកប្រាកដទេ?',
@@ -142,30 +145,21 @@
             showCancelButton: true,
             confirmButtonColor: '#d33',
             cancelButtonColor: '#6c757d',
-            confirmButtonText: '<i class="bi bi-box-arrow-right me-2"></i>ចាកចេញ',
-            cancelButtonText: '<i class="bi bi-x-lg me-2"></i>បោះបង់',
-            reverseButtons: true, 
-            customClass: {
-                popup: 'khmer-font rounded-4',
-                confirmButton: 'rounded-3 shadow-sm',
-                cancelButton: 'rounded-3 shadow-sm'
-            },
-            buttonsStyling: true
+            confirmButtonText: 'ចាកចេញ',
+            cancelButtonText: 'បោះបង់',
+            customClass: { popup: 'khmer-font rounded-4' }
         }).then((result) => {
-            if (result.isConfirmed) {
-                handleLogout();
-            }
-        });
-    };
+            if (result.isConfirmed) handleLogout()
+        })
+    }
 
     const handleLogout = async () => {
         if (isLoggingOut.value) return
         isLoggingOut.value = true
-        
         try {
             await UserService.logout() 
         } catch (error) {
-            console.error('Logout API failed:', error)
+            console.error('Logout failed:', error)
         } finally {
             localStorage.clear()
             router.push('/login')
@@ -173,7 +167,6 @@
         }
     }
 
-    // 7. Lifecycle Hook
     onMounted(() => {
         fetchAuthUser()
     })

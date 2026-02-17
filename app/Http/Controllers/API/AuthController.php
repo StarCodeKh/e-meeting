@@ -81,11 +81,6 @@ class AuthController extends Controller
         ]);
     }
 
-    public function profile(Request $request)
-    {
-        return response()->json($request->user());
-    }
-
     protected function respondWithToken($token)
     {
         return response()->json([

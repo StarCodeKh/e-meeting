@@ -38,7 +38,6 @@
                             </div>
                         </div>
                         <div class="bg-secondary-subtle rounded-pill w-100 mb-2" style="height: 10px;"></div>
-                        <div class="bg-secondary-subtle rounded-pill w-75" style="height: 10px;"></div>
                     </div>
                 </div>
             </div>
@@ -75,9 +74,7 @@
                                             <button class="dropdown-item py-2 rounded-2 text-primary" @click="openEditModal(user)">
                                             <i class="bi bi-pencil-square me-2"></i> កែសម្រួល</button>
                                         </li>
-                                        <li>
-                                            <hr class="dropdown-divider opacity-50">
-                                        </li>
+                                        <li><hr class="dropdown-divider opacity-50"></li>
                                         <li>
                                             <button class="dropdown-item py-2 rounded-2 text-danger" @click="confirmDelete(user.id)">
                                             <i class="bi bi-trash3 me-2"></i> លុបចេញ</button>
@@ -88,15 +85,13 @@
 
                             <div class="d-flex flex-wrap gap-2 mb-3">
                                 <span class="badge rounded-pill px-3 py-1 khmer-font fw-normal" :class="getRoleBadgeClass(user.role)">
-                                    {{ user.role_name || user.role }}
+                                    {{ user.role?.toUpperCase() || 'USER' }}
                                 </span>
                             </div>
 
                             <div class="mt-auto pt-3 border-top border-light-subtle">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="small text-muted khmer-font">
-                                        <i class="bi bi-calendar-check me-1 text-primary"></i> ចូលរួម៖ <span class="text-dark fw-bold">{{ toKhmerNum(user.joined_date || 'N/A') }}</span>
-                                    </div>
+                                <div class="d-flex justify-content-between align-items-center small text-muted khmer-font">
+                                    <span><i class="bi bi-calendar-check me-1 text-primary"></i> ចូលរួម៖ <span class="text-dark fw-bold">{{ toKhmerNum(user.joined_date || 'N/A') }}</span></span>
                                 </div>
                             </div>
                         </div>
@@ -105,62 +100,41 @@
             </div>
 
             <div v-if="pagination.last_page > 1" class="d-flex justify-content-center mt-4 mb-5">
-                <nav aria-label="Page navigation">
-                    <ul class="pagination pagination-sm gap-2 align-items-center">
-                        
+                <nav>
+                    <ul class="pagination pagination-sm gap-2">
                         <li class="page-item" :class="{ disabled: pagination.current_page === 1 }">
-                            <button class="page-link rounded-3 border-0 shadow-sm px-3 py-2 text-primary" 
-                                    @click="pagination.current_page--"
-                                    :style="{ color: 'var(--bs-primary)' }">
-                                <i class="bi bi-chevron-left"></i>
-                            </button>
+                            <button class="page-link rounded-3 border-0 shadow-sm" @click="pagination.current_page--"><i class="bi bi-chevron-left"></i></button>
                         </li>
-
                         <li v-for="page in pagination.last_page" :key="page" class="page-item">
-                            <button class="page-link rounded-3 border-0 shadow-sm px-3 py-2 khmer-font transition-all"
-                                    @click="pagination.current_page = page"
-                                    :style="pagination.current_page === page ? {
-                                        backgroundColor: 'var(--bs-primary)',
-                                        color: 'white',
-                                        fontWeight: 'bold',
-                                        transform: 'translateY(-2px)',
-                                        boxShadow: '0 4px 10px rgba(13, 110, 253, 0.3)'
-                                    } : {
-                                        backgroundColor: '#fff',
-                                        color: '#6c757d'
-                                    }">
+                            <button class="page-link rounded-3 border-0 shadow-sm khmer-font" 
+                                    :class="{ 'bg-primary text-white fw-bold': pagination.current_page === page }"
+                                    @click="pagination.current_page = page">
                                 {{ toKhmerNum(page) }}
                             </button>
                         </li>
-
                         <li class="page-item" :class="{ disabled: pagination.current_page === pagination.last_page }">
-                            <button class="page-link rounded-3 border-0 shadow-sm px-3 py-2 text-primary" 
-                                    @click="pagination.current_page++"
-                                    :style="{ color: 'var(--bs-primary)' }">
-                                <i class="bi bi-chevron-right"></i>
-                            </button>
+                            <button class="page-link rounded-3 border-0 shadow-sm" @click="pagination.current_page++"><i class="bi bi-chevron-right"></i></button>
                         </li>
-                        
                     </ul>
                 </nav>
             </div>
         </div>
 
-        <div class="modal fade" id="editUserModal" ref="modalElement" tabindex="-1" aria-hidden="true">
+        <div class="modal fade" id="editUserModal" ref="modalElement" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-                    <div class="modal-header border-0 bg-primary p-4 position-relative text-white">
-                        <h5 class="modal-title khmer-font fw-bold z-1">
+                    <div class="modal-header border-0 bg-primary p-4 text-white">
+                        <h5 class="modal-title khmer-font fw-bold">
                             {{ editingUser.id ? 'កែសម្រួលព័ត៌មាន' : 'បន្ថែមសមាជិកថ្មី' }}
                         </h5>
                         <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="modal"></button>
                     </div>
                     
-                    <div class="modal-body p-4 bg-white">
+                    <div class="modal-body p-4">
                         <div class="text-center mb-4">
                             <div class="position-relative d-inline-block">
-                                <img :src="avatarPreview || editingUser.avatar_url || 'https://ui-avatars.com/api/?name=User&background=eee'" class="rounded-circle border border-4 border-white shadow p-1 object-fit-cover" width="110" height="110">
-                                <label for="avatarInput" class="btn btn-sm btn-primary position-absolute bottom-0 end-0 rounded-circle border border-white border-3 cursor-pointer">
+                                <img :src="avatarPreview || editingUser.avatar_url || 'https://ui-avatars.com/api/?name=User&background=eee'" class="rounded-circle border border-4 border-white shadow object-fit-cover" width="110" height="110">
+                                <label for="avatarInput" class="btn btn-sm btn-primary position-absolute bottom-0 end-0 rounded-circle border border-white border-3">
                                     <i class="bi bi-camera"></i>
                                     <input type="file" id="avatarInput" class="d-none" @change="handleAvatarChange" accept="image/*">
                                 </label>
@@ -170,50 +144,46 @@
                         <div class="row g-4">
                             <div class="col-md-6">
                                 <label class="khmer-font small fw-bold text-dark mb-1">ឈ្មោះពេញ</label>
-                                <input v-model="editingUser.name" type="text" class="form-control khmer-font bg-light border-0 py-2 shadow-none" :class="{'is-invalid': serverErrors.name}">
-                                <div v-if="serverErrors.name" class="invalid-feedback khmer-font small">{{ serverErrors.name[0] }}</div>
+                                <input v-model="editingUser.name" type="text" class="form-control bg-light border-0" :class="{'is-invalid': serverErrors.name}">
+                                <div class="invalid-feedback khmer-font small">{{ serverErrors.name?.[0] }}</div>
                             </div>
-                            
                             <div class="col-md-6">
                                 <label class="khmer-font small fw-bold text-dark mb-1">អុីមែល</label>
-                                <input v-model="editingUser.email" type="email" class="form-control bg-light border-0 py-2 shadow-none" :class="{'is-invalid': serverErrors.email}">
-                                <div v-if="serverErrors.email" class="invalid-feedback khmer-font small">{{ serverErrors.email[0] }}</div>
+                                <input v-model="editingUser.email" type="email" class="form-control bg-light border-0" :class="{'is-invalid': serverErrors.email}">
+                                <div class="invalid-feedback khmer-font small">{{ serverErrors.email?.[0] }}</div>
                             </div>
-
                             <div class="col-md-12">
                                 <label class="khmer-font small fw-bold text-dark mb-1">លេខសម្ងាត់ {{ editingUser.id ? '(ទុកទទេបើមិនចង់ប្តូរ)' : '' }}</label>
-                                <input v-model="editingUser.password" type="password" class="form-control bg-light border-0 py-2 shadow-none" :class="{'is-invalid': serverErrors.password}">
-                                <div v-if="serverErrors.password" class="invalid-feedback khmer-font small">{{ serverErrors.password[0] }}</div>
+                                <input v-model="editingUser.password" type="password" class="form-control bg-light border-0" :class="{'is-invalid': serverErrors.password}">
+                                <div class="invalid-feedback khmer-font small">{{ serverErrors.password?.[0] }}</div>
                             </div>
-
                             <div class="col-md-6">
                                 <label class="khmer-font small fw-bold text-dark mb-1">តួនាទី</label>
-                                <select v-model="editingUser.role" class="form-select khmer-font bg-light border-0 py-2 shadow-none" :class="{'is-invalid': serverErrors.role}">
+                                <select v-model="editingUser.role" class="form-select khmer-font bg-light border-0" :class="{'is-invalid': serverErrors.role}">
                                     <option value="" disabled>ជ្រើសរើសតួនាទី</option>
-                                    <option v-for="role in ROLES" :key="role.id" :value="role.id">{{ role.label }}</option>
+                                    <option v-for="role in rolesList" :key="role.id" :value="role.name">
+                                        {{ role.name.toUpperCase() }}
+                                    </option>
                                 </select>
-                                <div v-if="serverErrors.role" class="invalid-feedback khmer-font small">{{ serverErrors.role[0] }}</div>
+                                <div class="invalid-feedback khmer-font small">{{ serverErrors.role?.[0] }}</div>
                             </div>
-
                             <div class="col-md-6">
                                 <label class="khmer-font small fw-bold text-dark mb-1">ស្ថានភាព</label>
                                 <div class="p-2 bg-light rounded-3 d-flex align-items-center justify-content-between border">
-                                    <label class="form-check-label khmer-font extra-small text-muted">
-                                        {{ editingUser.is_active ? 'ដំណើរការ' : 'ផ្អាក' }}
-                                    </label>
+                                    <label class="khmer-font extra-small text-muted">{{ editingUser.is_active ? 'ដំណើរការ' : 'ផ្អាក' }}</label>
                                     <div class="form-check form-switch m-0">
-                                        <input v-model="editingUser.is_active" class="form-check-input cursor-pointer" type="checkbox" style="width: 2.5em; height: 1.25em;">
+                                        <input v-model="editingUser.is_active" class="form-check-input" type="checkbox">
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="modal-footer border-0 p-4 pt-0 bg-white d-flex justify-content-between mt-3">
-                        <button class="btn btn-light khmer-font px-4 rounded-3 border-0" data-bs-dismiss="modal">បោះបង់</button>
-                        <button class="btn btn-primary khmer-font px-5 py-2 rounded-3 shadow-sm" :disabled="isSaving" @click="saveUser">
+                    <div class="modal-footer border-0 p-4 pt-0">
+                        <button class="btn btn-light khmer-font px-4 rounded-3" data-bs-dismiss="modal">បោះបង់</button>
+                        <button class="btn btn-primary khmer-font px-5 rounded-3 shadow-sm" :disabled="isSaving" @click="saveUser">
                             <span v-if="isSaving" class="spinner-border spinner-border-sm me-2"></span>
-                            {{ isSaving ? 'កំពុងរក្សាទុក...' : 'រក្សាទុកទិន្នន័យ' }}
+                            រក្សាទុកទិន្នន័យ
                         </button>
                     </div>
                 </div>
@@ -227,11 +197,13 @@
     import { Modal } from 'bootstrap'
     import { ref, watch, onMounted, onUnmounted } from 'vue'
     import { UserService } from '@/services/UserService'
+    import { RoleService } from '@/services/RoleService' // បន្ថែមការ Import
     import DashboardLayout from '@/components/layouts/DashboardLayout.vue'
     import HeaderBar from '@/components/HeaderBar.vue'
 
-    // --- 1. States & Constants ---
+    // --- 1. States ---
     const users = ref([])
+    const rolesList = ref([]) // State សម្រាប់ទាញ Role ពី API
     const pagination = ref({ current_page: 1, last_page: 1, total: 0 })
     const isLoading = ref(false)
     const isSaving = ref(false)
@@ -243,16 +215,17 @@
     const modalElement = ref(null)
     let modalInstance = null
 
-    const ROLES = [
-        { id: 'admin', label: 'អ្នកគ្រប់គ្រង (Admin)', badge: 'bg-success text-white', border: 'border-success' },
-        { id: 'staff', label: 'បុគ្គលិក (Staff)', badge: 'bg-light text-muted', border: 'border-secondary' },
-        { id: 'user', label: 'អ្នកប្រើប្រាស់ (User)', badge: 'bg-info-subtle text-info', border: 'border-info' }
-    ]
+    // ពណ៌សម្រាប់ Role (Static Config for UI)
+    const ROLE_UI = {
+        'admin': { badge: 'bg-success text-white', border: 'border-success' },
+        'staff': { badge: 'bg-warning-subtle text-warning', border: 'border-warning' },
+        'user': { badge: 'bg-info-subtle text-info', border: 'border-info' }
+    }
 
     // --- 2. Helpers ---
     const toKhmerNum = (n) => n?.toString().replace(/\d/g, d => ['០','១','២','៣','៤','៥','៦','៧','៨','៩'][d])
-    const getRoleBadgeClass = (id) => ROLES.find(r => r.id === String(id).toLowerCase())?.badge || 'bg-light'
-    const getRoleBorder = (id) => ROLES.find(r => r.id === String(id).toLowerCase())?.border || 'border-light'
+    const getRoleBadgeClass = (role) => ROLE_UI[String(role).toLowerCase()]?.badge || 'bg-light text-muted'
+    const getRoleBorder = (role) => ROLE_UI[String(role).toLowerCase()]?.border || 'border-light'
 
     const alertPop = (title, icon = 'success', text = '') => {
         Swal.fire({
@@ -263,31 +236,24 @@
         })
     }
 
-    // --- 3. Asset Logic ---
-    const handleAvatarChange = (e) => {
-        const file = e.target.files[0]
-        if (!file) return
-        selectedAvatarFile.value = file
-        if (avatarPreview.value?.startsWith('blob:')) URL.revokeObjectURL(avatarPreview.value)
-        avatarPreview.value = URL.createObjectURL(file)
-    }
-
-    // --- 4. CRUD Operations ---
+    // --- 3. CRUD & Logic ---
     const fetchUsers = async () => {
         isLoading.value = true;
         try {
-            const response = await UserService.getAll(
-                pagination.value.current_page, 
-                searchQuery.value 
-            );
+            const response = await UserService.getAll(pagination.value.current_page, searchQuery.value);
             users.value = response.data;
-            pagination.value = response.meta;
+            pagination.value = response.meta || response;
         } catch (e) {
-            alertPop('កំហុស!', 'error', 'មិនអាចទាញយកទិន្នន័យបានទេ');
-        } finally {
-            isLoading.value = false;
-        }
+            console.error(e);
+        } finally { isLoading.value = false; }
     };
+
+    const fetchRoles = async () => {
+        try {
+            const response = await RoleService.getRolesForSelect();
+            rolesList.value = response;
+        } catch (e) { console.error("Error loading roles", e); }
+    }
 
     const openEditModal = (user = null) => {
         serverErrors.value = {};
@@ -298,9 +264,8 @@
             editingUser.value = { ...user };
             editingUser.value.role = String(user.role).toLowerCase(); 
             editingUser.value.is_active = (user.status === 'active');
-            
             editingUser.value.password = '';
-            avatarPreview.value = user.avatar;
+            avatarPreview.value = user.avatar_url;
         } else {
             editingUser.value = { name: '', email: '', role: 'user', is_active: true, password: '' };
         }
@@ -309,102 +274,94 @@
         modalInstance?.show();
     };
 
+    const handleAvatarChange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        selectedAvatarFile.value = file;
+        avatarPreview.value = URL.createObjectURL(file);
+    };
+
     const saveUser = async () => {
-        if (isSaving.value) return
-        isSaving.value = true
-        serverErrors.value = {}
+        if (isSaving.value) return;
+        isSaving.value = true;
+        serverErrors.value = {};
 
         try {
-            const formData = new FormData()
+            const formData = new FormData();
+            formData.append('name', editingUser.value.name || '');
+            formData.append('email', editingUser.value.email || '');
             
-            // បញ្ចូលព័ត៌មានអត្ថបទ
-            formData.append('name', editingUser.value.name || '')
-            formData.append('email', editingUser.value.email || '')
-            formData.append('role', editingUser.value.role || 'user')
-            formData.append('status', editingUser.value.is_active ? 'active' : 'inactive')
+            // --- កែសម្រួលចំណុចនេះ ---
+            // ទាញយកតម្លៃ Role ចេញមក (ទោះជា Array ឬ String)
+            const roleValue = Array.isArray(editingUser.value.role) 
+                ? editingUser.value.role[0] 
+                : editingUser.value.role;
 
-            // បញ្ចូលរូបភាព (សំខាន់៖ ផ្ញើទៅតែពេលមានការជ្រើសរើសរូបថ្មីប៉ុណ្ណោះ)
-            if (selectedAvatarFile.value) {
-                formData.append('avatar', selectedAvatarFile.value)
+            // ប្រើ 'role[]' ជា Key ដើម្បីឱ្យ Laravel Validation ចាត់ទុកវាជា Array
+            if (roleValue) {
+                formData.append('role[]', roleValue); 
+            } else {
+                formData.append('role[]', 'user'); // តម្លៃ default បើអត់មានរើស
             }
+            // -----------------------
 
-            // លេខសម្ងាត់
-            if (editingUser.value.password) {
-                formData.append('password', editingUser.value.password)
-            }
+            formData.append('status', editingUser.value.is_active ? 'active' : 'inactive');
+
+            if (selectedAvatarFile.value) formData.append('avatar', selectedAvatarFile.value);
+            if (editingUser.value.password) formData.append('password', editingUser.value.password);
 
             if (editingUser.value.id) {
-                formData.append('_method', 'PUT')
-                await UserService.update(editingUser.value.id, formData)
+                // ចំណុចសំខាន់សម្រាប់ Update ជាមួយ File ក្នុង Laravel
+                formData.append('_method', 'PUT'); 
+                await UserService.update(editingUser.value.id, formData);
             } else {
-                await UserService.create(formData)
+                await UserService.create(formData);
             }
 
-            // បិទ Modal និងបង្ហាញសារជោគជ័យ
-            modalInstance?.hide()
-            
-            Swal.fire({
-                icon: 'success',
-                title: 'រក្សាទុកជោគជ័យ',
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 2500,
-                timerProgressBar: true,
-                customClass: { popup: 'khmer-font' }
-            })
-
-            // --- ចំណុចបន្ថែម៖ សម្អាត File និង Preview ក្រោយរក្សាទុកជោគជ័យ ---
-            resetAvatarState()
-            
-            fetchUsers()
+            modalInstance?.hide();
+            alertPop('រក្សាទុកជោគជ័យ!');
+            fetchUsers();
         } catch (error) {
             if (error.response?.status === 422) {
-                serverErrors.value = error.response.data.errors
-                alertPop('ទិន្នន័យមិនត្រឹមត្រូវ!', 'warning', 'សូមពិនិត្យមើលប្រឡោះដែលមានពណ៌ក្រហម')
+                serverErrors.value = error.response.data.errors;
+                // បន្ថែមការ Scroll ទៅរកកន្លែង Error បើចង់
             } else {
-                alertPop('បរាជ័យ!', 'error', error.response?.data?.message || 'ប្រតិបត្តិការបរាជ័យ')
+                alertPop('បរាជ័យ!', 'error', error.response?.data?.message || error.message);
             }
-        } finally {
-            isSaving.value = false
+        } finally { 
+            isSaving.value = false; 
         }
-    }
-
-    // អនុគមន៍ជំនួយសម្រាប់សម្អាតរូបភាព
-    const resetAvatarState = () => {
-        selectedAvatarFile.value = null
-        if (avatarPreview.value && avatarPreview.value.startsWith('blob:')) {
-            URL.revokeObjectURL(avatarPreview.value)
-        }
-    }
-
+    };
+    
     const confirmDelete = async (id) => {
         const result = await Swal.fire({
             title: 'តើអ្នកប្រាកដទេ?', text: "ទិន្នន័យនឹងត្រូវលុប!", icon: 'warning',
-            showCancelButton: true, confirmButtonText: 'យល់ព្រម', cancelButtonText: 'បោះបង់',
+            showCancelButton: true, confirmButtonText: 'យល់ព្រម',
             customClass: { popup: 'khmer-font', confirmButton: 'btn btn-danger me-2', cancelButton: 'btn btn-light' },
             buttonsStyling: false
-        })
+        });
         if (result.isConfirmed) {
             try {
-                await UserService.delete(id)
-                alertPop('លុបជោគជ័យ!', 'success')
-                fetchUsers()
-            } catch (e) { alertPop('បរាជ័យ!', 'error', 'មិនអាចលុបទិន្នន័យបានទេ') }
+                await UserService.delete(id);
+                alertPop('លុបជោគជ័យ!');
+                fetchUsers();
+            } catch (e) { alertPop('កំហុស!', 'error'); }
         }
     }
 
-    // --- 5. Watchers & Lifecycle ---
-    watch(() => pagination.value.current_page, fetchUsers)
-    let searchTimer = null
+    // --- 4. Watchers & Lifecycle ---
+    watch(() => pagination.value.current_page, fetchUsers);
     watch(searchQuery, () => {
-        clearTimeout(searchTimer)
-        searchTimer = setTimeout(() => { pagination.value.current_page = 1; fetchUsers() }, 500)
-    })
+        setTimeout(() => { pagination.value.current_page = 1; fetchUsers(); }, 500);
+    });
 
-    onMounted(fetchUsers)
+    onMounted(() => {
+        fetchUsers();
+        fetchRoles();
+    });
+
     onUnmounted(() => {
-        if (avatarPreview.value?.startsWith('blob:')) URL.revokeObjectURL(avatarPreview.value)
-        modalInstance?.dispose()
-    })
+        if (avatarPreview.value?.startsWith('blob:')) URL.revokeObjectURL(avatarPreview.value);
+        modalInstance?.dispose();
+    });
 </script>

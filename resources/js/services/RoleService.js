@@ -6,14 +6,12 @@ export const RoleService = {
      */
     async getAll(page = 1, search = '') {
         try {
-            // បញ្ជូន params ទៅកាន់ Backend
             const response = await api.get('/roles', { 
                 params: { 
                     page, 
                     search: search || undefined 
                 } 
             });
-            // ប្រសិនបើប្រើ Laravel Paginate វានឹងនៅ response.data
             return response.data; 
         } catch (error) {
             this.handleError(error);
@@ -21,7 +19,26 @@ export const RoleService = {
     },
 
     /**
-     * ទាញយក Permissions ទាំងអស់សម្រាប់បង្ហាញក្នុង Checkbox
+     * ✅ បន្ថែម Method នេះចូល (ដែល Index.vue កំពុងត្រូវការ)
+     * ប្រើសម្រាប់ទាញយក Role ទាំងអស់មកដាក់ក្នុង Select Box
+     */
+    async getRolesForSelect() {
+        try {
+            // យើងហៅទៅកាន់ route /roles តែផ្ញើ per_page ច្រើនដើម្បីឱ្យបានបញ្ជីទាំងអស់
+            const response = await api.get('/roles', { 
+                params: { per_page: 100 } 
+            });
+            
+            // ប្រសិនបើ Backend ប្រើ Resource/Paginate ទិន្នន័យនៅក្នុង .data.data
+            // បើមិនប្រើ Paginate ទេ គឺយក .data ធម្មតា
+            return response.data.data || response.data;
+        } catch (error) {
+            this.handleError(error);
+        }
+    },
+
+    /**
+     * ទាញយក Permissions ទាំងអស់
      */
     async getAllPermissions() {
         try {

@@ -48,14 +48,10 @@ class RoleController extends Controller
 
         DB::beginTransaction();
         try {
-            $role = Role::create(['name' => $request->name, 'guard_name' => 'web']);
+            $role = Role::create(['name' => $request->name, 'guard_name' => 'api']);
 
             if ($request->has('permissions')) {
-                // ចម្រោះយកតែ Permission ណាដែលមានឈ្មោះក្នុង Table permissions ពិតមែន
-                $validPermissions = Permission::whereIn('name', $request->permissions)
-                                            ->pluck('name')
-                                            ->toArray();
-                
+                $validPermissions = Permission::whereIn('name', $request->permissions)->pluck('name')->toArray();
                 $role->syncPermissions($validPermissions);
             }
 

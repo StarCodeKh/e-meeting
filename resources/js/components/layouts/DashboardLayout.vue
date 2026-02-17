@@ -1,4 +1,3 @@
-
 <template>
     <div class="app-wrapper" :class="{ 'sidebar-active': isSidebarOpen }">
         <HeaderBar @toggle-sidebar="isSidebarOpen = !isSidebarOpen" />
@@ -10,10 +9,11 @@
                     </div>
                     <div class="brand-text">
                         <h6 class="khmer-font fw-bold text-dark mb-0">ប្រព័ន្ធប្រជុំអេឡិចត្រូនិក</h6>
+                        <span class="badge bg-primary-light text-primary extra-small">Version 1.0</span>
                     </div>
                 </div>
 
-               <nav class="nav-menu flex-grow-1 p-3 overflow-auto custom-scrollbar">
+                <nav class="nav-menu flex-grow-1 p-3 overflow-auto custom-scrollbar">
                     <div class="menu-label khmer-font text-uppercase small opacity-50 mb-3 px-2">មេនុយចម្បង</div>
                     <template v-if="loading">
                         <div v-for="n in 6" :key="n" class="placeholder-glow mb-2 px-2">
@@ -33,6 +33,16 @@
                         <span class="khmer-font small">មិនទាន់មានមេនុយ</span>
                     </div>
                 </nav>
+
+                <div class="sidebar-footer p-3 border-top">
+                    <div class="user-pill d-flex align-items-center gap-2 p-2 rounded-3">
+                        <img src="https://ui-avatars.com/api/?name=Admin&background=e15b44&color=fff" class="avatar" alt="user">
+                        <div class="user-meta overflow-hidden">
+                            <div class="fw-bold small text-truncate">អ្នកគ្រប់គ្រង</div>
+                            <div class="text-muted extra-small">admin@system.com</div>
+                        </div>
+                    </div>
+                </div>
             </aside>
 
             <main class="content-view flex-grow-1">
@@ -41,6 +51,10 @@
                 </div>
             </main>
         </div>
+
+        <transition name="fade">
+            <div v-if="isSidebarOpen" class="sidebar-backdrop" @click="isSidebarOpen = false"></div>
+        </transition>
     </div>
 </template>
 
