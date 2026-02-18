@@ -20,7 +20,7 @@
                         </div>
                     </div>
                     <div class="col-md-3 text-md-end">
-                        <button class="btn btn-primary khmer-font rounded-3 shadow-sm px-4 py-2 w-100 w-md-auto transition-all" @click="openEditModal()">
+                        <button class="btn btn-primary khmer-font rounded-3 shadow-sm px-4 py-2 w-100 w-md-auto" @click="openEditModal()">
                             <i class="bi bi-person-plus-fill me-2"></i> បន្ថែមសមាជិកថ្មី
                         </button>
                     </div>
@@ -51,7 +51,7 @@
 
             <div v-else class="row">
                 <div v-for="user in users" :key="user.id" class="col-12 col-md-6 col-lg-4 mb-4">
-                    <div class="card border-0 shadow-sm rounded-4 h-100 user-card border-top border-3 transition-all" :class="getRoleBorder(user.role)">
+                    <div class="card border-0 shadow-sm rounded-4 h-100 user-card border-top border-3" :class="getRoleBorder(user.role)">
                         <div class="card-body p-4 d-flex flex-column">
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 <div class="d-flex align-items-center gap-3">
@@ -179,11 +179,14 @@
                         </div>
                     </div>
 
-                    <div class="modal-footer border-0 p-4 pt-0">
-                        <button class="btn btn-light khmer-font px-4 rounded-3" data-bs-dismiss="modal">បោះបង់</button>
-                        <button class="btn btn-primary khmer-font px-5 rounded-3 shadow-sm" :disabled="isSaving" @click="saveUser">
-                            <span v-if="isSaving" class="spinner-border spinner-border-sm me-2"></span>
-                            រក្សាទុកទិន្នន័យ
+                    <div class="modal-footer border-0 pt-0 bg-white d-flex justify-content-center gap-2">
+                        <button type="button" class="btn btn-light khmer-font px-4 rounded-3 border shadow-sm" data-bs-dismiss="modal">
+                            <i class="bi bi-x-circle me-2"></i>បោះបង់
+                        </button>
+
+                        <button type="button" class="btn btn-primary khmer-font px-4 rounded-3 shadow-sm" :disabled="isSaving" @click="saveUser">
+                            <span v-if="isSaving" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            <i v-else class="bi bi-cloud-arrow-up me-2"></i> {{ isSaving ? 'កំពុងរក្សាទុក...' : 'រក្សាទុកទិន្នន័យ' }}
                         </button>
                     </div>
                 </div>
@@ -197,13 +200,13 @@
     import { Modal } from 'bootstrap'
     import { ref, watch, onMounted, onUnmounted } from 'vue'
     import { UserService } from '@/services/UserService'
-    import { RoleService } from '@/services/RoleService' // បន្ថែមការ Import
+    import { RoleService } from '@/services/RoleService'
     import DashboardLayout from '@/components/layouts/DashboardLayout.vue'
     import HeaderBar from '@/components/HeaderBar.vue'
 
     // --- 1. States ---
     const users = ref([])
-    const rolesList = ref([]) // State សម្រាប់ទាញ Role ពី API
+    const rolesList = ref([])
     const pagination = ref({ current_page: 1, last_page: 1, total: 0 })
     const isLoading = ref(false)
     const isSaving = ref(false)
@@ -215,7 +218,7 @@
     const modalElement = ref(null)
     let modalInstance = null
 
-    // ពណ៌សម្រាប់ Role (Static Config for UI)
+    // ពណ៌សម្រាប់ Role
     const ROLE_UI = {
         'admin': { badge: 'bg-success text-white', border: 'border-success' },
         'staff': { badge: 'bg-warning-subtle text-warning', border: 'border-warning' },

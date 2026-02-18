@@ -115,7 +115,7 @@
         </div>
 
         <div class="modal fade" id="moduleModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-            <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
                     <div class="modal-header bg-primary text-white border-0 py-3">
                         <h5 class="modal-title khmer-font fw-bold">
@@ -163,11 +163,15 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="modal-footer bg-light border-0 py-3">
-                            <button type="button" class="btn btn-link text-muted khmer-font text-decoration-none px-4" data-bs-dismiss="modal">បោះបង់</button>
-                            <button type="submit" class="btn btn-primary khmer-font rounded-3 px-5 shadow-sm" :disabled="saving">
-                                <span v-if="saving" class="spinner-border spinner-border-sm me-2"></span>
-                                {{ isEdit ? 'រក្សាទុក' : 'បង្កើតឥឡូវនេះ' }}
+                        <div class="modal-footer bg-light border-0 py-2 d-flex justify-content-center gap-2">
+                            <button type="button" class="btn btn-link text-muted khmer-font text-decoration-none px-4 transition-all" data-bs-dismiss="modal">
+                                <i class="bi bi-x-circle me-2"></i>បោះបង់
+                            </button>
+
+                            <button type="submit" class="btn btn-primary khmer-font rounded-3 px-5 py-2 shadow-sm" :disabled="saving">
+                                <span v-if="saving" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                <i v-else :class="isEdit ? 'bi bi-check-circle' : 'bi bi-plus-circle'" class="me-2"></i>
+                                {{ saving ? 'កំពុងដំណើរការ...' : (isEdit ? 'រក្សាទុកការកែប្រែ' : 'បង្កើតឥឡូវនេះ') }}
                             </button>
                         </div>
                     </form>
@@ -178,7 +182,7 @@
 </template>
 
 <script setup>
-    import { ref, onMounted, watch, nextTick } from 'vue' // បន្ថែម nextTick
+    import { ref, onMounted, watch, nextTick } from 'vue'
     import ModuleService from '@/services/ModuleService'
     import Swal from 'sweetalert2'
     import { Modal } from 'bootstrap'

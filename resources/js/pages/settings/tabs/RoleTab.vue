@@ -111,10 +111,19 @@
                     </div>
                 </div>
 
-                <div class="mt-5 pt-3 border-top d-flex gap-2 justify-content-end">
-                    <button type="button" class="btn btn-light px-4 khmer-font rounded-3" @click="cancelEdit">បោះបង់</button>
-                    <button type="submit" class="btn btn-primary px-5 khmer-font rounded-3 shadow-sm" :disabled="saving">
-                        <span v-if="saving" class="spinner-border spinner-border-sm me-2"></span>រក្សាទុក
+                <div class="mt-5 pt-4 border-top d-flex gap-3 justify-content-center">
+                    <button type="button" 
+                            class="btn btn-light px-4 khmer-font rounded-3 border shadow-sm transition-all" 
+                            @click="cancelEdit">
+                        <i class="bi bi-arrow-left-circle me-2"></i>បោះបង់
+                    </button>
+
+                    <button type="submit" 
+                            class="btn btn-primary px-5 khmer-font rounded-3 shadow-sm transition-all" 
+                            :disabled="saving">
+                        <span v-if="saving" class="spinner-border spinner-border-sm me-2"></span>
+                        <i v-else class="bi bi-check2-circle me-2"></i>
+                        {{ saving ? 'កំពុងរក្សាទុក...' : 'រក្សាទុកទិន្នន័យ' }}
                     </button>
                 </div>
             </form>

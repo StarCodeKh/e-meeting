@@ -100,7 +100,7 @@
         { 
             id: 'role', 
             label: 'គ្រប់គ្រងតួនាទី',
-            icon: 'bi bi-shield-lock', 
+            icon: 'bi bi-person-gear', 
             component: markRaw(RoleTab),
             minRole: 'admin'
         },
