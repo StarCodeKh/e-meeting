@@ -1,36 +1,24 @@
 <template>
     <form @submit.prevent="handleUpdate">
-        <div class="row g-3 p-2">
-            <div class="col-md-6">
+        <div class="row g-3">
+            <div class="col-md-12">
                 <label class="form-label khmer-font small fw-bold text-secondary">ឈ្មោះពេញ</label>
                 <div class="input-group">
                     <span class="input-group-text bg-light border-end-0 text-muted">
                         <i class="bi bi-person"></i>
                     </span>
-                    <input 
-                        v-model="form.name"
-                        type="text" 
-                        class="form-control border-start-0 ps-0 shadow-none khmer-font" 
-                        :class="{ 'is-invalid': errors.name }"
-                        placeholder="បញ្ចូលឈ្មោះពេញ..."
-                    >
+                    <input v-model="form.name" type="text" class="form-control border-start-0 ps-0 shadow-none khmer-font" :class="{ 'is-invalid': errors.name }" placeholder="បញ្ចូលឈ្មោះពេញ...">
                     <div v-if="errors.name" class="invalid-feedback">{{ errors.name[0] }}</div>
                 </div>
             </div>
 
-            <div class="col-md-6">
+            <div class="col-md-12">
                 <label class="form-label khmer-font small fw-bold text-secondary">អុីមែល</label>
                 <div class="input-group">
                     <span class="input-group-text bg-light border-end-0 text-muted">
                         <i class="bi bi-envelope"></i>
                     </span>
-                    <input 
-                        v-model="form.email"
-                        type="email" 
-                        class="form-control border-start-0 ps-0 shadow-none khmer-font" 
-                        :class="{ 'is-invalid': errors.email }"
-                        placeholder="example@mail.com"
-                    >
+                    <input v-model="form.email" type="email" class="form-control border-start-0 ps-0 shadow-none khmer-font" :class="{ 'is-invalid': errors.email }" placeholder="example@mail.com">
                     <div v-if="errors.email" class="invalid-feedback">{{ errors.email[0] }}</div>
                 </div>
             </div>
@@ -77,22 +65,44 @@
         errors.value = {};
         
         try {
-            await axios.put('/api/user/profile', form);
-            
+            await axios.put('/user/profile', form);
             Swal.fire({
                 icon: 'success',
                 title: 'ជោគជ័យ',
-                text: 'ព័ត៌មានរបស់អ្នកត្រូវបានធ្វើបច្ចុប្បន្នភាព',
+                text: 'ព័ត៌មានត្រូវបានធ្វើបច្ចុប្បន្នភាព',
                 toast: true,
                 position: 'top-end',
                 showConfirmButton: false,
-                timer: 3000
+                timer: 2000,
+                timerProgressBar: true,
+                customClass: {
+                    popup: 'khmer-font'
+                }
             });
         } catch (err) {
             if (err.response?.status === 422) {
                 errors.value = err.response.data.errors;
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ទិន្នន័យមិនត្រឹមត្រូវ',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    customClass: { popup: 'khmer-font' }
+                });
             } else {
-                Swal.fire({ icon: 'error', title: 'បរាជ័យ', text: 'មិនអាចរក្សាទុកបានទេ!' });
+                Swal.fire({ 
+                    icon: 'error', 
+                    title: 'បរាជ័យ', 
+                    text: 'មិនអាចរក្សាទុកបានទេ!',
+                    confirmButtonText: 'យល់ព្រម',
+                    customClass: {
+                        popup: 'khmer-font',
+                        confirmButton: 'btn btn-primary px-5'
+                    },
+                    buttonsStyling: false
+                });
             }
         } finally {
             loading.value = false;
