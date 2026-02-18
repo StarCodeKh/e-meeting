@@ -13,7 +13,7 @@
                                 <span class="input-group-text bg-light border-end-0 text-muted">
                                     <i class="bi bi-key"></i>
                                 </span>
-                                <input v-model="form.name" type="text" class="form-control rounded-end-3 border-start-0 ps-0 shadow-none" placeholder="ឧទាហរណ៍: view_user" required>
+                                <input v-model="form.name" type="text" class="form-control rounded-end-3 border-start-0 ps-0 shadow-none" placeholder="ឧទាហរណ៍: user_view" required>
                             </div>
                             <div class="form-text x-small text-muted mt-2">
                                 <i class="bi bi-info-circle me-1"></i>ប្រព័ន្ធនឹងប្តូរឈ្មោះទៅជា "lowercase_with_underscore"
