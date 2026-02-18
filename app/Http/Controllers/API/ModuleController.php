@@ -55,6 +55,7 @@ class ModuleController extends Controller
             'sort_order'  => 'nullable|integer',
             'is_active'   => 'nullable|boolean',
             'icon'        => 'nullable|string',
+            'external'    => 'nullable|boolean',
             'description' => 'nullable|string'
         ]);
 
@@ -95,6 +96,7 @@ class ModuleController extends Controller
             'sort_order'      => 'nullable|integer',
             'is_active'       => 'nullable|boolean',
             'icon'            => 'nullable|string',
+            'external'        => 'nullable|boolean',
             'description'     => 'nullable|string'
         ]);
 

@@ -43,11 +43,15 @@
                                         <i :class="['bi', module.icon || 'bi-grid-fill']" class="fs-5"></i>
                                     </div>
                                     <div>
-                                        <div class="khmer-font fw-bold text-dark mb-0">{{ module.label }}</div>
+                                        <div class="khmer-font fw-bold text-dark mb-0">
+                                            {{ module.label }}
+                                            <i v-if="module.external" class="bi bi-box-arrow-up-right ms-1 small text-info" title="តំណភ្ជាប់ក្រៅ"></i>
+                                        </div>
                                         <code class="extra-small text-primary">{{ module.path }}</code>
                                     </div>
                                 </div>
                             </td>
+
                             <td>
                                 <span class="badge bg-secondary-subtle text-secondary fw-normal border border-secondary-subtle mb-1">
                                     <i class="bi bi-shield-lock me-1"></i>{{ module.permission_name || 'Public' }}
@@ -151,14 +155,18 @@
                                     <label class="form-label khmer-font small fw-bold">ការពិពណ៌នា</label>
                                     <textarea v-model="form.description" class="form-control shadow-none px-3" rows="2"></textarea>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <label class="form-label khmer-font small fw-bold">លំដាប់លំដោយ</label>
                                     <input v-model="form.sort_order" type="number" class="form-control shadow-none px-3 py-2">
                                 </div>
-                                <div class="col-md-6 d-flex align-items-center pt-4">
+                                <div class="col-md-8 d-flex align-items-center justify-content-around pt-4">
+                                    <div class="form-check form-switch">
+                                        <input v-model="form.external" class="form-check-input" type="checkbox" id="externalSwitch">
+                                        <label class="form-check-label khmer-font small ms-2 fw-bold" for="externalSwitch">តំណភ្ជាប់ក្រៅ</label>
+                                    </div>
                                     <div class="form-check form-switch custom-switch">
                                         <input v-model="form.is_active" class="form-check-input" type="checkbox" id="activeSwitch">
-                                        <label class="form-check-label khmer-font small ms-2" for="activeSwitch">ស្ថានភាពសកម្ម</label>
+                                        <label class="form-check-label khmer-font small ms-2 fw-bold" for="activeSwitch">ស្ថានភាពសកម្ម</label>
                                     </div>
                                 </div>
                             </div>
@@ -182,7 +190,7 @@
 </template>
 
 <script setup>
-    import { ref, onMounted, watch, nextTick } from 'vue'
+    import { ref, onMounted, watch } from 'vue'
     import ModuleService from '@/services/ModuleService'
     import Swal from 'sweetalert2'
     import { Modal } from 'bootstrap'
@@ -205,6 +213,7 @@
         permission_name: '',
         description: '',
         sort_order: 0,
+        external: false,
         is_active: true
     }
 
@@ -216,7 +225,6 @@
         const modalElement = document.getElementById('moduleModal')
         if (modalElement) {
             modalInstance = new Modal(modalElement)
-            // នៅពេលបិទ Modal ត្រូវ Reset form ជានិច្ច
             modalElement.addEventListener('hidden.bs.modal', () => {
                 resetForm()
             })
@@ -252,10 +260,10 @@
         if (item) {
             isEdit.value = true
             currentId.value = item.id
-            // ប្រើ Deep Copy ដើម្បីកុំឱ្យទិន្នន័យក្នុង Table ប្រែប្រួលតាម Form ពេលកំពុង Edit
             form.value = JSON.parse(JSON.stringify({
                 ...item,
-                is_active: Boolean(item.is_active) // ប្រាកដថាជា Boolean សម្រាប់ Switch
+                is_active: item.is_active == 1 || item.is_active === true,
+                external: item.external == 1 || item.external === true
             }))
         } else {
             resetForm()
@@ -283,7 +291,8 @@
                 permission_name: form.value.permission_name,
                 description: form.value.description,
                 sort_order: parseInt(form.value.sort_order) || 0,
-                is_active: form.value.is_active ? 1 : 0 // បម្លែងទៅជា Int សម្រាប់ DB
+                is_active: form.value.is_active ? 1 : 0,
+                external: form.value.external ? 1 : 0
             }
 
             if (isEdit.value) {

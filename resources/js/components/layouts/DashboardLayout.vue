@@ -22,12 +22,35 @@
                     </template>
 
                     <template v-else-if="menuItems.length > 0">
-                        <router-link v-for="item in menuItems" :key="item.id" :to="item.path" class="nav-link-custom mb-1 text-decoration-none" active-class="active" @click="autoCloseMobile">
-                            <div class="icon-frame"><i :class="['bi', item.icon || 'bi-grid-fill']"></i></div>
-                            <span class="khmer-font">{{ item.label }}</span>
-                        </router-link>
-                    </template>
+                        <template v-for="item in menuItems" :key="item.id">
+                            
+                            <a v-if="item.external" 
+                            :href="item.path" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            class="nav-link-custom mb-1 text-decoration-none" 
+                            @click="autoCloseMobile">
+                                <div class="icon-frame">
+                                    <i :class="['bi', item.icon || 'bi-grid-fill']"></i>
+                                </div>
+                                <span class="khmer-font">{{ item.label }}</span>
+                                <i class="bi bi-box-arrow-up-right ms-auto small opacity-25"></i>
+                            </a>
 
+                            <router-link v-else 
+                                        :to="item.path" 
+                                        class="nav-link-custom mb-1 text-decoration-none" 
+                                        active-class="active" 
+                                        @click="autoCloseMobile">
+                                <div class="icon-frame">
+                                    <i :class="['bi', item.icon || 'bi-grid-fill']"></i>
+                                </div>
+                                <span class="khmer-font">{{ item.label }}</span>
+                            </router-link>
+
+                        </template>
+                    </template>
+                    
                     <div v-else class="text-center py-5 opacity-50">
                         <i class="bi bi-folder2-open d-block fs-2"></i>
                         <span class="khmer-font small">មិនទាន់មានមេនុយ</span>
@@ -72,6 +95,7 @@
     /**
      * ១. មុខងារទាញទិន្នន័យតាមបែប Standard (Parallel Fetching)
      */
+
     const initDashboard = async () => {
         loading.value = true
         try {
@@ -80,7 +104,12 @@
                 UserService.getProfile()
             ])
 
-            rawMenus.value = menuRes?.data?.data || menuRes?.data || menuRes || []
+            const rawData = menuRes?.data?.data || menuRes?.data || menuRes || [];
+            rawMenus.value = rawData.map(item => ({
+                ...item,
+                external: item.external == 1 || item.external === true,
+                is_active: item.is_active == 1 || item.is_active === true
+            }));
             
             const userData = userRes?.data || userRes
             authUser.value = Array.isArray(userData) ? userData[0] : userData
@@ -97,13 +126,19 @@
      * ងាយស្រួលកែប្រែ Rule ឆែកសិទ្ធិនៅកន្លែងតែមួយ
      */
     const hasAccess = (item) => {
-        if (Number(item.is_active) !== 1) return false
-        const userRole = authUser.value?.role?.toUpperCase()
-        if (userRole === 'ADMIN') return true
+        const isActive = item.is_active == 1 || item.is_active === true;
+        if (!isActive) return false;
 
-        if (!item.permission_name) return true
+        if (!authUser.value) return false;
 
-        return authUser.value?.permissions?.includes(item.permission_name)
+        const userRole = authUser.value.role?.toUpperCase();
+        if (userRole === 'ADMIN') return true;
+
+        if (!item.permission_name) return true;
+
+        return authUser.value.permissions?.some(p => 
+            p === item.permission_name || p.name === item.permission_name
+        );
     }
 
     /**
