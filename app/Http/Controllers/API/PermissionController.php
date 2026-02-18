@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use Spatie\Permission\Models\Permission;
 use App\Http\Controllers\Controller;
+use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
 use App\Models\Module;
 

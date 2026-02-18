@@ -17,12 +17,13 @@ class User extends Authenticatable implements JWTSubject
 
     protected $fillable = [
         'user_id', 'name', 'username', 'email', 'phone', 
-        'password', 'role', 'status', 'settings', 'avatar'
+        'password', 'status', 'settings', 'avatar'
     ];
 
     protected $casts = [
-        'settings' => 'array', // បំប្លែង JSON ទៅជា Array ស្វ័យប្រវត្តិ
-        'password' => 'hashed',
+        'settings'      => 'array',
+        'role'          => 'array', 
+        'password'      => 'hashed',
         'last_login_at' => 'datetime',
     ];
 

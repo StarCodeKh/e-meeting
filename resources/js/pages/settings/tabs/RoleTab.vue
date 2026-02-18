@@ -228,7 +228,7 @@
 
     // Helpers
     const formatLabel = (name) => {
-    const trans = { 'view': 'មើល', 'create': 'បង្កើត', 'edit': 'កែប្រែ', 'delete': 'លុប', 'update': 'កែប្រែ', 'manage': 'គ្រប់គ្រង' }
+    const trans = { 'view': 'មើល', 'list': 'បញ្ជី','create': 'បង្កើត', 'edit': 'កែប្រែ', 'delete': 'លុប', 'update': 'កែប្រែ', 'manage': 'គ្រប់គ្រង' }
     const found = Object.keys(trans).find(k => name.toLowerCase().includes(k))
         return found ? trans[found] : name
     }

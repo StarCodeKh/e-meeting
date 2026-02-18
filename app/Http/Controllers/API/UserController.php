@@ -2,232 +2,163 @@
 
 namespace App\Http\Controllers\API;
 
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Schema;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\UserResource;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
-use App\Http\Requests\UserRequest;
-use Spatie\Permission\Models\Role;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Http\Request;
 use App\Models\User;
+use App\Http\Resources\UserResource;
+use App\Http\Requests\UserRequest;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Facades\{Hash, Storage, DB, Log, Schema};
+use Spatie\Permission\Models\Role;
 
-class UserController extends Controller
+class UserController extends Controller implements HasMiddleware
 {
-    // ទាញយកបញ្ជីឈ្មោះ User (Index)
+    /**
+     * 1. Dynamic Middleware Configuration
+     * The "Standard" way to protect routes in Laravel 12.
+     */
+    public static function middleware(): array
+    {
+        return [
+            // Match the database exactly (user_list)
+            new Middleware('permission:user_list|user_create|user_edit|user_delete', only: ['index', 'show']),
+            new Middleware('permission:user_create', only: ['store']),
+            new Middleware('permission:user_edit', only: ['update']),
+            new Middleware('role:admin', only: ['destroy']), 
+        ];
+    }
+
+    /**
+     * 2. Index with Dynamic Search
+     */
     public function index(Request $request)
     {
         $query = User::query();
 
         if ($request->filled('search')) {
             $search = $request->search;
-            
-            $tableName = (new User())->getTable();
-            $columns = Schema::getColumnListing($tableName);
+            $searchableColumns = ['name', 'email', 'user_id', 'status'];
 
-            $query->where(function($q) use ($columns, $search) {
-                foreach ($columns as $column) {
+            $query->where(function($q) use ($searchableColumns, $search) {
+                foreach ($searchableColumns as $column) {
                     $q->orWhere($column, 'LIKE', "%{$search}%");
                 }
             });
         }
 
-        return UserResource::collection($query->latest()->paginate($request->per_page ?? 10));
+        return UserResource::collection($query->latest()->paginate($request->input('per_page', 10)));
     }
 
-    // បង្កើត User ថ្មី
+    /**
+     * 3. Store with Transaction & Logging
+     */
     public function store(UserRequest $request)
     {
         DB::beginTransaction();
-
         try {
             $data = $request->validated();
-            
             $data['password'] = Hash::make($request->password);
 
+            // Handle Avatar
             if ($request->hasFile('avatar')) {
                 $file = $request->file('avatar');
-                
-                $nameWithoutExt = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-                $extension = $file->getClientOriginalExtension();
-                $filename = $nameWithoutExt . '_' . now()->format('Y-m-d_H-i-s') . '.' . $extension;
-
-                $path = $file->storeAs('avatars', $filename, 'public');
-                $data['avatar'] = $path;
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $data['avatar'] = $file->storeAs('avatars', $filename, 'public');
             }
 
             $user = User::create($data);
 
-            DB::commit();
+            // Sync Spatie Role
+            if ($request->filled('role')) {
+                $roleName = is_array($request->role) ? $request->role[0] : $request->role;
+                $user->assignRole($roleName);
+            }
 
-            return response()->json([
-                'status'  => 'success',
-                'message' => 'បង្កើតអ្នកប្រើប្រាស់ថ្មីបានជោគជ័យ!',
-                'data'    => new UserResource($user)
-            ], 201);
+            DB::commit();
+            return response()->json(['status' => 'success', 'message' => 'បង្កើតជោគជ័យ', 'data' => new UserResource($user)], 201);
 
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("User Store Error: " . $e->getMessage());
-            return response()->json([
-                'status'  => 'error',
-                'message' => 'មានបញ្ហាបច្ចេកទេស មិនអាចបង្កើតអ្នកប្រើប្រាស់បានទេ!',
-                'error'   => config('app.debug') ? $e->getMessage() : null
-            ], 500);
+            return response()->json(['status' => 'error', 'message' => 'Internal Error'], 500);
         }
     }
 
-    // បង្ហាញព័ត៌មាន User ម្នាក់
+    /**
+     * 4. Show (Single Resource)
+     */
     public function show(User $user)
     {
-        try {
-            if (auth()->user()->role !== 'admin' && $user->id !== auth()->id()) {
-                return response()->json([
-                    'status'  => 'error',
-                    'message' => 'អ្នកមិនមានសិទ្ធិចូលមើលព័ត៌មានអ្នកប្រើប្រាស់ផ្សេងឡើយ'
-                ], 403);
-            }
-
-            return (new UserResource($user))
-                ->additional([
-                    'status' => 'success'
-                ]);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'status'  => 'error',
-                'message' => 'រកមិនឃើញអ្នកប្រើប្រាស់នេះឡើយ',
-            ], 404);
-        }
+        return (new UserResource($user))->additional(['status' => 'success']);
     }
 
-    // កែប្រែព័ត៌មាន User
+    /**
+     * 5. Update with File Cleanup
+     */
     public function update(UserRequest $request, User $user)
     {
         DB::beginTransaction();
         try {
             $data = $request->validated();
 
-            // ១. រៀបចំ Password
             if ($request->filled('password')) {
                 $data['password'] = Hash::make($request->password);
             } else {
                 unset($data['password']);
             }
 
-            // ២. រៀបចំ Avatar
             if ($request->hasFile('avatar')) {
-                if ($user->avatar && Storage::disk('public')->exists(str_replace('storage/', '', $user->avatar))) {
-                    Storage::disk('public')->delete(str_replace('storage/', '', $user->avatar));
+                // Delete old file
+                if ($user->avatar) {
+                    Storage::disk('public')->delete($user->avatar);
                 }
-
                 $file = $request->file('avatar');
-                $nameWithoutExt = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-                $extension = $file->getClientOriginalExtension();
-                $filename = $nameWithoutExt . '_' . now()->format('Y-m-d_H-i-s') . '.' . $extension;
-
-                $path = $file->storeAs('avatars', $filename, 'public');
-                $data['avatar'] = $path;
+                $data['avatar'] = $file->storeAs('avatars', time().'_'.$file->getClientOriginalName(), 'public');
             }
 
-            // ៣. Update ព័ត៌មានទូទៅក្នុងតារាង users
             $user->update($data);
 
-            // ៤. ✅ បន្ថែម៖ Sync Role ទៅកាន់តារាង model_has_roles
-            // ប្រសិនបើក្នុង Form បងបោះ Key 'role' ឬ 'roles' មក
+            // Sync Spatie Role
             if ($request->has('role')) {
-                // ត្រង់នេះ $request->role នឹងក្លាយជា ['admin']
                 $roleName = is_array($request->role) ? $request->role[0] : $request->role;
-                
-                if ($roleName) {
-                    $role = Role::firstOrCreate(['name' => $roleName, 'guard_name' => 'api']);
-                    $user->syncRoles($role->name);
-                }
+                $user->syncRoles($roleName);
             }
 
             DB::commit();
-
-            return response()->json([
-                'status'  => 'success',
-                'message' => 'កែប្រែព័ត៌មានអ្នកប្រើប្រាស់ជោគជ័យ!',
-                'data'    => new UserResource($user->fresh(['roles'])) // Load roles ទៅជាមួយ Resource
-            ], 200);
+            return response()->json(['status' => 'success', 'message' => 'ធ្វើបច្ចុប្បន្នភាពជោគជ័យ', 'data' => new UserResource($user->fresh())]);
 
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("User Update Error: " . $e->getMessage());
-            return response()->json([
-                'status'  => 'error',
-                'message' => 'មានបញ្ហាបច្ចេកទេស មិនអាចកែប្រែបានទេ!',
-                'error'   => config('app.debug') ? $e->getMessage() : null
-            ], 500);
+            return response()->json(['status' => 'error'], 500);
         }
     }
 
-    // ទាញយកព័ត៌មាន Profile ផ្ទាល់ខ្លួន (CurrentUser)
+    /**
+     * 6. Profile (Current User)
+     */
     public function profile()
     {
-        try {
-            $user = auth()->user();
-            
-            if (!$user) {
-                return response()->json([
-                    'status'  => 'error',
-                    'message' => 'សូមចូលប្រព័ន្ធជាមុនសិន'
-                ], 401);
-            }
-
-            // UserResource នឹងរៀបចំ Key 'permissions' ឱ្យដោយស្វ័យប្រវត្តិ
-            return (new UserResource($user))
-                ->additional([
-                    'status' => 'success',
-                    'message' => 'ទាញយកទិន្នន័យ Profile ជោគជ័យ'
-                ]);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'status'  => 'error',
-                'message' => 'មានបញ្ហាបច្ចេកទេស',
-                'error'   => $e->getMessage()
-            ], 500);
-        }
+        return (new UserResource(auth()->user()))->additional(['status' => 'success']);
     }
 
-    // លុប User (Soft Delete)
+    /**
+     * 7. Destroy (Secure Delete)
+     */
     public function destroy(User $user)
     {
-        try {
-            if ($user->id === auth()->id()) {
-                return response()->json([
-                    'status'  => 'error',
-                    'message' => 'អ្នកមិនអាចលុបគណនីដែលកំពុងប្រើប្រាស់បានទេ'
-                ], 403);
-            }
-
-            if ($user->avatar) {
-                $filePath = str_replace('storage/', '', $user->avatar);
-                
-                if (Storage::disk('public')->exists($filePath)) {
-                    Storage::disk('public')->delete($filePath);
-                }
-            }
-
-            $user->delete();
-
-            return response()->json([
-                'status'  => 'success',
-                'message' => 'លុបអ្នកប្រើប្រាស់បានជោគជ័យ'
-            ], 200);
-
-        } catch (\Exception $e) {
-            Log::error("User Delete Error: " . $e->getMessage());
-            return response()->json([
-                'status'  => 'error',
-                'message' => 'មានបញ្ហាបច្ចេកទេស មិនអាចលុបអ្នកប្រើប្រាស់បានទេ',
-                'error'   => config('app.debug') ? $e->getMessage() : null
-            ], 500);
+        if ($user->id === auth()->id()) {
+            return response()->json(['status' => 'error', 'message' => 'មិនអាចលុបខ្លួនឯងបានទេ'], 403);
         }
+
+        if ($user->avatar) {
+            Storage::disk('public')->delete($user->avatar);
+        }
+
+        $user->delete();
+        Log::warning("User Deleted", ['deleted_id' => $user->id, 'by' => auth()->id()]);
+
+        return response()->json(['status' => 'success', 'message' => 'លុបបានជោគជ័យ']);
     }
 }

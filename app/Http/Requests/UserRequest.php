@@ -18,7 +18,7 @@ class UserRequest extends FormRequest
             'email'    => 'required|email|unique:users,email,' . $userId,
             'username' => 'nullable|string|unique:users,username,' . $userId,
             'phone'    => 'nullable|string|unique:users,phone,' . $userId,
-            'role'     => 'nullable|array', 
+            'role'     => 'nullable|array',
             'role.*'   => 'exists:roles,name', 
             'avatar'   => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'status'   => 'required|string|in:active,inactive,suspended',

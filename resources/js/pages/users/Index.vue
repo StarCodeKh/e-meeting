@@ -294,19 +294,15 @@
             formData.append('name', editingUser.value.name || '');
             formData.append('email', editingUser.value.email || '');
             
-            // --- កែសម្រួលចំណុចនេះ ---
-            // ទាញយកតម្លៃ Role ចេញមក (ទោះជា Array ឬ String)
             const roleValue = Array.isArray(editingUser.value.role) 
                 ? editingUser.value.role[0] 
                 : editingUser.value.role;
 
-            // ប្រើ 'role[]' ជា Key ដើម្បីឱ្យ Laravel Validation ចាត់ទុកវាជា Array
             if (roleValue) {
                 formData.append('role[]', roleValue); 
             } else {
-                formData.append('role[]', 'user'); // តម្លៃ default បើអត់មានរើស
+                formData.append('role[]', 'user');
             }
-            // -----------------------
 
             formData.append('status', editingUser.value.is_active ? 'active' : 'inactive');
 
@@ -314,7 +310,6 @@
             if (editingUser.value.password) formData.append('password', editingUser.value.password);
 
             if (editingUser.value.id) {
-                // ចំណុចសំខាន់សម្រាប់ Update ជាមួយ File ក្នុង Laravel
                 formData.append('_method', 'PUT'); 
                 await UserService.update(editingUser.value.id, formData);
             } else {
@@ -327,7 +322,6 @@
         } catch (error) {
             if (error.response?.status === 422) {
                 serverErrors.value = error.response.data.errors;
-                // បន្ថែមការ Scroll ទៅរកកន្លែង Error បើចង់
             } else {
                 alertPop('បរាជ័យ!', 'error', error.response?.data?.message || error.message);
             }
