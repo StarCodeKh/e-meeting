@@ -137,15 +137,20 @@
                         </div>
                     </div>
 
-                    <div class="p-4 d-flex justify-content-between align-items-center border-top bg-white mt-4">
+                    <div class="modal-footer border-top-0 px-4 pt-0 d-flex justify-content-between align-items-center">
                         <button type="button" class="btn btn-link text-decoration-none text-muted khmer-font p-0" @click="closeModal">
                             <i class="bi bi-x-circle me-1"></i> បោះបង់
                         </button>
-                        <button type="submit" class="btn khmer-font px-5 py-2 rounded-3 shadow-sm text-white border-0 transition-all" 
-                                :disabled="loading" :style="{ background: activeGradient }">
-                            <i v-if="!loading" class="bi bi-check2-circle me-2"></i>
-                            <span v-else class="spinner-border spinner-border-sm me-2"></span>
-                            {{ loading ? 'កំពុងរក្សាទុក...' : 'រក្សាទុកទិន្នន័យ' }}
+
+                        <button type="submit" class="btn khmer-font px-5 py-2 rounded-3 shadow-sm text-white border-0 transition-all" :disabled="loading" :style="{ background: activeGradient, transition: 'all 0.3s' }">
+                            <template v-if="!loading">
+                                <i class="bi bi-check2-circle me-2"></i> រក្សាទុកទិន្នន័យ
+                            </template>
+                            
+                            <template v-else>
+                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                <span>កំពុងរក្សាទុក...</span>
+                            </template>
                         </button>
                     </div>
                 </form>
@@ -331,7 +336,6 @@
                     const formattedDate = form.date instanceof Date ? form.date.toISOString().split('T')[0] : form.date;
                     formData.append(key, formattedDate);
                 } else if (key === 'participants') {
-                    // ប្រសិនបើជា Array ត្រូវ Loop append ម្តងមួយៗ
                     form.participants.forEach(email => formData.append('participants[]', email));
                 } else {
                     formData.append(key, form[key] || '');
