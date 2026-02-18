@@ -54,7 +54,7 @@
                             <div class="calendar-grid p-2">
                                 <div v-for="n in paddingDays" :key="'p-'+n" class="day-cell empty"></div>
                                 <div v-for="day in monthDays" :key="day.dateString" class="day-cell" @click="handleDateSelection(day.dateObj)">
-                                    <div class="day-number fw-bold" :class="{ 'today-active': day.isToday, 'selected-active': isSelected(day.dateObj) }">
+                                    <div class="khmer-font day-number fw-bold" :class="{ 'today-active': day.isToday, 'selected-active': isSelected(day.dateObj) }">
                                         {{ toKhmerNum(day.date) }}
                                     </div>
                                     <div class="event-indicator-container">
@@ -67,7 +67,7 @@
                         <div v-else class="timeline-container p-4 fade-in overflow-auto" style="max-height: 600px;">
                             <div v-for="slot in timelineData" :key="slot.dateString" class="mb-5">
                                 <div class="d-flex align-items-center gap-3 mb-3">
-                                    <div class="date-icon shadow-sm">
+                                    <div class="khmer-font date-icon shadow-sm">
                                         <div class="month text-uppercase">{{ slot.monthShort }}</div>
                                         <div class="day">{{ slot.dayNumber }}</div>
                                     </div>
@@ -150,7 +150,6 @@
     const khmerMonths = ['មករា', 'កុម្ភៈ', 'មីនា', 'មេសា', 'ឧសភា', 'មិថុនា', 'កក្កដា', 'សីហា', 'កញ្ញា', 'តុលា', 'វិច្ឆិកា', 'ធ្នូ']
 
     // --- ២. Khmer Helpers (Standard) ---
-    // មុខងារប្តូរលេខឡាតាំង ទៅជាលេខខ្មែរ
     const toKhmerNum = (num) => {
         if (num === null || num === undefined) return ''
         const khmerNums = ['០', '១', '២', '៣', '៤', '៥', '៦', '៧', '៨', '៩']
@@ -169,7 +168,6 @@
             isLoading.value = true
             let data = []
             
-            // ទាញយកទិន្នន័យតាម Mode (Month ឬ Date)
             if (currentView.value === 'month') {
                 const month = referenceDate.value.getMonth() + 1
                 const year = referenceDate.value.getFullYear()
@@ -257,7 +255,7 @@
             const dateStr = d.toLocaleDateString('en-CA')
             
             return {
-                date: i + 1, // រក្សាទុកលេខឡាតាំងសម្រាប់ Logic តែប្រើ toKhmerNum ក្នុង Template
+                date: i + 1,
                 dateObj: d,
                 dateString: dateStr,
                 isToday: new Date().toDateString() === d.toDateString(),
@@ -280,9 +278,9 @@
             const dateStr = d.toLocaleDateString('en-CA')
             dates.push({
                 dateString: dateStr,
-                dayNumber: toKhmerNum(d.getDate()), // ប្តូរជាលេខខ្មែរ
-                dayName: daysOfWeekKhmer[d.getDay()], // ឈ្មោះថ្ងៃខ្មែរ
-                monthShort: khmerMonths[d.getMonth()], // ឈ្មោះខែខ្មែរ
+                dayNumber: toKhmerNum(d.getDate()),
+                dayName: daysOfWeekKhmer[d.getDay()],
+                monthShort: khmerMonths[d.getMonth()],
                 events: meetings.value.filter(e => e.date === dateStr)
             })
         }
