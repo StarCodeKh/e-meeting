@@ -60,7 +60,7 @@ class ModuleController extends Controller
         ]);
 
         // ១. កំណត់យក key_name ធ្វើជា permission_name តែម្តងដើម្បីឱ្យស្រួលគ្រប់គ្រង
-        $validated['permission_name'] = 'view_' . $validated['key_name'];
+        $validated['permission_name'] = $validated['key_name'].'view_';
 
         // ២. បង្កើត Module ក្នុង Table modules
         $module = Module::create($validated);

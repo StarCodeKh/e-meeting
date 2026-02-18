@@ -3,6 +3,8 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Models\Role;
 use Illuminate\Http\Request;
 use App\Models\User;
 
@@ -20,19 +22,47 @@ class AuthController extends Controller
     {
         $data = $request->validate([
             'name'     => 'required|string|max:255',
-            'email'    => 'required|email|unique:users',
+            'email'    => 'required|email|unique:users,email',
             'password' => 'required|string|min:6|confirmed',
         ]);
 
-        $user = User::create([
-            'name'     => $data['name'],
-            'email'    => $data['email'],
-            'password' => bcrypt($data['password']),
-        ]);
+        DB::beginTransaction();
+        try {
+            $user = User::create([
+                'name'     => $data['name'],
+                'email'    => $data['email'],
+                'password' => bcrypt($data['password']),
+            ]);
 
-        $token = auth()->login($user);
+            // ២. Assign Role "USER"
+            $role = Role::firstOrCreate([
+                'name' => 'USER', 
+                'guard_name' => 'api'
+            ]);
+            
+            $user->assignRole($role);
 
-        return response()->json(['user'=> $user,'access_token'=> $token], 201);
+            DB::commit();
+
+            $token = auth()->login($user);
+
+            return response()->json([
+                'status'       => 'success',
+                'message'      => 'ចុះឈ្មោះជោគជ័យ!',
+                'user'         => $user->load('roles'),
+                'access_token' => $token,
+                'token_type'   => 'bearer',
+            ], 201);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Registration Error: " . $e->getMessage());
+            
+            return response()->json([
+                'status' => 'error',
+                'message' => 'មានបញ្ហាបច្ចេកទេស មិនអាចចុះឈ្មោះបានទេ!',
+            ], 500);
+        }
     }
 
     public function login(Request $request)

@@ -88,10 +88,8 @@ class PermissionController extends Controller
 
         // ៣. ✅ សំខាន់បំផុត: Update ក្នុង Table modules ដើម្បីកុំឱ្យបាត់ Menu
         // ប្រសិនបើមាន Module ណាដែលប្រើ Permission ឈ្មោះចាស់នេះ ត្រូវដូរវាទៅឈ្មោះថ្មីដែរ
-        Module::where('permission_name', $oldName)
-            ->update(['permission_name' => $newName]);
+        Module::where('permission_name', $oldName)->update(['permission_name' => $newName]);
 
-        // ៤. ជម្រះ Cache របស់ Spatie ដើម្បីឱ្យការកែប្រែមានប្រសិទ្ធភាពភ្លាមៗ
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         return response()->json([
