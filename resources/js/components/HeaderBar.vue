@@ -38,7 +38,7 @@
 
                 <div class="position-relative">
                     <div class="nav-square-btn shadow-sm" :class="{ 'active-nav-btn': isDropdownOpen }" @click="isDropdownOpen = !isDropdownOpen" role="button">
-                        <img v-if="user.avatar" :src="user.avatar" class="rounded-circle" style="width: 24px; height: 24px; object-fit: cover;">
+                        <img v-if="user.avatar" :src="user.avatar" class="rounded-3" style="width: 32px; height: 32px; object-fit: cover;">
                         <i v-else class="bi bi-person-fill"></i>
                     </div>
 
@@ -78,7 +78,7 @@
 
 <script setup>
     import Swal from 'sweetalert2'
-    import { ref, reactive, onMounted } from 'vue'
+    import { ref, onMounted } from 'vue'
     import { useRouter, useRoute } from 'vue-router'
     import { UserService } from '@/services/UserService'
     import CreateEventModal from '../pages/forms/SchedulerForm.vue'
@@ -113,14 +113,11 @@
         try {
             isLoadingUser.value = true
             const response = await UserService.getProfile() 
-            
-            // Laravel Resource ជាទូទៅបោះទិន្នន័យមកក្នុង response.data.data
             const userData = response.data.data || response.data 
 
             if (userData) {
                 user.value = {
                     name: userData.name,
-                    // ឆែកមើលបើ role ជា Object យក .name បើជា String យកផ្ទាល់ (ADMIN)
                     role: typeof userData.role === 'object' ? userData.role?.name : (userData.role || 'User'),
                     avatar: userData.avatar_url,
                     permissions: userData.permissions || []
