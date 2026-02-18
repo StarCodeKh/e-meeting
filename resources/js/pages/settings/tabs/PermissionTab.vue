@@ -203,19 +203,28 @@
         const result = await Swal.fire({ 
             title: 'លុបសិទ្ធិនេះ?', 
             text: "តើអ្នកប្រាកដជាចង់លុបសិទ្ធិនេះមែនទេ?",
-            icon: 'warning', 
+            icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'បាទ លុបចេញ',
-            cancelButtonText: 'បោះបង់'
+            cancelButtonText: 'បោះបង់',
+            customClass: {
+                popup: 'khmer-font',
+                confirmButton: 'btn btn-danger px-4 me-2',
+                cancelButton: 'btn btn-light px-4'
+            },
+            buttonsStyling: false
         });
 
         if (result.isConfirmed) {
             try {
                 await PermissionService.delete(id);
                 await fetchPermissions();
-                toast('success', 'លុបរួចរាល់');
+                toast('លុបរួចរាល់!', 'success'); 
             } catch (e) {
-                toast('error', e.message || 'មិនអាចលុបបានទេ');
+                const errorMsg = e.response?.status === 403 
+                    ? 'អ្នកមិនមានសិទ្ធិលុបឡើយ' 
+                    : 'មិនអាចលុបបានទេ';
+                toast(errorMsg, 'error'); 
             }
         }
     };

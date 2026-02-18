@@ -341,17 +341,17 @@
             icon: 'warning',
             showCancelButton: true, 
             confirmButtonText: 'យល់ព្រម',
-            cancelButtonText: 'បោះបង់', // Added cancel text
+            cancelButtonText: 'បោះបង់',
             customClass: { popup: 'khmer-font', confirmButton: 'btn btn-danger me-2', cancelButton: 'btn btn-light' },
             buttonsStyling: false
         });
         if (result.isConfirmed) {
             try {
                 await UserService.delete(id);
-                toast('លុបជោគជ័យ!'); // Changed to toast
+                toast('លុបជោគជ័យ!');
                 fetchUsers();
             } catch (e) { 
-                toast('មិនអាចលុបបានទេ!', 'error'); // Changed to toast
+                toast('មិនអាចលុបបានទេ!', 'error'); 
             }
         }
     }
