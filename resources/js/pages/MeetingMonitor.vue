@@ -1,130 +1,94 @@
 <template>
-    <div class="monitor-screen">
-        <header class="monitor-header">
-            <div class="header-left">
-                <div class="logo-wrapper">
-                    <img :src="logo" alt="MEF Logo" class="monitor-logo" />
-                </div>
-                
-                <div class="header-text">
-                <h1 class="khmer-font title">ក្រសួងសេដ្ឋកិច្ច និងហិរញ្ញវត្ថុ</h1>
-                <p class="khmer-font subtitle">អគ្គលេខាធិការដ្ឋានគណៈកម្មាធិការដឹកនាំការងារកែទម្រង់ការគ្រប់គ្រងហិរញ្ញវត្ថុសាធារណៈ</p>
-                </div>
-            </div>
+    <div class="signage-wrapper container-fluid p-0">
+        <div class="bg-gradient-overlay" :style="{ background: activeThemeGradient }"></div>
+        <div class="glass-mesh"></div>
 
-            <div class="header-right text-end">
-                <div class="date khmer-font text-white-50">{{ currentDateKhmer }}</div>
-                <div class="time khmer-font tabular-nums text-cyan">{{ currentTime }}</div>
+        <header class="main-header shadow-lg mx-3 mt-3 mb-4 rounded-4 bg-white">
+            <div class="row w-100 align-items-center py-3 px-4 mx-0">
+                <div class="col-lg-8 d-flex align-items-center">
+                    <div class="logo-area me-4">
+                        <img :src="logo" alt="MEF Logo" class="official-logo" />
+                    </div>
+                    <div class="title-area">
+                        <h2 class="khmer-font h6 fw-bold mb-0 text-dark">ព្រះរាជាណាចក្រកម្ពុជា</h2>
+                        <h2 class="khmer-font small text-muted mb-1">ជាតិ សាសនា ព្រះមហាក្សត្រ</h2>
+                        <div class="header-divider my-1"></div>
+                        <h1 class="khmer-font h3 fw-bold mb-0 text-primary-dark">ក្រសួងសេដ្ឋកិច្ច និងហិរញ្ញវត្ថុ</h1>
+                        <p class="khmer-font small text-primary mb-0">អគ្គលេខាធិការដ្ឋាន គ.វ.ហ.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 text-end border-start d-none d-lg-block">
+                    <div class="khmer-font text-muted small mb-1">{{ currentDateKhmer }}</div>
+                    <div class="khmer-font small digital-clock tabular-nums fw-black display-5 text-primary-dark">
+                        {{ currentTime }}
+                    </div>
+                </div>
             </div>
         </header>
 
-        <main class="monitor-content">
-            <div class="table-container">
-                <table class="monitor-table">
-                    <thead>
-                        <tr class="khmer-font">
-                        <th class="center">ល.រ</th>
-                        <th>ប្រធានបទ</th>
-                        <th class="center">ចាប់ផ្តើម</th>
-                        <th class="center">បញ្ចប់</th>
-                        <th>កន្លែងប្រជុំ</th>
-                        <th class="center">បន្ទប់</th>
-                        <th class="center">ស្ថានភាព</th>
-                        <th class="center">សកម្មភាព</th>
-                        </tr>
-                    </thead>
+        <main class="meeting-viewport container-fluid px-4">
+        
+            <div class="row th-row khmer-font py-2 d-none d-lg-flex align-items-center text-white-50 px-3">
+                <div class="col-lg-2 fw-bold">ម៉ោងប្រជុំ</div>
+                <div class="col-lg-8 fw-bold border-start border-secondary ps-4">កម្មវត្ថុនៃកិច្ចប្រជុំ និង អ្នកចូលរួម</div>
+                <div class="col-lg-2 fw-bold text-center">ស្ថានភាព</div>
+            </div>
 
-                    <tbody v-if="!isLoading">
-                        <tr v-for="(m, index) in sortedMeetings" :key="m.id" :class="`row-${m.status}`">
-                            <td class="center fw-bold text-cyan">{{ index + 1 }}</td>
+            <div v-if="isLoading" class="d-flex flex-column align-items-center justify-content-center py-5 khmer-font text-white">
+                <div class="spinner-border text-light mb-3" role="status"></div>
+                <span>កំពុងទាញយកទិន្នន័យ...</span>
+            </div>
+            
+            <div v-else class="card-stack d-flex flex-column gap-3 pb-5">
+                <div v-for="(m, index) in sortedMeetings" :key="index" class="meeting-card row mx-0 align-items-center shadow-sm py-3 rounded-4 bg-white" :style="{ borderLeft: `12px solid ${getStatusColor(m.status)}` }">
+                
+                <div class="col-12 col-lg-2 khmer-font mb-3 mb-lg-0">
+                    <div class="time-start display-6 fw-bold tabular-nums" :style="{ color: getStatusColor(m.status) }">
+                        {{ m.displayStartTime }}
+                    </div>
+                    <div class="time-range small d-flex gap-2 align-items-center">
+                        <span class="text-muted">ដល់ {{ m.displayEndTime }}</span>
+                        <span class="badge bg-light text-dark border fw-normal">{{ parseInt(m.startTime) < 12 ? 'ព្រឹក' : 'រសៀល' }}</span>
+                    </div>
+                </div>
 
-                            <td class="khmer-font py-3">
-                                <div class="title-text fw-bold fs- mb-1 text-white">
-                                    {{ m.title }}
-                                </div>
+                <div class="col-12 col-lg-8 border-start-lg ps-lg-4 mb-3 mb-lg-0">
+                    <h2 class="khmer-font h4 fw-bold mb-2 text-dark">{{ m.title }}</h2>
+                    <div class="meta-info khmer-font d-flex flex-wrap gap-4">
+                        <div class="d-flex align-items-center text-muted small">
+                            <i class="bi bi-geo-alt-fill me-2" :style="{ color: getStatusColor(m.status) }"></i>
+                            <span>{{ m.location || 'សាលប្រជុំ' }}</span>
+                        </div>
+                        <div class="d-flex align-items-center text-muted small">
+                            <i class="bi bi-person-fill me-2 text-primary"></i>
+                            <span>ដឹកនាំដោយ៖ <b class="text-dark">{{ m.participantsDisplay }}</b></span>
+                        </div>
+                    </div>
+                </div>
 
-                                <div class="host-text d-flex align-items-center gap-2">
-                                    <i class="bi bi-person-badge text-warning fs-6"></i>
-                                    <span class="text-warning-50">ដឹកនាំដោយ៖</span>
-                                    <span :class="['fw-bold fs-6', m.status === 'active' ? 'text-success' : 'text-info']">
-                                        {{ m.participantsDisplay }}
-                                    </span>
-                                </div>
-                            </td>
-
-                            <td class="center tabular-nums">
-                                <div class="time-wrapper">
-                                    <i class="bi bi-clock icon-sm"></i>
-                                    <span class="fw-bold">{{ m.startTime }}</span>
-                                    <span class="badge bg-white bg-opacity-10 rounded-2 fw-normal px-2 py-1 small khmer-font">
-                                        {{ parseInt(m.startTime) < 12 ? 'ព្រឹក' : 'រសៀល' }}
-                                    </span>
-                                </div>
-                            </td>
-                            <td class="center tabular-nums">
-                                <div class="time-wrapper">
-                                    <i class="bi bi-clock icon-sm"></i>
-                                    <span class="fw-bold">{{ m.endTime }}</span>
-                                    <span class="badge bg-white bg-opacity-10 rounded-2 fw-normal px-2 py-1 small khmer-font">
-                                        {{ parseInt(m.endTime) < 12 ? 'ព្រឹក' : 'រសៀល' }}
-                                    </span>
-                                </div>
-                            </td>
-
-                            <td class="khmer-font">
-                                <i class="bi bi-geo-alt-fill text-danger me-1"></i>
-                                {{ m.location }}
-                            </td>
-
-                            <td class="center">
-                                <span class="badge bg-white bg-opacity-25 rounded-2" v-if="m.room">{{ m.room }}</span>
-                                <span v-else>-</span>
-                            </td>
-
-                            <td class="center khmer-font">
-                                <span class="status-badge" :class="m.status">
-                                <span v-if="m.status === 'active'" class="live-dot"></span>
-                                {{ m.statusText }}
-                                </span>
-                            </td>
-
-                            <td class="center">
-                                <div class="d-flex gap-2 justify-content-center">
-                                    <a v-if="m.link && m.status !== 'completed'" :href="m.link" target="_blank" rel="noopener noreferrer" class="btn-action" title="ចូលរួមប្រជុំ" @click.stop>
-                                        <i class="bi bi-camera-video-fill"></i>
-                                    </a>
-
-                                    <a v-if="m.attachmentUrl" :href="m.attachmentUrl" target="_blank" rel="noopener noreferrer" class="btn-action text-danger" title="មើលឯកសារ" @click.stop>
-                                        <i class="bi bi-file-earmark-pdf-fill"></i>
-                                    </a>
-
-                                    <span v-if="(!m.link && !m.attachmentUrl) || (m.status === 'completed' && !m.attachmentUrl)" class="text-white-50 small">
-                                        <a class="btn-action">
-                                            <i class="bi bi-camera-video-off"></i>
-                                        </a>
-                                    </span>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-
-                    <tbody v-else>
-                        <tr>
-                            <td colspan="8" class="center loading khmer-font">កំពុងទាញទិន្នន័យ...</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="col-12 col-lg-2">
+                    <div class="status-box d-flex align-items-center justify-content-center gap-2 py-3 rounded-3 fw-bold shadow-sm" :style="getStatusBoxStyle(m.status)">
+                        <div v-if="m.status === 'active'" class="pulse-dot"></div>
+                            <span class="khmer-font fw-bold">{{ m.statusText }}</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </main>
 
-        <footer class="monitor-footer khmer-font">
-            <div class="stats">
-                <span>កិច្ចប្រជុំសរុប: <b class="text-cyan">{{ meetings.length }}</b></span>
-                <span class="ms-4">កំពុងប្រជុំ: <b class="danger">{{ activeMeetingsCount }}</b></span>
-            </div>
-            <div class="system-status">
-                <span class="live-pulse"></span>
-                <span class="ms-2 khmer-font">ប្រព័ន្ធប្រជុំអេឡិចត្រូនិក</span>
+        <footer class="main-footer bg-white py-3 px-4 border-top mt-auto shadow-lg position-relative">
+            <div class="container-fluid d-flex justify-content-between align-items-center khmer-font">
+                <div class="footer-left d-flex gap-4 align-items-center">
+                    <span class="text-muted small">កិច្ចប្រជុំសរុប៖ <b class="text-primary">{{ meetings.length }}</b></span>
+                    <div class="vr d-none d-md-block"></div>
+                    <span class="small d-flex align-items-center">
+                        <span class="online-dot me-2"></span> 
+                        <span class="text-muted">ប្រព័ន្ធគ្រប់គ្រងកាលវិភាគឌីជីថល</span>
+                    </span>
+                </div>
+                <div class="footer-right text-muted small fw-bold">
+                    ក្រសួងសេដ្ឋកិច្ច និងហិរញ្ញវត្ថុ
+                </div>
             </div>
         </footer>
     </div>
@@ -135,132 +99,196 @@
     import logo from '@/assets/images/logo.png'
     import { MeetingMonitor } from '@/services/MeetingMonitor'
 
-    // --- ១. កំណត់ States ---
+// --- DYNAMIC CONFIGURATION ---
+    const statusConfigs = {
+        active: {
+            color: '#dc3545', // Standard Red
+            bg: '#fff5f5',
+            boxBg: '#dc3545',
+            boxText: '#ffffff'
+        },
+        upcoming: {
+            color: '#0d6efd', // MEF Blue
+            bg: '#ffffff',
+            boxBg: 'transparent',
+            boxText: '#0d6efd',
+            border: '2px solid #0d6efd'
+        },
+        completed: {
+            color: '#6c757d', // Muted Gray
+            bg: '#f8f9fa',
+            boxBg: '#e9ecef',
+            boxText: '#6c757d'
+        }
+    }
+
     const meetings = ref([])
     const currentTime = ref('')
     const currentDateKhmer = ref('')
     const isLoading = ref(true)
     let timer = null
 
-    // --- ២. មុខងារជំនួយ (Helper Functions) ---
+    // Helper for dynamic colors
+    const getStatusColor = (status) => statusConfigs[status]?.color || '#000'
 
-    /**
-     * បំប្លែងលេខអារ៉ាប់ ទៅជាលេខខ្មែរ
-     */
+    const getStatusBoxStyle = (status) => {
+        const config = statusConfigs[status]
+        return {
+            backgroundColor: config.boxBg,
+            color: config.boxText,
+            border: config.border || 'none'
+        }
+    }
+
+    const activeThemeGradient = computed(() => {
+        const hasActive = meetings.value.some(m => m.status === 'active')
+        return hasActive 
+        ? 'radial-gradient(circle at 0% 0%, rgba(220, 53, 69, 0.15) 0%, transparent 50%)'
+        : 'radial-gradient(circle at 0% 0%, rgba(30, 64, 175, 0.2) 0%, transparent 50%)'
+    })
+
+    // --- DATA LOGIC ---
     const toKhmerNumeral = (num) => {
-        if (num === null || num === undefined) return ''
+        if (!num) return ''
         const khmerNumbers = ['០', '១', '២', '៣', '៤', '៥', '៦', '៧', '៨', '៩']
         return num.toString().replace(/\d/g, (digit) => khmerNumbers[digit])
     }
 
-    /**
-     * គណនាស្ថានភាពកិច្ចប្រជុំ (Active, Upcoming, Completed)
-     */
     const calculateStatus = (start, end) => {
         const now = new Date()
         const nowMin = now.getHours() * 60 + now.getMinutes()
-        
-        const toMinutes = (timeStr) => {
-            if (!timeStr || timeStr === '--:--') return null
-            const [h, m] = timeStr.split(':').map(Number)
-            return h * 60 + m
-        }
-
-        const sMin = toMinutes(start)
-        let eMin = toMinutes(end)
-
-        // ប្រសិនបើគ្មានម៉ោងបញ្ចប់ សន្មតថាមានរយៈពេល ៦០ នាទី
-        if (eMin === null) eMin = sMin + 60
-
+        const toMinutes = (t) => { if (!t || t === '--:--') return null; const [h, m] = t.split(':').map(Number); return h * 60 + m }
+        const sMin = toMinutes(start); let eMin = toMinutes(end) || (sMin + 60)
+        if (nowMin > eMin) return { code: 'completed', text: 'បានបញ្ចប់' }
         if (nowMin >= sMin && nowMin <= eMin) return { code: 'active', text: 'កំពុងប្រជុំ' }
-        if (nowMin < sMin) return { code: 'upcoming', text: 'មិនទាន់ប្រជុំ' }
-        return { code: 'completed', text: 'បានបញ្ចប់' }
+        return { code: 'upcoming', text: 'មិនទាន់ប្រជុំ' }
     }
 
-    // --- ៣. ការទាញទិន្នន័យ (Data Fetching) ---
     const fetchMeetingsData = async () => {
         try {
-            isLoading.value = true
             const today = new Date().toISOString().split('T')[0]
-            
             const data = await MeetingMonitor.getMeetingsByDate(today)
-            
             meetings.value = (data || []).map(m => {
-                const sTime = m.startTime || '00:00'
-                const eTime = m.endTime || '--:--'
-                const statusInfo = calculateStatus(sTime, eTime)
-                
+                const statusInfo = calculateStatus(m.startTime, m.endTime)
                 return {
                     ...m,
                     status: statusInfo.code,
                     statusText: statusInfo.text,
-                    
-                    link: m.link, 
-                    attachmentUrl: m.attachmentUrl,
-
-                    displayStartTime: toKhmerNumeral(sTime),
-                    displayEndTime: eTime !== '--:--' ? toKhmerNumeral(eTime) : '--:--'
+                    displayStartTime: toKhmerNumeral(m.startTime),
+                    displayEndTime: toKhmerNumeral(m.endTime || '--:--')
                 }
             })
-        } catch (err) {
-            console.error("❌ Fetch Meetings Data Error:", err)
-        } finally {
-            isLoading.value = false
-        }
+        } catch (e) { console.error(e) } finally { isLoading.value = false }
     }
-
-    // --- ៤. Computed Properties ---
-    const activeMeetingsCount = computed(() => 
-        meetings.value.filter(m => m.status === 'active').length
-    )
 
     const sortedMeetings = computed(() => {
         const priority = { active: 1, upcoming: 2, completed: 3 }
         return [...meetings.value].sort((a, b) => priority[a.status] - priority[b.status])
     })
 
-    // --- ៥. ពេលវេលា និង Lifecycle ---
     const updateTime = () => {
-        const now = new Date()
-        const days = ['ថ្ងៃអាទិត្យ', 'ថ្ងៃច័ន្ទ', 'ថ្ងៃអង្គារ', 'ថ្ងៃពុធ', 'ថ្ងៃព្រហស្បតិ៍', 'ថ្ងៃសុក្រ', 'ថ្ងៃសៅរ៍']
-        const months = [
-            'ខែមករា', 'ខែកុម្ភៈ', 'ខែមីនា', 'ខែមេសា', 'ខែឧសភា', 'ខែមិថុនា', 
-            'ខែកក្កដា', 'ខែសីហា', 'ខែកញ្ញា', 'ខែតុលា', 'ខែវិច្ឆិកា', 'ខែធ្នូ'
-        ]
-
-        const dayName = days[now.getDay()]
-        const monthName = months[now.getMonth()]
-        const dayKhmer = toKhmerNumeral(now.getDate())
-        const yearKhmer = toKhmerNumeral(now.getFullYear()) 
-
-        currentDateKhmer.value = `${dayName} ទី${dayKhmer} ${monthName} ឆ្នាំ${yearKhmer}`
-
-        const timeStr = now.toLocaleTimeString('en-GB', { 
-            hour: '2-digit', 
-            minute: '2-digit', 
-            second: '2-digit', 
-            hour12: false 
-        })
-        currentTime.value = toKhmerNumeral(timeStr)
+        const now = new Date(); const days = ['អាទិត្យ', 'ច័ន្ទ', 'អង្គារ', 'ពុធ', 'ព្រហស្បតិ៍', 'សុក្រ', 'សៅរ៍']; const months = ['មករា', 'កុម្ភៈ', 'មីនា', 'មេសា', 'ឧសភា', 'មិថុនា', 'កក្កដា', 'សីហា', 'កញ្ញា', 'តុលា', 'វិច្ឆិកា', 'ធ្នូ']
+        currentDateKhmer.value = `ថ្ងៃ${days[now.getDay()]} ទី${toKhmerNumeral(now.getDate())} ${months[now.getMonth()]} ${toKhmerNumeral(now.getFullYear())}`
+        currentTime.value = toKhmerNumeral(now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }))
     }
 
-    onMounted(() => {
-        updateTime()
-        fetchMeetingsData()
-        timer = setInterval(() => {
-            updateTime()
-            if (new Date().getSeconds() === 0) {
-                fetchMeetingsData()
-            }
-        }, 1000)
-    })
-
-    onUnmounted(() => {
-        if (timer) clearInterval(timer)
-    })
+    onMounted(() => { updateTime(); fetchMeetingsData(); timer = setInterval(() => { updateTime(); if (new Date().getSeconds() === 0) fetchMeetingsData() }, 1000) })
+    onUnmounted(() => { clearInterval(timer) })
 </script>
 
 <style scoped>
-    @import url('@/assets/css/style.css');
-    @import url('@/css/monitor-list.css');
+    .signage-wrapper {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        background: #0f172a;
+        position: relative;
+        overflow-x: hidden;
+    }
+
+    .bg-gradient-overlay {
+        position: absolute;
+        inset: 0;
+        transition: background 1s ease;
+        pointer-events: none;
+    }
+
+    .glass-mesh {
+        position: absolute;
+        inset: 0;
+        opacity: 0.05;
+        background-image: radial-gradient(#ffffff 1px, transparent 1px);
+        background-size: 30px 30px;
+    }
+
+    .text-primary-dark {
+        color: #1e3a8a;
+    }
+
+    .header-divider {
+        height: 2px;
+        width: 80px;
+        background: #e2e8f0;
+    }
+
+    .official-logo {
+        height: 85px;
+        width: auto;
+    }
+
+    .digital-clock {
+        line-height: 1;
+        letter-spacing: -1px;
+    }
+
+    .meeting-card {
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border-top: none;
+        border-right: none;
+        border-bottom: none;
+    }
+
+    .meeting-card:hover {
+        transform: translateY(-5px);
+    }
+
+    @media (min-width: 992px) {
+        .border-start-lg {
+            border-left: 1px solid #f1f5f9 !important;
+        }
+    }
+
+    .pulse-dot {
+        width: 8px;
+        height: 8px;
+        background: white;
+        border-radius: 50%;
+        animation: pulse-active 1.5s infinite;
+    }
+
+    @keyframes pulse-active {
+        0% {
+            box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+        }
+
+        70% {
+            box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+        }
+    }
+
+    .online-dot {
+        width: 8px;
+        height: 8px;
+        background: #22c55e;
+        border-radius: 50%;
+    }
+
+    .th-row {
+        font-size: 0.9rem;
+        letter-spacing: 0.5px;
+    }
 </style>

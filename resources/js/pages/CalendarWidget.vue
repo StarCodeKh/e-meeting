@@ -141,7 +141,7 @@
     const isLoading = ref(false)
 
     // ប្តូរឈ្មោះថ្ងៃ និងជម្រើស View ជាភាសាខ្មែរ
-    const daysOfWeekKhmer = ['អាទិត្យ', 'ចន្ទ', 'អង្គារ', 'ពុធ', 'ព្រហស្បតិ៍', 'សុក្រ', 'សៅរ៍']
+    const daysOfWeekKhmer = ['អាទិត្យ', 'ច័ន្ទ', 'អង្គារ', 'ពុធ', 'ព្រហស្បតិ៍', 'សុក្រ', 'សៅរ៍']
     const viewOptions = [
         { id: 'today', label: 'ថ្ងៃនេះ' },
         { id: 'week', label: 'សប្តាហ៍' },
