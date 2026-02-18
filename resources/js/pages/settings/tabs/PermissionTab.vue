@@ -13,9 +13,7 @@
                                 <span class="input-group-text bg-light border-end-0 text-muted">
                                     <i class="bi bi-key"></i>
                                 </span>
-                                <input v-model="form.name" type="text" 
-                                    class="form-control rounded-end-3 border-start-0 ps-0 shadow-none" 
-                                    placeholder="ឧទាហរណ៍: user_view" required>
+                                <input v-model="form.name" type="text" class="form-control rounded-end-3 border-start-0 ps-0 shadow-none" placeholder="ឧទាហរណ៍: view_user" required>
                             </div>
                             <div class="form-text x-small text-muted mt-2">
                                 <i class="bi bi-info-circle me-1"></i>ប្រព័ន្ធនឹងប្តូរឈ្មោះទៅជា "lowercase_with_underscore"
@@ -37,9 +35,7 @@
                         </div>
                         <div class="position-relative w-50">
                             <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-2 text-muted"></i>
-                            <input v-model="search" type="text" 
-                                class="form-control form-control-sm ps-4 rounded-3 border-light-subtle shadow-none" 
-                                placeholder="ស្វែងរកឈ្មោះសិទ្ធិ...">
+                            <input v-model="search" type="text" class="form-control form-control-sm ps-4 rounded-3 border-light-subtle shadow-none" placeholder="ស្វែងរកឈ្មោះសិទ្ធិ...">
                         </div>
                     </div>
 

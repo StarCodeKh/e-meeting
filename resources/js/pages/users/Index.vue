@@ -218,7 +218,6 @@
     const modalElement = ref(null)
     let modalInstance = null
 
-    // ពណ៌សម្រាប់ Role
     const ROLE_UI = {
         'admin': { badge: 'bg-success text-white', border: 'border-success' },
         'staff': { badge: 'bg-warning-subtle text-warning', border: 'border-warning' },
@@ -230,13 +229,18 @@
     const getRoleBadgeClass = (role) => ROLE_UI[String(role).toLowerCase()]?.badge || 'bg-light text-muted'
     const getRoleBorder = (role) => ROLE_UI[String(role).toLowerCase()]?.border || 'border-light'
 
-    const alertPop = (title, icon = 'success', text = '') => {
+    // NEW TOAST STYLE ALERT
+    const toast = (title, icon = 'success') => {
         Swal.fire({
-            title, text, icon,
-            confirmButtonText: 'យល់ព្រម',
-            customClass: { popup: 'khmer-font', confirmButton: 'btn btn-primary px-4' },
-            buttonsStyling: false
-        })
+            icon,
+            title,
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true,
+            customClass: { popup: 'khmer-font' }
+        });
     }
 
     // --- 3. CRUD & Logic ---
@@ -317,13 +321,13 @@
             }
 
             modalInstance?.hide();
-            alertPop('រក្សាទុកជោគជ័យ!');
+            toast('រក្សាទុកជោគជ័យ!'); // Changed to toast
             fetchUsers();
         } catch (error) {
             if (error.response?.status === 422) {
                 serverErrors.value = error.response.data.errors;
             } else {
-                alertPop('បរាជ័យ!', 'error', error.response?.data?.message || error.message);
+                toast(error.response?.data?.message || 'បរាជ័យ!', 'error'); // Changed to toast
             }
         } finally { 
             isSaving.value = false; 
@@ -332,24 +336,36 @@
     
     const confirmDelete = async (id) => {
         const result = await Swal.fire({
-            title: 'តើអ្នកប្រាកដទេ?', text: "ទិន្នន័យនឹងត្រូវលុប!", icon: 'warning',
-            showCancelButton: true, confirmButtonText: 'យល់ព្រម',
+            title: 'តើអ្នកប្រាកដទេ?', 
+            text: "ទិន្នន័យនឹងត្រូវលុប!", 
+            icon: 'warning',
+            showCancelButton: true, 
+            confirmButtonText: 'យល់ព្រម',
+            cancelButtonText: 'បោះបង់', // Added cancel text
             customClass: { popup: 'khmer-font', confirmButton: 'btn btn-danger me-2', cancelButton: 'btn btn-light' },
             buttonsStyling: false
         });
         if (result.isConfirmed) {
             try {
                 await UserService.delete(id);
-                alertPop('លុបជោគជ័យ!');
+                toast('លុបជោគជ័យ!'); // Changed to toast
                 fetchUsers();
-            } catch (e) { alertPop('កំហុស!', 'error'); }
+            } catch (e) { 
+                toast('មិនអាចលុបបានទេ!', 'error'); // Changed to toast
+            }
         }
     }
 
     // --- 4. Watchers & Lifecycle ---
     watch(() => pagination.value.current_page, fetchUsers);
+    
+    let searchTimer;
     watch(searchQuery, () => {
-        setTimeout(() => { pagination.value.current_page = 1; fetchUsers(); }, 500);
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(() => { 
+            pagination.value.current_page = 1; 
+            fetchUsers(); 
+        }, 500);
     });
 
     onMounted(() => {
