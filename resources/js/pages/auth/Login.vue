@@ -14,14 +14,7 @@
                     <label class="khmer-font mb-2" for="email">អ៊ីមែល (Email)</label>
                     <div class="input-with-icon">
                         <i class="bi bi-envelope"></i>
-                        <input 
-                        id="email"
-                        v-model="form.email" 
-                        type="email" 
-                        placeholder="បញ្ចូលអ៊ីមែលរបស់អ្នក" 
-                        required
-                        :disabled="loading"
-                        />
+                        <input id="email" v-model="form.email" type="email" placeholder="បញ្ចូលអ៊ីមែលរបស់អ្នក" required :disabled="loading"/>
                     </div>
                 </div>
 
@@ -29,31 +22,23 @@
                     <label class="khmer-font mb-2" for="password">លេខសម្ងាត់ (Password)</label>
                     <div class="input-with-icon">
                         <i class="bi bi-lock"></i>
-                        <input 
-                        id="password"
-                        v-model="form.password" 
-                        type="password" 
-                        placeholder="បញ្ចូលលេខសម្ងាត់" 
-                        required
-                        :disabled="loading"
-                        />
+                        <input id="password" v-model="form.password" type="password" placeholder="បញ្ចូលលេខសម្ងាត់" required :disabled="loading"/>
                     </div>
                 </div>
 
-                <button 
-                    type="submit" 
-                    class="btn-login-gradient w-100 mb-3"
-                    :disabled="loading"
-                    >
-                    <div v-if="loading" class="spinner-border spinner-border-sm me-2"></div>
-                    <span class="khmer-font fw-bold">
-                        {{ loading ? 'កំពុងផ្ទៀងផ្ទាត់...' : 'ចូលប្រើប្រាស់' }}
-                    </span>
+                <button type="submit" class="btn-login-gradient w-100 mb-3 transition-all" :disabled="loading">
+                    <div class="d-flex align-items-center justify-content-center">
+                        <div v-if="loading" class="spinner-border spinner-border-sm me-2"></div>
+                        <i v-else class="bi bi-box-arrow-in-right me-2 fs-5"></i>
+                        <span class="khmer-font fw-bold">
+                            {{ loading ? 'កំពុងផ្ទៀងផ្ទាត់...' : 'ចូលប្រើប្រាស់' }}
+                        </span>
+                    </div>
                 </button>
 
                 <p class="footer-text text-center khmer-font mt-2">
                     មិនទាន់មានគណនី?
-                    <RouterLink to="/auth/register" class="text-primary-link text-decoration-none fw-bold">
+                    <RouterLink to="auth/register" class="text-primary-link text-decoration-none fw-bold">
                         ចុះឈ្មោះនៅទីនេះ
                     </RouterLink>
                 </p>
@@ -128,7 +113,6 @@
             localStorage.setItem('user', JSON.stringify(response.data.user))
             }
 
-            // 4. Success Notification & Redirect
             alertStore.show('ចូលប្រើប្រាស់ទទួលបានជោគជ័យ!', 'success')
             router.push('/')
 
@@ -182,14 +166,14 @@
 
     .login-card {
         background: #ffffff;
-        padding: 48px 40px; /* Standard spacious padding */
+        padding: 48px 40px;
         border-radius: 24px;
         width: 100%;
         max-width: 500px; 
         border: none;
         margin: auto; 
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
-        transition: transform 0.3s ease; /* Subtle entry feel */
+        transition: transform 0.3s ease;
     }
 
     .logo-circle {
@@ -202,10 +186,9 @@
         align-items: center;
         justify-content: center;
         margin: 0 auto;
-        border-radius: 18px; /* Standard Squircle */
+        border-radius: 18px;
     }
 
-    /* Form Styles */
     label {
         display: block;
         font-size: 0.9rem;
@@ -223,20 +206,19 @@
     .input-with-icon i {
         position: absolute;
         left: 18px;
-        /* Remove top: 50% and use flex alignment for better mobile stability */
         color: #94a3b8;
         font-size: 1.25rem;
-        pointer-events: none; /* Icon won't block click */
+        pointer-events: none;
     }
 
     input {
         width: 100%;
-        padding: 14px 16px 14px 52px; /* Balanced padding for icon */
+        padding: 10px 16px 10px 52px;
         border: 1.5px solid #e2e8f0;
         border-radius: 14px;
         outline: none;
         background: #ffffff;
-        font-size: 1rem; /* Prevents auto-zoom on iOS */
+        font-size: 1rem;
         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         font-family: 'Noto Sans Khmer', sans-serif;
     }
@@ -247,19 +229,18 @@
         box-shadow: 0 0 0 4px rgba(66, 133, 244, 0.12);
     }
 
-    /* Button Gradient */
     .btn-login-gradient {
         background: linear-gradient(135deg, #4285f4 0%, #63b3ed 100%);
         color: white;
         border: none;
-        padding: 16px;
+        padding: 12px;
         border-radius: 14px;
         font-size: 1.1rem;
         font-weight: 700;
         width: 100%;
         cursor: pointer;
         user-select: none;
-        -webkit-tap-highlight-color: transparent; /* Clean mobile tap */
+        -webkit-tap-highlight-color: transparent;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
@@ -278,7 +259,6 @@
         cursor: not-allowed;
     }
 
-    /* Responsive - Full Mobile Optimization */
     @media (max-width: 576px) {
         .login-page {
             padding: 16px;
@@ -298,7 +278,7 @@
 
         input {
             padding: 12px 14px 12px 48px;
-            font-size: 16px; /* Crucial: stops iOS zoom-in on focus */
+            font-size: 16px;
         }
     }
 </style>
