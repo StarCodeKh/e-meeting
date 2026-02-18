@@ -1,9 +1,9 @@
 <template>
     <div class="signage-wrapper container-fluid p-0">
-        <div class="bg-gradient-overlay" :style="{ background: activeThemeGradient }"></div>
+        <div class="bg-gradient-overlay"></div>
         <div class="glass-mesh"></div>
 
-        <header class="main-header shadow-lg mx-3 mt-3 mb-4 rounded-4 bg-white">
+        <header class="main-header shadow-lg mx-3 mt-3 mb-4 rounded-3 bg-white">
             <div class="row w-100 align-items-center py-3 px-4 mx-0">
                 <div class="col-lg-8 d-flex align-items-center">
                     <div class="logo-area me-4">
@@ -28,7 +28,7 @@
 
         <main class="meeting-viewport container-fluid px-4">
         
-            <div class="row th-row khmer-font py-2 d-none d-lg-flex align-items-center text-white-50 px-3">
+            <div class="th-row khmer-font py-2 d-none d-lg-flex align-items-center text-white-50 px-3">
                 <div class="col-lg-2 fw-bold">ម៉ោងប្រជុំ</div>
                 <div class="col-lg-8 fw-bold border-start border-secondary ps-4">កម្មវត្ថុនៃកិច្ចប្រជុំ និង អ្នកចូលរួម</div>
                 <div class="col-lg-2 fw-bold text-center">ស្ថានភាព</div>
@@ -40,7 +40,7 @@
             </div>
             
             <div v-else class="card-stack d-flex flex-column gap-3 pb-5">
-                <div v-for="(m, index) in sortedMeetings" :key="index" class="meeting-card row mx-0 align-items-center shadow-sm py-3 rounded-4 bg-white" :style="{ borderLeft: `12px solid ${getStatusColor(m.status)}` }">
+                <div v-for="(m, index) in sortedMeetings" :key="index" class="meeting-card row mx-0 align-items-center shadow-sm py-3 rounded-3 bg-white" :style="{ borderLeft: `12px solid ${getStatusColor(m.status)}` }">
                 
                 <div class="col-12 col-lg-2 khmer-font mb-3 mb-lg-0">
                     <div class="time-start display-6 fw-bold tabular-nums" :style="{ color: getStatusColor(m.status) }">
@@ -99,7 +99,6 @@
     import logo from '@/assets/images/logo.png'
     import { MeetingMonitor } from '@/services/MeetingMonitor'
 
-// --- DYNAMIC CONFIGURATION ---
     const statusConfigs = {
         active: {
             color: '#dc3545', // Standard Red
@@ -139,13 +138,6 @@
             border: config.border || 'none'
         }
     }
-
-    const activeThemeGradient = computed(() => {
-        const hasActive = meetings.value.some(m => m.status === 'active')
-        return hasActive 
-        ? 'radial-gradient(circle at 0% 0%, rgba(220, 53, 69, 0.15) 0%, transparent 50%)'
-        : 'radial-gradient(circle at 0% 0%, rgba(30, 64, 175, 0.2) 0%, transparent 50%)'
-    })
 
     // --- DATA LOGIC ---
     const toKhmerNumeral = (num) => {
