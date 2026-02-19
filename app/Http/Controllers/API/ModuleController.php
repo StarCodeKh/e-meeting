@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use Spatie\Permission\Models\Permission;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 use App\Models\Module;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -11,7 +12,7 @@ use Illuminate\Http\JsonResponse;
 
 class ModuleController extends Controller
 {
-   public function index(Request $request) 
+    public function index(Request $request) 
     {
         $user = $request->user();
         
@@ -24,22 +25,18 @@ class ModuleController extends Controller
             })
             ->orderBy('sort_order', 'asc');
 
-        // ករណីទាញយកសម្រាប់បង្ហាញជា Menu
         if ($request->boolean('is_menu')) {
             $modules = $query->where('is_active', true)->get();
 
-            // ប្រសិនបើជា ADMIN ឱ្យឃើញគ្រប់ Module ទាំងអស់តែម្តង (Performance Boost)
-            if ($user->hasRole('ADMIN')) {
+            if ($user->hasRole('admin')) {
                 return $modules;
             }
 
-            // សម្រាប់ User ធម្មតា ចម្រាញ់តាម Permission ដែលគាត់មាន
             return $modules->filter(function($module) use ($user) {
                 return empty($module->permission_name) || $user->can($module->permission_name);
             })->values();
         }
 
-        // ករណីទាញយកសម្រាប់ទំព័រគ្រប់គ្រង (Management Page)
         return $query->paginate($request->integer('per_page', 10));
     }
 
@@ -48,6 +45,13 @@ class ModuleController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
+        if (!auth()->user()->hasRole('admin')) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'អ្នកមិនមានសិទ្ធិគ្រប់គ្រាន់ក្នុងការបង្កើតម៉ូឌុលថ្មីឡើយ!'
+            ], 403);
+        }
+
         $validated = $request->validate([
             'key_name'    => 'required|string|max:50|unique:modules,key_name',
             'label'       => 'required|string|max:100',
@@ -59,23 +63,37 @@ class ModuleController extends Controller
             'description' => 'nullable|string'
         ]);
 
-        // ១. កំណត់យក key_name ធ្វើជា permission_name តែម្តងដើម្បីឱ្យស្រួលគ្រប់គ្រង
-        $validated['permission_name'] = $validated['key_name'].'view_';
+        $validated['permission_name'] = $validated['key_name'] . '_view';
 
-        // ២. បង្កើត Module ក្នុង Table modules
-        $module = Module::create($validated);
+        DB::beginTransaction();
+        try {
 
-        // ៣. បង្កើត Permission ក្នុង Spatie Table ស្វ័យប្រវត្តិ (បើមិនទាន់មាន)
-        Permission::firstOrCreate([
-            'name'       => $module->permission_name,
-            'guard_name' => 'api'
-        ]);
+            $module = Module::create($validated);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Module និង Permission ត្រូវបានបង្កើតដោយជោគជ័យ',
-            'data'    => $module
-        ], 201);
+            Permission::firstOrCreate([
+                'name'       => $module->permission_name,
+                'guard_name' => 'api'
+            ]);
+
+            app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
+            DB::commit();
+
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'ម៉ូឌុល និងសិទ្ធិប្រើប្រាស់ត្រូវបានបង្កើតដោយជោគជ័យ!',
+                'data'    => $module
+            ], 201);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Module Store Error: " . $e->getMessage());
+
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'មិនអាចបង្កើតម៉ូឌុលបានទេ៖ ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -83,13 +101,18 @@ class ModuleController extends Controller
      */
     public function update(Request $request, $id): JsonResponse
     {
+        if (!auth()->user()->hasRole('admin')) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'អ្នកមិនមានសិទ្ធិគ្រប់គ្រាន់ក្នុងការកែប្រែម៉ូឌុលនេះទេ!'
+            ], 403);
+        }
+
         $module = Module::findOrFail($id);
-        
-        // រក្សាទុកឈ្មោះ Permission ចាស់ទុកសម្រាប់ឆែក
         $oldPermissionName = $module->permission_name;
 
         $validated = $request->validate([
-            'key_name'        => ['required', 'string', Rule::unique('modules')->ignore($module->id)],
+            'key_name'        => ['required', 'string', \Illuminate\Validation\Rule::unique('modules')->ignore($module->id)],
             'label'           => 'required|string|max:255',
             'path'            => 'required|string', 
             'permission_name' => 'nullable|string',
@@ -100,32 +123,42 @@ class ModuleController extends Controller
             'description'     => 'nullable|string'
         ]);
 
-        // ១. កែប្រែទិន្នន័យក្នុង Table modules
-        $module->update($validated);
+        DB::beginTransaction();
+        try {
+            $module->update($validated);
 
-        // ២. Logic សម្រាប់ Sync ជាមួយ Spatie Permission
-        if (!empty($module->permission_name) && $oldPermissionName !== $module->permission_name) {
-            
-            $spatiePermission = Permission::where('name', $oldPermissionName)
-                ->where('guard_name', 'api')
-                ->first();
+            if (!empty($module->permission_name) && $oldPermissionName !== $module->permission_name) {
+                
+                $spatiePermission = Permission::where('name', $oldPermissionName)->where('guard_name', 'api')->first();
 
-            if ($spatiePermission) {
-                $spatiePermission->update(['name' => $module->permission_name]);
-            } else {
-                // បើអត់មានសោះ គឺបង្កើតថ្មីតែម្តង
-                Permission::firstOrCreate([
-                    'name'       => $module->permission_name,
-                    'guard_name' => 'api'
-                ]);
+                if ($spatiePermission) {
+                    $spatiePermission->update(['name' => $module->permission_name]);
+                } else {
+                    Permission::firstOrCreate([
+                        'name'       => $module->permission_name,
+                        'guard_name' => 'api'
+                    ]);
+                }
+                app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
             }
-        }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'កែប្រែម៉ូឌុល និងសិទ្ធិជោគជ័យ',
-            'data'    => $module
-        ]);
+            DB::commit();
+
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'កែប្រែម៉ូឌុល និងសិទ្ធិបានជោគជ័យ!',
+                'data'    => $module
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Module Update Error: " . $e->getMessage());
+
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'មានបញ្ហាបច្ចេកទេស៖ ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -133,25 +166,42 @@ class ModuleController extends Controller
      */
     public function destroy($id): JsonResponse
     {
-        $module = Module::findOrFail($id);
-
-        // ១. រក្សាទុកឈ្មោះ Permission មុនពេលលុប Module
-        $permissionName = $module->permission_name;
-
-        // ២. លុប Module ចេញពី Table modules
-        $module->delete();
-
-        // ៣. សម្អាត Permission ក្នុង Spatie (Optional ប៉ុន្តែគួរធ្វើបើចង់ឱ្យ DB ស្អាត)
-        if ($permissionName) {
-            // លុប Permission ចោល វានឹងលុបទំនាក់ទំនងក្នុង model_has_permissions ដោយស្វ័យប្រវត្តិតាមរយៈ Cascade Delete
-            Permission::where('name', $permissionName)->where('guard_name', 'api')->delete();
-            // ជម្រះ Cache របស់ Spatie ដើម្បីឱ្យការផ្លាស់ប្តូរមានប្រសិទ្ធភាពភ្លាមៗ
-            app()[PermissionRegistrar::class]->forgetCachedPermissions();
+        if (!auth()->user()->hasRole('admin')) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'អ្នកមិនមានសិទ្ធិគ្រប់គ្រាន់ក្នុងការលុបម៉ូឌុលនេះទេ!'
+            ], 403);
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'លុបម៉ូឌុល និងសិទ្ធិដែលពាក់ព័ន្ធជោគជ័យ'
-        ]);
+        $module = Module::findOrFail($id);
+        $permissionName = $module->permission_name;
+
+        DB::beginTransaction();
+        try {
+
+            $module->delete();
+
+            if ($permissionName) {
+                Permission::where('name', $permissionName)->where('guard_name', 'api')->delete();
+                
+                app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'លុបម៉ូឌុល និងសិទ្ធិដែលពាក់ព័ន្ធបានជោគជ័យ!'
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Module Delete Error: " . $e->getMessage());
+            
+            return response()->json([
+                'status' => 'error',
+                'message' => 'មានបញ្ហាបច្ចេកទេស៖ ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
