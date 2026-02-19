@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\RolePermissionController;
 use App\Http\Controllers\Api\ModuleController;
 use App\Http\Controllers\Api\ActionController;
 use App\Http\Controllers\Api\ScheduleTypeController;
+use App\Http\Controllers\Api\NotificationSettingController;
 
     // Endpoint to get RSA public key
     Route::get('/public-key', function () {
@@ -79,6 +80,11 @@ use App\Http\Controllers\Api\ScheduleTypeController;
         Route::apiResource('roles', RoleController::class);
         // Modules
         Route::apiResource('modules', ModuleController::class);
+
+        // API សម្រាប់គ្រប់គ្រង Telegram Settings
+        Route::get('/notification-settings', [NotificationSettingController::class, 'index']);
+        Route::post('/notification-settings', [NotificationSettingController::class, 'update']);
+
     });
 
 

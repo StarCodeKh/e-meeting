@@ -63,6 +63,7 @@
     import RoleTab from './tabs/RoleTab.vue'
     import Modules from './tabs/Modules.vue'
     import PermissionTab from './tabs/PermissionTab.vue'
+    import NotificationTab from './tabs/NotificationTab.vue'
 
     // ១. កំណត់ Role របស់ User
     const currentUserRole = ref('admin')
@@ -117,7 +118,14 @@
             icon: 'bi bi-key-fill', 
             component: markRaw(PermissionTab),
             minRole: 'admin'
-        }
+        },
+        { 
+            id: 'notification', 
+            label: 'ការជូនដំណឹង', 
+            icon: 'bi bi-bell-fill', 
+            component: markRaw(NotificationTab),
+            minRole: 'admin'
+        },
     ]
 
     // ៤. Logic: Filter យកតែ Tab ណាដែល User មានសិទ្ធិគ្រប់គ្រាន់ (Dynamic Permission)
