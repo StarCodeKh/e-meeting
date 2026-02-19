@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Models\Schedule;
+use App\Models\User;
 use Carbon\Carbon;
 
 class ScheduleController extends Controller
@@ -23,23 +24,26 @@ class ScheduleController extends Controller
     public function index(Request $request)
     {
         try {
-            $userEmail = auth()->user()->email;
+            $user = auth()->user();
             $date = $request->query('date', Carbon::today()->toDateString());
 
-            $schedules = Schedule::whereDate('date', $date)
-                ->where(function ($query) use ($userEmail) {
-                    $query->whereJsonContains('participants', $userEmail)
-                        ->orWhere('user_id', auth()->id());
-                })
-                ->orderBy('start_time', 'asc')->get();
+            $query = Schedule::whereDate('date', $date);
 
-            return ScheduleResource::collection($schedules);
+            if (!$user->hasRole('admin')) {
+                $query->where('user_id', $user->id);
+            }
+
+            $schedules = $query->orderBy('start_time', 'asc')->get();
+
+            return ScheduleResource::collection($schedules)->additional([
+                'status' => 'success'
+            ]);
 
         } catch (\Exception $e) {
-            Log::error("❌ Index Error: " . $e->getMessage());
+            Log::error("❌ Schedule Index Error: " . $e->getMessage());
             return response()->json([
                 'status'  => 'error',
-                'message' => 'មិនអាចទាញយកទិន្នន័យកាលវិភាគបានទេ',
+                'message' => 'មិនអាចទាញយកទិន្នន័យបានទេ',
             ], 500);
         }
     }
@@ -130,6 +134,20 @@ class ScheduleController extends Controller
                 'error'   => config('app.debug') ? $e->getMessage() : null // បង្ហាញ error បើស្ថិតក្នុង mode debug
             ], 500);
         }
+    }
+
+    public function participants(Request $request)
+    {
+        $users = User::select('id', 'name', 'email')
+            ->when($request->search, function ($query, $search) {
+                $query->where('name', 'LIKE', "%{$search}%")
+                ->orWhere('email', 'LIKE', "%{$search}%");
+            })->orderBy('name', 'asc')->limit(100)->get();
+
+        return response()->json([
+            'status' => 'success',
+            'data'   => $users
+        ]);
     }
 
     // រក្សាទុកទិន្នន័យថ្មី (Store)

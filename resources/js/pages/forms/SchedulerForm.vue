@@ -210,7 +210,7 @@
     // --- API Methods ---
     const fetchUsers = async () => {
         try {
-            const res = await api.get('/users?per_page=100');
+            const res = await api.get('/participants?per_page=100');
             users.value = res.data.data.map(u => ({
                 name: u.name,
                 email: u.email

@@ -70,6 +70,7 @@ use App\Http\Controllers\Api\ScheduleTypeController;
         // Schedule API
         Route::get('schedules/calendar', [ScheduleController::class, 'calendarShow']);
         Route::get('schedules/all', [ScheduleController::class, 'scheduleAll']);
+        Route::get('participants', [ScheduleController::class, 'participants']);
         Route::apiResource('schedules', ScheduleController::class);
 
         // Permissions
