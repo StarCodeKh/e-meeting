@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use App\Services\TelegramService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Models\Schedule;
@@ -157,20 +158,30 @@ class ScheduleController extends Controller
     public function store(ScheduleRequest $request)
     {
         return DB::transaction(function () use ($request) {
+            $path = null; 
             try {
                 $data = $request->validated();
                 $data['user_id'] = auth()->id();
 
+                // ១. ចាត់ចែងការ Upload File
                 if ($request->hasFile('attachment')) {
                     $file = $request->file('attachment');
                     $nameWithoutExtension = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-                    $extension = $file->getClientOriginalExtension();
-                    $filename = $nameWithoutExtension . '_' . now()->format('Y-m-d_H-i-s') . '.' . $extension;
+                    $filename = $nameWithoutExtension . '_' . now()->format('Y-m-d_H-i-s') . '.' . $file->getClientOriginalExtension();
                     $path = $file->storeAs('attachments', $filename, 'public');
                     $data['attachment'] = $path; 
                 }
 
+                // ២. បង្កើត Schedule
                 $schedule = Schedule::create($data);
+
+                // ៣. ផ្ញើ Alert ទៅ Telegram (ប្រើអថេរ $schedule)
+                // យើងប្រើ try-catch តូចមួយនៅទីនេះ ដើម្បីកុំឱ្យបញ្ហាផ្ញើ Telegram ធ្វើឱ្យ Error ទាំងមូល
+                try {
+                    TelegramService::sendScheduleAlert($schedule);
+                } catch (\Exception $te) {
+                    Log::warning("⚠️ Telegram Alert Failed: " . $te->getMessage());
+                }
 
                 return response()->json([
                     'status'  => 'success',
@@ -179,14 +190,16 @@ class ScheduleController extends Controller
                 ], 201);
 
             } catch (\Exception $e) {
+                DB::rollBack();
                 Log::error("❌ Store Error: " . $e->getMessage());
-                if (isset($path)) {
+
+                if ($path) {
                     Storage::disk('public')->delete($path);
                 }
 
                 return response()->json([
                     'status'  => 'error',
-                    'message' => 'បរាជ័យក្នុងការរក្សាទុក!',
+                    'message' => 'បរាជ័យក្នុងការរក្សាទុក៖ ' . $e->getMessage(),
                 ], 500);
             }
         });
@@ -219,41 +232,47 @@ class ScheduleController extends Controller
     {
         $this->authorize('update', $schedule);
 
-        try {
-            $data = $request->validated();
+        return DB::transaction(function () use ($request, $schedule) {
+            $oldPath = $schedule->attachment; 
+            
+            try {
+                $data = $request->validated();
 
-            if ($request->hasFile('attachment')) {
-                if ($schedule->attachment && Storage::disk('public')->exists($schedule->attachment)) {
-                    Storage::disk('public')->delete($schedule->attachment);
+                if ($request->hasFile('attachment')) {
+                    if ($oldPath && Storage::disk('public')->exists($oldPath)) {
+                        Storage::disk('public')->delete($oldPath);
+                    }
+
+                    $file = $request->file('attachment');
+                    $nameWithoutExtension = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                    $filename = $nameWithoutExtension . '_' . now()->format('Y-m-d_H-i-s') . '.' . $file->getClientOriginalExtension();
+                    $path = $file->storeAs('attachments', $filename, 'public');
+                    $data['attachment'] = $path; 
                 }
 
-                $file = $request->file('attachment');
+                $schedule->update($data);
+
+                try {
+                    TelegramService::sendScheduleAlert($schedule->fresh());
+                } catch (\Exception $te) {
+                    Log::warning("⚠️ Telegram Alert Update Failed: " . $te->getMessage());
+                }
+
+                return response()->json([
+                    'status'  => 'success',
+                    'message' => 'កែប្រែបានជោគជ័យ!',
+                    'data'    => new ScheduleResource($schedule->load('user'))
+                ], 200);
+
+            } catch (\Exception $e) {
+                Log::error("❌ Update Error: " . $e->getMessage());
                 
-                $nameWithoutExtension = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-                
-                $extension = $file->getClientOriginalExtension();
-                
-                $filename = $nameWithoutExtension . '_' . now()->format('Y-m-d_H-i-s') . '.' . $extension;
-                $path = $file->storeAs('attachments', $filename, 'public');
-                
-                $data['attachment'] = $path; 
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => 'មានបញ្ហាបច្ចេកទេស មិនអាចកែប្រែបានទេ!',
+                ], 500);
             }
-
-            $schedule->update($data);
-
-            return response()->json([
-                'status'  => 'success',
-                'message' => 'កែប្រែបានជោគជ័យ!',
-                'data'    => new ScheduleResource($schedule->load('user'))
-            ], 200);
-
-        } catch (\Exception $e) {
-            Log::error("❌ Update Error: " . $e->getMessage());
-            return response()->json([
-                'status'  => 'error',
-                'message' => 'មានបញ្ហាបច្ចេកទេស មិនអាចកែប្រែបានទេ!',
-            ], 500);
-        }
+        });
     }
 
     // លុបទិន្នន័យ (Destroy)
