@@ -12,9 +12,6 @@ class SchedulePolicy
      */
     public function update(User $user, Schedule $schedule): bool
     {
-        // Dynamic Check: 
-        // 1. Is the user an Admin? OR
-        // 2. Is the user the person who created this record?
         return $user->role === 'admin' || $user->id === $schedule->user_id;
     }
 
