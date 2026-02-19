@@ -42,14 +42,14 @@ class TelegramService
 
             // ៤. Template Message
             $message = "{$header}\n";
-            $message .= "━━━━━━━━━━━━━\n";
+            $message .= "━━━━━━━━━━━\n";
             $message .= "📝 <b>ប្រធានបទ:</b> " . ($schedule->title ?? '---') . "\n";
             $message .= "📅 <b>កាលបរិច្ឆេទ:</b> " . date('d-M-Y', strtotime($schedule->date)) . "\n";
             $message .= "⏰ <b>ម៉ោង:</b> {$startTime} {$dayPart} (ដល់ {$endTime})\n";
             $message .= "📍 <b>ទីតាំង:</b> " . ($schedule->location ?? '---') . "\n";
             $message .= "🚪 <b>បន្ទប់:</b> " . ($schedule->room ?? '---') . "\n";
             $message .= "👥 <b>ដឹកនាំដោយ:</b> " . $participantNames . "\n";
-            $message .= "━━━━━━━━━━━━━\n";
+            $message .= "━━━━━━━━━━━\n";
 
             if ($schedule->link) {
                 $message .= "🔗 <a href='{$schedule->link}'>ចូលរួមប្រជុំតាមតំណភ្ជាប់</a>\n\n";

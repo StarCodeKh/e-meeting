@@ -87,3 +87,6 @@ php artisan tinker
 App\Models\User::whereEmail('your-email@example.com')->update(['role' => 'admin']);
 
 #ចំណាំ: ប្តូរ your-email@example.com ទៅជា Email ពិតប្រាកដរបស់បង រួចចុច Enter ជាការស្រេច។
+
+#Cron Job: បើបងដាក់លើ Server បងត្រូវបន្ថែម Cron job នេះ៖
+* * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1
