@@ -47,21 +47,25 @@ class ScheduleTypeController extends Controller
      */
     public function updateTypeColor(Request $request): JsonResponse
     {
-        // ១. Validation (ប្តូរ table ទៅ schedule_types)
+        if (!auth()->user()->hasRole('admin')) {
+            return response()->json([
+                'status' => 'error', 
+                'message' => 'អ្នកមិនមានសិទ្ធិអនុវត្តសកម្មភាពនេះទេ!'
+            ], 403);
+        }
+
         $request->validate([
             'slug'      => 'required|exists:schedule_types,slug',
             'color_hex' => ['required', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
         ]);
 
         try {
-            // ២. ស្វែងរកក្នុង Model ScheduleType
             $type = ScheduleType::where('slug', $request->slug)->first();
             
             if (!$type) {
                 return response()->json(['status' => 'error', 'message' => 'រកមិនឃើញទិន្នន័យ'], 404);
             }
 
-            // ៣. Update ពណ៌ និង Gradient (បើចង់ឱ្យ Card មើលទៅស្អាត)
             $type->update([
                 'color_hex'      => $request->color_hex,
                 'color_gradient' => "linear-gradient(135deg, {$request->color_hex}cc, {$request->color_hex})"
@@ -74,7 +78,7 @@ class ScheduleTypeController extends Controller
             ], 200);
 
         } catch (\Exception $e) {
-            return $this->handleError($e, 'មិនអាចធ្វើបច្ចុប្បន្នភាពពណ៌ប្រភេទកិច្ចការបានទេ។');
+            return response()->json(['status' => 'error', 'message' => 'មានបញ្ហាបច្ចេកទេស!'], 500);
         }
     }
 
@@ -83,6 +87,13 @@ class ScheduleTypeController extends Controller
      */
     public function updatePriority(Request $request): JsonResponse
     {
+        if (!auth()->user()->hasRole('admin')) { 
+            return response()->json([
+                'status' => 'error',
+                'message' => 'អ្នកមិនមានសិទ្ធិគ្រប់គ្រាន់ដើម្បីកែប្រែទិន្នន័យនេះទេ!'
+            ], 403);
+        }
+
         $request->validate([
             'slug'      => 'required|exists:priorities,slug',
             'color_hex' => ['required', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],

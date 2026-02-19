@@ -26,8 +26,15 @@ use App\Http\Controllers\Api\ScheduleTypeController;
 
     // Route សម្រាប់ទាញយក Types និង Priorities ក្នុងពេលតែមួយ
     Route::get('/schedule-form-options', [ScheduleTypeController::class, 'index']);
-    Route::post('/schedule-types/update', [ScheduleTypeController::class, 'updateTypeColor']);
-    Route::post('/priorities/update', [ScheduleTypeController::class, 'updatePriority']);
+    
+    // Middleware Admin
+    Route::middleware(['auth:api'])->group(function () {
+        Route::post('/schedule-types/update', [ScheduleTypeController::class, 'updateTypeColor']);
+        Route::post('/priorities/update', [ScheduleTypeController::class, 'updatePriority']);
+    });
+
+    // Route::post('/schedule-types/update', [ScheduleTypeController::class, 'updateTypeColor']);
+    // Route::post('/priorities/update', [ScheduleTypeController::class, 'updatePriority']);
 
     // Authentication API
     Route::prefix('auth')->group(function () {
