@@ -38,9 +38,24 @@ Action Required: Open the .env file and update your database credentials (DB_DAT
 # JWT Secret Key Generation
 Since this project uses JWT for authentication, you must generate a unique secret key to sign your tokens:
 
+# ១. បង្កើត Folder សម្រាប់ទុក Key (បើមិនទាន់មាន)
+mkdir -p storage/rsa
+
+# ២. បង្កើត Private Key
+openssl genrsa -out storage/rsa/private.pem 2048
+
+# ៣. ទាញយក Public Key ចេញពី Private Key នោះ
+openssl rsa -in storage/rsa/private.pem -pubout -out storage/rsa/public.pem
+
+# ៤. កំណត់សិទ្ធិ (Permissions) ឱ្យ Laravel អាចអានបាន
+chmod 600 storage/rsa/private.pem
+chmod 644 storage/rsa/public.pem
+
 # This will add JWT_SECRET to your .env file
 php artisan jwt:secret
-5. Database Migration
+
+# Database Migration
+php artisan migrate
 
 Create your database tables
 
