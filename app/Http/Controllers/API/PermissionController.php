@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use Spatie\Permission\PermissionRegistrar;
 use Spatie\Permission\Models\Permission;
 use App\Http\Controllers\Controller;
 use Illuminate\Validation\Rule;
