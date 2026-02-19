@@ -30,24 +30,7 @@ use App\Http\Controllers\Api\ScheduleTypeController;
     Route::post('/priorities/update', [ScheduleTypeController::class, 'updatePriority']);
 
     // Authentication API
-    // Route::prefix('auth')->group(function () {
-    //     Route::post('register', [AuthController::class, 'register']);
-    //     Route::post('login', [AuthController::class, 'login']);
-    //     Route::middleware('auth:api')->group(function () {
-    //         // គ្រប់គ្រងគណនី និងសុវត្ថិភាព
-    //         Route::post('logout', [AuthController::class, 'logout']);
-    //         Route::post('refresh', [AuthController::class, 'refresh']);
-    //         Route::post('change-password', [AuthController::class, 'changePassword']);
-
-    //         // ទាញយកព័ត៌មាន User ដែលកំពុង Login
-    //         Route::get('me', function () {
-    //             return response()->json(auth()->user()->load('roles.permissions'));
-    //         })->name('api.auth.me');
-    //     });
-    // });
-
     Route::prefix('auth')->group(function () {
-        // ១. ដាក់នៅទីនេះ ដើម្បីឱ្យ Vue អាចទាញយកបានដោយសេរី (Method: GET)
         Route::get('public-key', function () {
             return response()->json([
                 'public_key' => file_get_contents(storage_path('rsa/public.pem'))

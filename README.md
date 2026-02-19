@@ -78,3 +78,5 @@ Terminal 2: Vite Frontend
 npm run dev
 
 This handles Vue Hot-Module Replacement.
+
+
