@@ -156,17 +156,14 @@
     const fetchPermissions = async (page = 1) => {
         loadingData.value = true;
         try {
-            // បញ្ជូនទាំង page និង search ទៅកាន់ API
             const res = await PermissionService.getAll({ 
                 page: page, 
                 search: search.value,
                 per_page: 5 
             });
             
-            // Laravel Paginate បោះមកមាន data នៅក្នុង res.data
             permissions.value = res.data || [];
             
-            // រក្សាទុក Meta សម្រាប់ Pagination UI
             meta.value = {
                 current_page: res.current_page || 1,
                 last_page: res.last_page || 1,
@@ -194,7 +191,19 @@
             await fetchPermissions(1);
             toast('success', 'រក្សាទុកជោគជ័យ');
         } catch (e) {
-            Swal.fire({ icon: 'error', title: 'បរាជ័យ', text: e.message || 'ឈ្មោះនេះមានរួចហើយ!' });
+            Swal.fire({ 
+                icon: 'error', 
+                title: 'បរាជ័យ', 
+                text: e.message || 'ឈ្មោះនេះមានរួចហើយ!',
+                confirmButtonText: 'យល់ព្រម',
+                customClass: {
+                    popup: 'khmer-font',
+                    title: 'khmer-font',
+                    htmlContainer: 'khmer-font',
+                    confirmButton: 'btn btn-danger khmer-font px-4'
+                },
+                buttonsStyling: false
+            });
         } finally { loading.value = false; }
     };
 
@@ -202,29 +211,72 @@
     const confirmDelete = async (id) => {
         const result = await Swal.fire({ 
             title: 'លុបសិទ្ធិនេះ?', 
-            text: "តើអ្នកប្រាកដជាចង់លុបសិទ្ធិនេះមែនទេ?",
+            text: "តើអ្នកប្រាកដជាចង់លុបសិទ្ធិនេះមែនទេ? ទិន្នន័យដែលលុបហើយមិនអាចយកវិញបានឡើយ!",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonText: 'បាទ លុបចេញ',
+            confirmButtonText: 'លុបចេញ',
             cancelButtonText: 'បោះបង់',
+            reverseButtons: true,
             customClass: {
-                popup: 'khmer-font',
-                confirmButton: 'btn btn-danger px-4 me-2',
-                cancelButton: 'btn btn-light px-4'
+                popup: 'khmer-font rounded-4',
+                title: 'khmer-font',
+                htmlContainer: 'khmer-font',
+                confirmButton: 'btn btn-danger px-4 py-2 mx-2 khmer-font',
+                cancelButton: 'btn btn-light px-4 py-2 mx-2 khmer-font'
             },
             buttonsStyling: false
         });
 
         if (result.isConfirmed) {
+            Swal.fire({
+                title: 'កំពុងលុប...',
+                customClass: {
+                    title: 'khmer-font'
+                },
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
             try {
                 await PermissionService.delete(id);
                 await fetchPermissions();
-                toast('លុបរួចរាល់!', 'success'); 
+                
+                Swal.close();
+                
+                Swal.fire({ 
+                    icon: 'success', 
+                    title: 'លុបទិន្នន័យបានជោគជ័យ!', 
+                    toast: true, 
+                    position: 'top-end', 
+                    showConfirmButton: false, 
+                    timer: 2000,
+                    timerProgressBar: true,
+                    customClass: {
+                        title: 'khmer-font'
+                    }
+                });
+
             } catch (e) {
+                Swal.close(); 
+                
                 const errorMsg = e.response?.status === 403 
-                    ? 'អ្នកមិនមានសិទ្ធិលុបឡើយ' 
-                    : 'មិនអាចលុបបានទេ';
-                toast(errorMsg, 'error'); 
+                    ? 'ប្រតិបត្តិការត្រូវបានបដិសេធ! អ្នកមិនមានសិទ្ធិលុបឡើយ' 
+                    : (e.response?.data?.message || 'មិនអាចលុបបានទេ');
+
+                Swal.fire({ 
+                    icon: 'error', 
+                    title: errorMsg, 
+                    toast: true, 
+                    position: 'top-end', 
+                    showConfirmButton: false, 
+                    timer: 3000,
+                    timerProgressBar: true,
+                    customClass: {
+                        title: 'khmer-font'
+                    }
+                });
             }
         }
     };

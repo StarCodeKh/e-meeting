@@ -15,6 +15,13 @@ class PermissionController extends Controller
      */
     public function index(Request $request)
     {
+        if (!auth()->user()->hasRole('admin')) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'អ្នកមិនមានសិទ្ធិមើលបញ្ជីសិទ្ធិប្រើប្រាស់ឡើយ!'
+            ], 403);
+        }
+        
         $permissions = Permission::query()
             ->when($request->search, fn($q, $s) => $q->where('name', 'like', "%{$s}%"))
             ->latest()
@@ -28,20 +35,23 @@ class PermissionController extends Controller
 
     public function store(Request $request)
     {
-        // ១. កែសម្រួលការ Validate ឱ្យឆែកទាំង name និង guard_name ព្រោះ Spatie អនុញ្ញាតឱ្យឈ្មោះជាន់គ្នា បើ Guard ខុសគ្នា
+        if (!auth()->user()->hasRole('admin')) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'អ្នកមិនមានសិទ្ធិគ្រប់គ្រាន់ក្នុងការបង្កើតសិទ្ធិថ្មីឡើយ!'
+            ], 403);
+        }
+
         $request->validate([
             'name' => [
                 'required',
                 'string',
-                // ឆែក unique តែក្នុង guard 'api' ប៉ុណ្ណោះ
                 Rule::unique('permissions')->where(function ($query) {
                     return $query->where('guard_name', 'api');
                 }),
             ],
         ]);
 
-        // ២. សម្អាតឈ្មោះ (Slugify) ឱ្យកាន់តែហ្មត់ចត់
-        // បន្ថែមការលុប Special characters ដើម្បីការពារ Error ក្នុង Database
         $formattedName = strtolower(preg_replace('/[^a-zA-Z0-9_]/', '', str_replace(' ', '_', $request->name)));
 
         $permission = Permission::create([
@@ -70,6 +80,13 @@ class PermissionController extends Controller
      */
     public function update(Request $request, $id)
     {
+        if (!auth()->user()->hasRole('admin')) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'អ្នកមិនមានសិទ្ធិគ្រប់គ្រាន់ក្នុងការកែប្រែសិទ្ធិឡើយ!'
+            ], 403);
+        }
+
         $permission = Permission::findOrFail($id);
         $oldName = $permission->name;
 
@@ -78,16 +95,12 @@ class PermissionController extends Controller
             ],
         ]);
 
-        // ១. សម្អាតឈ្មោះថ្មី (Format: slug_name)
         $newName = strtolower(preg_replace('/[^a-zA-Z0-9_]/', '', str_replace(' ', '_', $request->name)));
 
-        // ២. Update ក្នុង Table permissions (Spatie)
         $permission->update([
             'name' => $newName
         ]);
 
-        // ៣. ✅ សំខាន់បំផុត: Update ក្នុង Table modules ដើម្បីកុំឱ្យបាត់ Menu
-        // ប្រសិនបើមាន Module ណាដែលប្រើ Permission ឈ្មោះចាស់នេះ ត្រូវដូរវាទៅឈ្មោះថ្មីដែរ
         Module::where('permission_name', $oldName)->update(['permission_name' => $newName]);
 
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
@@ -98,22 +111,25 @@ class PermissionController extends Controller
             'data' => $permission
         ]);
     }
+
     /**
      * លុបសិទ្ធិ (DELETE /api/permissions/{permission})
      */
     public function destroy($id)
     {
+        if (!auth()->user()->hasRole('admin')) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'អ្នកមិនមានសិទ្ធិគ្រប់គ្រាន់ក្នុងការលុបទិន្នន័យនេះទេ!'
+            ], 403);
+        }
+        
         $permission = Permission::findOrFail($id);
         $permissionName = $permission->name;
-
-        // ១. Update Table modules: ប្រសិនបើមាន Module ណាប្រើ Permission នេះ ត្រូវកំណត់វាទៅជា null
-        // ដើម្បីកុំឱ្យមាន "ឈ្មោះសិទ្ធិខ្មោច" នៅក្នុង Table modules
         Module::where('permission_name', $permissionName)->update(['permission_name' => null]);
 
-        // ២. លុប Permission ចេញពី Spatie (វានឹងលុបទំនាក់ទំនងជាមួយ Role/User ដោយស្វ័យប្រវត្តិ)
         $permission->delete();
 
-        // ៣. ជម្រះ Cache របស់ Spatie
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         return response()->json([

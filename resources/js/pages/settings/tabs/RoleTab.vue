@@ -196,20 +196,63 @@
             text: "ការលុបនេះមិនអាចយកមកវិញបានឡើយ!",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'បាទ លុបចេញ!',
+            confirmButtonText: 'លុបចេញ!',
             cancelButtonText: 'បោះបង់',
-            reverseButtons: true
+            reverseButtons: true,
+            customClass: {
+                popup: 'khmer-font rounded-4',
+                title: 'khmer-font',
+                htmlContainer: 'khmer-font',
+                confirmButton: 'btn btn-danger px-4 py-2 mx-2 khmer-font',
+                cancelButton: 'btn btn-light px-4 py-2 mx-2 khmer-font'
+            },
+            buttonsStyling: false
         })
 
         if (result.isConfirmed) {
+            Swal.fire({
+                title: 'កំពុងលុប...',
+                customClass: { title: 'khmer-font' },
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
             try {
                 await RoleService.delete(id)
-                toast('success', 'លុបតួនាទីរួចរាល់!')
                 await fetchInitialData()
+                
+                Swal.close();
+
+                Swal.fire({ 
+                    icon: 'success', 
+                    title: 'លុបតួនាទីរួចរាល់!', 
+                    toast: true, 
+                    position: 'top-end', 
+                    showConfirmButton: false, 
+                    timer: 2000,
+                    timerProgressBar: true,
+                    customClass: { title: 'khmer-font' }
+                });
+
             } catch (e) {
-                toast('error', e.message || 'មិនអាចលុបបានទេ!')
+                Swal.close();
+
+                const errorMsg = e.response?.status === 403 
+                    ? 'អ្នកមិនមានសិទ្ធិលុបតួនាទីនេះទេ' 
+                    : (e.message || 'មិនអាចលុបបានទេ!');
+
+                Swal.fire({ 
+                    icon: 'error', 
+                    title: errorMsg, 
+                    toast: true, 
+                    position: 'top-end', 
+                    showConfirmButton: false, 
+                    timer: 3000,
+                    timerProgressBar: true,
+                    customClass: { title: 'khmer-font' }
+                });
             }
         }
     }

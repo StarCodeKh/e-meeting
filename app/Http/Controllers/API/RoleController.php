@@ -16,6 +16,13 @@ class RoleController extends Controller
      */
     public function index(Request $request)
     {
+        if (!auth()->user()->hasRole('admin')) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'អ្នកមិនមានសិទ្ធិមើលបញ្ជីតួនាទីឡើយ!'
+            ], 403);
+        }
+        
         $roles = Role::with('permissions')
             ->when($request->search, function ($query, $search) {
                 $query->where('name', 'like', "%{$search}%");
@@ -40,7 +47,15 @@ class RoleController extends Controller
     /**
      * បង្កើត Role ថ្មី (Standard Dynamic)
      */
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
+        if (!auth()->user()->hasRole('admin')) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'អ្នកមិនមានសិទ្ធិបង្កើត Role ថ្មីឡើយ!'
+            ], 403);
+        }
+
         $request->validate([
             'name' => 'required|unique:roles,name',
             'permissions' => 'nullable|array'
@@ -81,6 +96,13 @@ class RoleController extends Controller
      */
     public function update(Request $request, $id)
     {
+        if (!auth()->user()->hasRole('admin')) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'អ្នកមិនមានសិទ្ធិគ្រប់គ្រាន់ក្នុងការកែប្រែទិន្នន័យនេះទេ!'
+            ], 403);
+        }
+
         $role = Role::findOrFail($id);
 
         $request->validate([
@@ -117,22 +139,41 @@ class RoleController extends Controller
      */
     public function destroy($id)
     {
+        if (!auth()->user()->hasRole('admin')) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'អ្នកមិនមានសិទ្ធិគ្រប់គ្រាន់ក្នុងការលុបទិន្នន័យនេះទេ!'
+            ], 403);
+        }
+
+        DB::beginTransaction();
         try {
             $role = Role::findOrFail($id);
 
             if ($role->name === 'admin' || $role->id === 1) {
-                return response()->json(['message' => 'មិនអាចលុបតួនាទី Admin បានទេ!'], 403);
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'មិនអាចលុបតួនាទី Admin របស់ប្រព័ន្ធបានទេ!'
+                ], 403);
             }
 
+            $role->syncPermissions([]); 
             $role->delete();
+
+            DB::commit();
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'លុបទិន្នន័យបានជោគជ័យ'
+                'message' => 'លុបតួនាទីបានជោគជ័យ!'
             ]);
             
         } catch (\Exception $e) {
-            return response()->json(['message' => 'មិនអាចលុបបាន: ' . $e->getMessage()], 500);
+            DB::rollBack();
+            Log::error("Role Delete Error: " . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'មិនអាចលុបបានទេ៖ មានបញ្ហាបច្ចេកទេស ឬទិន្នន័យកំពុងត្រូវបានប្រើប្រាស់'
+            ], 500);
         }
     }
 }
