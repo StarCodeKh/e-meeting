@@ -1,11 +1,10 @@
 <?php
 namespace App\Http\Controllers\API;
 
+use Illuminate\Support\Facades\{Hash, Storage, DB, Log, Schema};
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use Illuminate\Http\Request;
 use App\Models\User;
@@ -119,6 +118,40 @@ class AuthController extends Controller
             'access_token' => $token,
             'token_type'   => 'Bearer',
             'expires_in'   => auth()->factory()->getTTL() * 60,
+        ]);
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user = auth()->user();
+
+        $request->validate([
+            'name'     => 'required|string|max:255',
+            'username' => 'nullable|string|max:255|unique:users,username,' . $user->id,
+            'email'    => 'required|email|unique:users,email,' . $user->id,
+            'phone'    => 'nullable|string|max:20',
+            'avatar'   => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        $data = $request->only(['name', 'username', 'email', 'phone']);
+
+        if ($request->hasFile('avatar')) {
+            if ($user->avatar) {
+                Storage::disk('public')->delete($user->avatar);
+            }
+
+            $file = $request->file('avatar');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            
+            $path = $file->storeAs('avatars', $fileName, 'public');
+            $data['avatar'] = $path; 
+        }
+
+        $user->update($data);
+
+        return response()->json([
+            'message' => 'Profile updated successfully',
+            'user'    => $user
         ]);
     }
 

@@ -49,11 +49,11 @@ use App\Http\Controllers\Api\ScheduleTypeController;
             Route::post('change-password', [AuthController::class, 'changePassword']);
 
             // ទាញយកព័ត៌មាន User ដែលកំពុង Login
-            Route::get('me', function () {
-                return response()->json(auth()->user()->load('roles.permissions'));
-            })->name('api.auth.me');
+            Route::get('me', [AuthController::class, 'me'])->name('api.auth.me');
+            // Route សម្រាប់ Update ព័ត៌មាន
+            Route::post('update-profile', [AuthController::class, 'updateProfile']);
+            });
         });
-    });
 
     // public link
     Route::get('schedules/public', [ScheduleController::class, 'schedulesPublic']);
