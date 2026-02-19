@@ -1,5 +1,7 @@
 <?php
 namespace App\Http\Controllers\API;
+
+use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -118,5 +120,72 @@ class AuthController extends Controller
             'token_type'   => 'Bearer',
             'expires_in'   => auth()->factory()->getTTL() * 60,
         ]);
+    }
+
+    public function changePassword(Request $request)
+    {
+        // ១. Decrypt Password ទាំងចាស់ និងថ្មីសិន
+        $oldPassword = $this->decryptRsa($request->old_password);
+        $newPassword = $this->decryptRsa($request->password);
+        $confirmPassword = $this->decryptRsa($request->password_confirmation);
+
+        if (!$oldPassword || !$newPassword) {
+            return response()->json(['message' => 'ការបំប្លែងកូដសម្ងាត់មិនត្រឹមត្រូវ!'], 400);
+        }
+
+        // ២. បង្កើត Array ថ្មីដើម្បី Validate ទិន្នន័យដែលដោះកូដរួច
+        $validator = Validator::make([
+            'old_password' => $oldPassword,
+            'password' => $newPassword,
+            'password_confirmation' => $confirmPassword,
+        ], [
+            'old_password' => 'required',
+            'password'     => 'required|string|min:8|confirmed', // ប្តូរទៅ 8 តាម Vue
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $user = Auth::user();
+
+        // ៣. ផ្ទៀងផ្ទាត់ Password ចាស់ជាមួយ Database
+        if (!Hash::check($oldPassword, $user->password)) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'លេខសម្ងាត់ចាស់មិនត្រឹមត្រូវទេ!'
+            ], 422);
+        }
+
+        // ៤. រក្សាទុក Password ថ្មី
+        DB::beginTransaction();
+        try {
+            $user->update([
+                'password' => Hash::make($newPassword)
+            ]);
+            DB::commit();
+
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'ផ្លាស់ប្តូរកូដសម្ងាត់ជោគជ័យ!',
+            ], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'មានបញ្ហាបច្ចេកទេស!'], 500);
+        }
+    }
+
+    /**
+     * Helper function សម្រាប់ Decrypt RSA ឱ្យកូដមើលទៅ Clean
+     */
+    private function decryptRsa($encryptedBase64)
+    {
+        $encrypted = base64_decode($encryptedBase64);
+        $decrypted = null;
+        if (openssl_private_decrypt($encrypted, $decrypted, $this->privateKey)) {
+            return $decrypted;
+        }
+        return null;
     }
 }
