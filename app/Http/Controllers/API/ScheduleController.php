@@ -70,15 +70,22 @@ class ScheduleController extends Controller
     public function calendarShow(Request $request)
     {
         try {
+            $user = auth()->user();
             $month = $request->query('month', date('m'));
             $year = $request->query('year', date('Y'));
 
-            $schedules = Schedule::whereYear('date', $year)
-                ->whereMonth('date', $month)
-                ->orderBy('date', 'asc')
-                ->orderBy('start_time', 'asc')
-                ->get();
-            return ScheduleResource::collection($schedules);
+            $query = Schedule::whereYear('date', $year)
+                ->whereMonth('date', $month);
+
+            if (!$user->hasRole('admin')) {
+                $query->where('user_id', $user->id);
+            }
+
+            $schedules = $query->orderBy('date', 'asc')->orderBy('start_time', 'asc')->get();
+
+            return ScheduleResource::collection($schedules)->additional([
+                'status' => 'success'
+            ]);
             
         } catch (\Exception $e) {
             Log::error("❌ CalendarShow Error: " . $e->getMessage());
