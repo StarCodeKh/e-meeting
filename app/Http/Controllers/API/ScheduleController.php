@@ -100,10 +100,11 @@ class ScheduleController extends Controller
     public function scheduleAll(Request $request)
     {
         try {
+            $user = auth()->user();
             $query = Schedule::query();
 
-            if (auth()->check() && auth()->user()->role !== 'admin') {
-                $query->where('user_id', auth()->id());
+            if (!$user->hasRole('admin')) {
+                $query->where('user_id', $user->id);
             }
 
             if ($request->filled(['month', 'year'])) {
@@ -115,30 +116,25 @@ class ScheduleController extends Controller
 
             if ($request->filled('search')) {
                 $search = $request->search;
-                $tableName = (new Schedule())->getTable();
-                $columns = Schema::getColumnListing($tableName);
-
-                $query->where(function($q) use ($columns, $search) {
-                    foreach ($columns as $column) {
-                        $q->orWhere($column, 'LIKE', "%{$search}%");
-                    }
+                $query->where(function($q) use ($search) {
+                    $q->where('title', 'LIKE', "%{$search}%")
+                    ->orWhere('location', 'LIKE', "%{$search}%")
+                    ->orWhere('description', 'LIKE', "%{$search}%");
                 });
             }
 
-            $perPage = $request->input('per_page', 15);
-            $schedules = $query->orderBy('date', 'desc')
-                            ->orderBy('start_time', 'asc')
-                            ->paginate($perPage)
-                            ->withQueryString();
+            $perPage = $request->integer('per_page', 15);
+            $schedules = $query->orderBy('date', 'desc')->orderBy('start_time', 'asc')->paginate($perPage)->withQueryString();
 
-            return ScheduleResource::collection($schedules);
+            return ScheduleResource::collection($schedules)->additional([
+                'status' => 'success'
+            ]);
 
         } catch (\Exception $e) {
             \Log::error("❌ Schedule Access Error: " . $e->getMessage());
             return response()->json([
                 'status'  => 'error',
                 'message' => 'មិនអាចទាញយកទិន្នន័យបានទេ',
-                'error'   => config('app.debug') ? $e->getMessage() : null // បង្ហាញ error បើស្ថិតក្នុង mode debug
             ], 500);
         }
     }
