@@ -33,9 +33,6 @@ use App\Http\Controllers\Api\ScheduleTypeController;
         Route::post('/priorities/update', [ScheduleTypeController::class, 'updatePriority']);
     });
 
-    // Route::post('/schedule-types/update', [ScheduleTypeController::class, 'updateTypeColor']);
-    // Route::post('/priorities/update', [ScheduleTypeController::class, 'updatePriority']);
-
     // Authentication API
     Route::prefix('auth')->group(function () {
         Route::get('public-key', function () {
