@@ -84,9 +84,14 @@ npm run dev
 
 php artisan tinker
 
-App\Models\User::whereEmail('your-email@example.com')->update(['role' => 'admin']);
+// ១. ស្វែងរក User
+$user = App\Models\User::whereEmail('admin@system.com')->first();
 
-#ចំណាំ: ប្តូរ your-email@example.com ទៅជា Email ពិតប្រាកដរបស់បង រួចចុច Enter ជាការស្រេច។
+// ២. បង្កើត Role 'admin' ក្នុង Spatie Table (បើមិនទាន់មាន)
+$role = Spatie\Permission\Models\Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'api']);
+
+// ៣. Assign Role ទៅឱ្យ User (វានឹងបញ្ចូលក្នុង table model_has_roles)
+$user->assignRole($role);
 
 #Cron Job: បើបងដាក់លើ Server បងត្រូវបន្ថែម Cron job នេះ៖
 * * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1
