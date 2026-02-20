@@ -16,13 +16,12 @@ class User extends Authenticatable implements JWTSubject
     protected $guard_name = 'api';
 
     protected $fillable = [
-        'user_id', 'name', 'username', 'email', 'phone', 
-        'password', 'status', 'settings', 'avatar'
+        'user_id', 'name', 'username', 'email', 'role',
+        'phone', 'password', 'status', 'settings', 'avatar'
     ];
 
     protected $casts = [
         'settings'      => 'array',
-        'role'          => 'array', 
         'password'      => 'hashed',
         'last_login_at' => 'datetime',
     ];
@@ -31,6 +30,13 @@ class User extends Authenticatable implements JWTSubject
         'password',
         'remember_token',
     ];
+
+    protected $appends = ['role'];
+
+    public function getRoleAttribute($value)
+    {
+        return $this->roles->pluck('name')->first() ?? $value;
+    }
 
     /**
      * Required by JWTSubject

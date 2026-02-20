@@ -35,9 +35,9 @@ class AuthController extends Controller
                 'password' => bcrypt($data['password']),
             ]);
 
-            // ២. Assign Role "USER"
+            // ២. Assign Role "user"
             $role = Role::firstOrCreate([
-                'name' => 'USER', 
+                'name' => 'user', 
                 'guard_name' => 'api'
             ]);
             
@@ -73,27 +73,29 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        // Decrypt the RSA encrypted password sent from frontend
+        // ១. ស្រាយកូដ RSA (Decryption)
         $encryptedPassword = base64_decode($request->password);
-
         $decryptedPassword = null;
 
-        // Use openssl_private_decrypt to decrypt
         if (!openssl_private_decrypt($encryptedPassword, $decryptedPassword, $this->privateKey)) {
             return response()->json(['message' => 'Password decryption failed'], 400);
         }
 
-        // Now attempt to login using decrypted password
-        if (!Auth::attempt(['email' => $request->email, 'password' => $decryptedPassword])) {
+        // ២. ផ្ទៀងផ្ទាត់ Email និង Password
+        // ចំណាំ៖ Auth::attempt ប្រើសម្រាប់ Session បើបងប្រើ JWT បងអាចប្រើ auth()->attempt() ផ្ទាល់ក៏បាន
+        if (!$token = auth()->attempt(['email' => $request->email, 'password' => $decryptedPassword])) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
-        $user = Auth::user();
-        $token = auth()->login($user);
+        // ៣. ទាញយកព័ត៌មាន User ព្រមជាមួយ Roles និង Permissions
+        $user = auth()->user()->load(['roles', 'permissions']); 
 
         return response()->json([
-            'user' => $user,
+            'status'       => 'success',
+            'user'         => $user,
             'access_token' => $token,
+            'token_type'   => 'bearer',
+            'expires_in'   => auth()->factory()->getTTL() * 60
         ]);
     }
 
