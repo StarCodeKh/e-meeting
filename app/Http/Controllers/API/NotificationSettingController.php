@@ -25,13 +25,19 @@ class NotificationSettingController extends Controller
      */
     public function update(Request $request)
     {
+        if (!$request->user()->hasRole('admin')) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'សុំទោស! មានតែអភិបាលប្រព័ន្ធ (Admin) ប៉ុណ្ណោះដែលអាចកែប្រែការកំណត់នេះបាន។'
+            ], 403);
+        }
         $validated = $request->validate([
             'enabled' => 'required|boolean',
             'reminder_time' => 'required|integer|in:5,15,30,60',
         ]);
 
         try {
-            
+
             Setting::set('telegram_enabled', $request->enabled ? '1' : '0');
             Setting::set('telegram_reminder_minutes', $request->reminder_time);
 
