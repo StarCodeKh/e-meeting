@@ -13,13 +13,21 @@ class Setting extends Model
     {
         return Cache::remember("setting_{$key}", 3600, function () use ($key, $default) {
             $setting = self::where('key', $key)->first();
+            
             return $setting ? $setting->value : $default;
         });
     }
 
+    /**
+     * រក្សាទុកតម្លៃ និងសម្អាត Cache ចាស់ចោល
+     */
     public static function set($key, $value)
     {
         Cache::forget("setting_{$key}");
-        return self::updateOrCreate(['key' => $key], ['value' => $value]);
+
+        return self::updateOrCreate(
+            ['key' => $key], 
+            ['value' => (string) $value]
+        );
     }
 }

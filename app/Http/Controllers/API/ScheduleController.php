@@ -253,7 +253,7 @@ class ScheduleController extends Controller
                 $schedule->update($data);
 
                 try {
-                    TelegramService::sendScheduleAlert($schedule->fresh());
+                    TelegramService::sendScheduleAlert($schedule->fresh(), 'update');
                 } catch (\Exception $te) {
                     Log::warning("⚠️ Telegram Alert Update Failed: " . $te->getMessage());
                 }

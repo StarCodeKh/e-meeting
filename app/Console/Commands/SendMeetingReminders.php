@@ -2,10 +2,11 @@
 
 namespace App\Console\Commands;
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Console\Command;
+use App\Services\TelegramService;
 use App\Models\Schedule;
 use App\Models\Setting;
-use App\Services\TelegramService;
 use Carbon\Carbon;
 
 class SendMeetingReminders extends Command
@@ -14,22 +15,33 @@ class SendMeetingReminders extends Command
 
     public function handle()
     {
-        // ១. ឆែកមើលថា User បិទ ឬ បើក
         if (Setting::get('telegram_enabled', '1') === '0') return;
 
-        // ២. ទាញយកនាទីរំលឹកពី Setting
-        $minutes = (int) Setting::get('telegram_reminder_minutes', 15);
-    
-        $targetTime = Carbon::now('Asia/Phnom_Penh')->addMinutes($minutes)->format('H:i');
-        $today = Carbon::today()->toDateString();
+        $now = Carbon::now('Asia/Phnom_Penh');
+        $today = $now->toDateString();
+        $currentTime = $now->format('H:i');
+
+        $remindMinutes = (int) Setting::get('telegram_reminder_minutes', 15);
+        $targetReminderTime = $now->copy()->addMinutes($remindMinutes)->format('H:i');
 
         $schedules = Schedule::whereDate('date', $today)
-            ->whereTime('start_time', '=', $targetTime . ':00')
+            ->where(function($query) use ($currentTime, $targetReminderTime) {
+                $query->whereTime('start_time', 'LIKE', $currentTime . '%')
+                    ->orWhereTime('start_time', 'LIKE', $targetReminderTime . '%');
+            })
             ->get();
 
         foreach ($schedules as $schedule) {
-            TelegramService::sendScheduleAlert($schedule, 'remind');
-            $this->info("Reminded: " . $schedule->title);
+            $cacheKey = "telegram_sent_" . $schedule->id . "_" . $currentTime;
+            
+            if (!Cache::has($cacheKey)) {
+                $type = ($schedule->start_time == $currentTime . ':00') ? 'start_now' : 'remind';
+                
+                TelegramService::sendScheduleAlert($schedule, $type);
+                
+                Cache::put($cacheKey, true, 120);
+                $this->info("Sent alert for: " . $schedule->title);
+            }
         }
     }
 }
