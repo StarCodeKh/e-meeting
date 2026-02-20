@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\ModuleController;
 use App\Http\Controllers\Api\ActionController;
 use App\Http\Controllers\Api\ScheduleTypeController;
 use App\Http\Controllers\Api\NotificationSettingController;
+use App\Http\Controllers\Api\AnalyticsController;
 
     // Endpoint to get RSA public key
     Route::get('/public-key', function () {
@@ -85,6 +86,12 @@ use App\Http\Controllers\Api\NotificationSettingController;
         Route::get('/notification-settings', [NotificationSettingController::class, 'index']);
         Route::post('/notification-settings', [NotificationSettingController::class, 'update']);
 
+    });
+
+    Route::middleware(['auth:api'])->group(function () {
+        Route::get('/analytics/summary', [AnalyticsController::class, 'getSummary']);
+        Route::get('/analytics/chart-data', [AnalyticsController::class, 'getChartData']);
+        Route::get('/analytics/export', [AnalyticsController::class, 'exportReport']);
     });
 
 

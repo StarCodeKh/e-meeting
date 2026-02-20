@@ -40,5 +40,12 @@ export default [
         name: 'users',
         component: () => import('@/pages/users/Index.vue'),
         meta: { requiresAuth: true, title: 'គ្រប់គ្រងអ្នកប្រើប្រាស់' }
-    }
+    },
+    {
+        name: 'reports',
+        path: '/reports',
+        component: () => import('@/pages/report/ReportAnalytics.vue'),
+        meta: { requiresAuth: true, title: 'ការវិភាគរបាយការណ៍' }
+    },
 ]
+
