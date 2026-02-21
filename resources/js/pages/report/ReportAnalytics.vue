@@ -90,9 +90,6 @@
                                         <button class="btn btn-light text-start border shadow-sm" @click="exportData('excel')">
                                             <i class="bi bi-file-earmark-excel text-success me-2"></i> Excel
                                         </button>
-                                        <button class="btn btn-light text-start border shadow-sm" @click="exportData('pdf')">
-                                            <i class="bi bi-file-earmark-pdf text-danger me-2"></i> PDF
-                                        </button>
                                         <button class="btn btn-light text-start border shadow-sm" @click="windowPrint">
                                             <i class="bi bi-printer text-dark me-2"></i> បោះពុម្ព
                                         </button>
