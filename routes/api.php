@@ -91,7 +91,7 @@ use App\Http\Controllers\Api\AnalyticsController;
     Route::middleware(['auth:api'])->group(function () {
         Route::get('/analytics/summary', [AnalyticsController::class, 'getSummary']);
         Route::get('/analytics/chart-data', [AnalyticsController::class, 'getChartData']);
-        Route::get('/analytics/export', [AnalyticsController::class, 'exportReport']);
+        Route::get('/analytics/export/{type}', [AnalyticsController::class, 'exportFile']);
     });
 
 

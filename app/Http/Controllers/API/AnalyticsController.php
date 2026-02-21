@@ -2,11 +2,16 @@
 
 namespace App\Http\Controllers\API;
 
+use Sbgoran\KhmerCharRenderer\KhmerCharRenderer;
+use App\Http\Resources\ScheduleResource;
 use App\Http\Controllers\Controller;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\DB;
+use App\Exports\SchedulesExport;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use App\Models\Schedule;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class AnalyticsController extends Controller
@@ -47,5 +52,21 @@ class AnalyticsController extends Controller
         }
 
         return response()->json(['status' => 'success', 'labels' => $labels, 'values' => $values]);
+    }
+
+    public function exportFile($type, Request $request)
+    {
+        $schedules = Schedule::with('user')
+            ->when($request->start_date, fn($q) => $q->whereDate('date', '>=', $request->start_date))
+            ->when($request->end_date, fn($q) => $q->whereDate('date', '<=', $request->end_date))
+            ->get();
+
+        $data = ScheduleResource::collection($schedules)->resolve();
+
+        if ($type === 'excel') {
+            return Excel::download(new SchedulesExport($data), 'report.xlsx');
+        }
+
+        return response()->json(['message' => 'Invalid export type'], 400);
     }
 }

@@ -20,10 +20,18 @@ apiClient.interceptors.request.use((config) => {
 
 export const AnalyticsService = {
     /**
-     * ទាញយកការកំណត់ការជូនដំណឹង (Notification Settings/Telegram Bot Status)
+     * ទាញយកការកំណត់ (Get Settings)
      */
     getNotificationSettings() {
         return apiClient.get('/notification-settings');
+    },
+
+    /**
+     * រក្សាទុកការកំណត់ (Update Settings)
+     * បន្ថែមមុខងារនេះ ដើម្បីឱ្យ Service ពេញលេញ
+     */
+    updateNotificationSettings(data) {
+        return apiClient.post('/notification-settings', data);
     },
 
     /**
@@ -41,16 +49,20 @@ export const AnalyticsService = {
     },
 
     /**
-     * ទាញយករបាយការណ៍ (Export)
+     * ទាញយករបាយការណ៍ (Excel/PDF)
      */
     getExportUrl(type, filters) {
         const token = localStorage.getItem('token');
-        const query = new URLSearchParams({
-            ...filters,
-            type: type,
-            token: token
-        }).toString();
         
-        return `/api/analytics/export?${query}`;
+        const params = { ...filters, token };
+        Object.keys(params).forEach(key => {
+            if (params[key] === null || params[key] === undefined || params[key] === '') {
+                delete params[key];
+            }
+        });
+
+        const query = new URLSearchParams(params).toString();
+        
+        return `${apiClient.defaults.baseURL}/analytics/export/${type}?${query}`;
     }
 };
