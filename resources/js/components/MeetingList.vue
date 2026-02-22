@@ -4,7 +4,7 @@
             <span class="khmer-font fw-bold">
                 {{ headerDate }} | សូមគោរពជម្រាបជូនថាថ្ងៃនេះមានកិច្ចប្រជុំចំនួន {{ toKhmerNum(meetings.length) }}
             </span>
-            <span class="badge rounded-3 bg-white bg-opacity-25 border border-white border-opacity-25 fw-bold fw-light py-2 px-3">
+            <span class="khmer-font badge rounded-3 bg-white bg-opacity-25 border border-white border-opacity-25 fw-bold fw-light py-2 px-3">
                 {{ headerDate }}
             </span>
         </div>
