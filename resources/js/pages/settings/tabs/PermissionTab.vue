@@ -45,7 +45,7 @@
                                 <thead class="bg-light sticky-top" style="z-index: 1;">
                                     <tr class="small text-muted khmer-font text-uppercase">
                                         <th class="ps-4 py-3">ឈ្មោះសិទ្ធិ</th>
-                                        <th class="py-3">Guard</th>
+                                        <th class="py-3 col-hide">Guard</th>
                                         <th class="text-end pe-4 py-3">សកម្មភាព</th>
                                     </tr>
                                 </thead>
@@ -66,7 +66,7 @@
                                                 <code class="text-dark fw-bold">{{ perm.name }}</code>
                                             </div>
                                         </td>
-                                        <td>
+                                        <td class="col-hide">
                                             <span class="badge bg-light text-secondary border fw-normal rounded-3 px-2">
                                                 {{ perm.guard_name }}
                                             </span>
@@ -304,4 +304,14 @@
     .x-small { font-size: 0.72rem; }
     code { font-size: 0.85rem; letter-spacing: 0.5px; }
     .input-group-text { font-size: 0.9rem; }
+
+        .col-hide {
+        display: none !important;
+    }
+
+    @media (min-width: 768px) {
+        .col-hide {
+            display: table-cell !important;
+        }
+    }
 </style>

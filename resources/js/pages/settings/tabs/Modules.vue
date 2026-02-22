@@ -14,13 +14,13 @@
 
         <div class="border-0 shadow-sm rounded-3 bg-white">
             <div class="table-responsive shadow-sm rounded-3 bg-white">
-                <table class="table table-hover align-middle mb-0 custom-table">
+                <table class="table table-hover align-middle mb-0">
                     <thead class="bg-light text-nowrap">
                         <tr class="khmer-font text-secondary small text-uppercase">
-                            <th class="ps-4 border-0 py-3">ល.រ</th>
+                            <th class="ps-4 border-0 py-3 col-hide">ល.រ</th>
                             <th class="border-0 py-3">ព័ត៌មានម៉ូឌុល</th>
-                            <th class="border-0 py-3">សិទ្ធិ (Permission)</th> 
-                            <th class="text-center border-0 py-3">លំដាប់</th>
+                            <th class="border-0 py-3 col-hide">សិទ្ធិ (Permission)</th> 
+                            <th class="text-center border-0 py-3 col-hide">លំដាប់</th>
                             <th class="text-center border-0 py-3">ស្ថានភាព</th>
                             <th class="text-end pe-4 border-0 py-3">សកម្មភាព</th>
                         </tr>
@@ -34,7 +34,7 @@
                         </tr>
 
                         <tr v-for="(module, index) in modules" :key="module.id" v-else-if="modules.length > 0" class="transition-all">
-                            <td class="ps-4 fw-bold text-muted">
+                            <td class="ps-4 fw-bold text-muted col-hide">
                                 {{ toKhmerNum((meta.current_page - 1) * meta.per_page + (index + 1)) }}
                             </td>
                             <td>
@@ -52,7 +52,7 @@
                                 </div>
                             </td>
 
-                            <td>
+                            <td class="col-hide">
                                 <span class="badge bg-secondary-subtle text-secondary fw-normal border border-secondary-subtle mb-1">
                                     <i class="bi bi-shield-lock me-1"></i>{{ module.permission_name || 'Public' }}
                                 </span>
@@ -60,7 +60,7 @@
                                     {{ module.description || 'មិនមានការពិពណ៌នា' }}
                                 </div>
                             </td>
-                            <td class="text-center">
+                            <td class="text-center col-hide">
                                 <span class="badge rounded-3 bg-light text-dark border px-3">{{ toKhmerNum(module.sort_order) }}</span>
                             </td>
                             <td class="text-center">
@@ -383,10 +383,6 @@
         scrollbar-color: #ced4da #f1f1f1;
     }
 
-    .custom-table {
-        min-width: 1000px;
-    }
-
     .transition-all { 
         transition: all 0.25s ease-in-out; 
     }
@@ -394,20 +390,7 @@
     .transition-all:hover { 
         background-color: rgba(var(--bs-primary-rgb), 0.03); 
     }
-    .status-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        display: inline-block;
-    }
-    .pointer-link {
-        cursor: pointer; 
-    }
-    
-    .custom-table thead th {
-        font-weight: 600;
-        letter-spacing: 0.5px;
-    }
+
     .form-control:focus {
         border-color: var(--bs-primary);
         background-color: #fcfcfc;
@@ -417,9 +400,13 @@
         font-size: 0.8rem;
     }
 
-    @media (min-width: 760px) {
-        .custom-table {
-            min-width: 100%;
+    .col-hide {
+        display: none !important;
+    }
+
+    @media (min-width: 768px) {
+        .col-hide {
+            display: table-cell !important;
         }
     }
 </style>

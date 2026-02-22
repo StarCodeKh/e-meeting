@@ -18,7 +18,7 @@
         <div v-if="activeTab === 'list'" class="animate__animated animate__fadeIn">
             <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0 custom-table">
+                    <table class="table table-hover align-middle mb-0">
                         <thead class="bg-light">
                             <tr class="khmer-font small text-muted text-uppercase">
                                 <th class="ps-4 py-3">ឈ្មោះតួនាទី</th>
@@ -321,14 +321,6 @@
         scrollbar-color: #ced4da #f1f1f1;
     }
 
-    .custom-table {
-        min-width: 1000px;
-    }
-    .custom-table thead th {
-        font-weight: 600;
-        letter-spacing: 0.5px;
-    }
-    
     .transition-all {
         transition: all 0.3s ease; 
     }
@@ -352,11 +344,5 @@
     .form-check-input:checked { 
         background-color: var(--bs-primary); 
         border-color: var(--bs-primary);
-    }
-
-    @media (min-width: 760px) {
-        .custom-table {
-            min-width: 100%;
-        }
     }
 </style>
