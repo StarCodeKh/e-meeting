@@ -14,7 +14,7 @@
                                                 :class="['indicator-dot', { 'active': idx === currentSlideIndex }]"></span>
                                         </div>
                                     </div>
-                                    <span class="badge bg-white bg-opacity-25 rounded-pill px-3 py-1 small khmer-font">
+                                    <span class="badge bg-white bg-opacity-25 rounded-3 px-3 py-1 small khmer-font">
                                         {{ activeMeeting.period }}
                                     </span>
                                 </div>
@@ -71,7 +71,7 @@
                 <div class="view-switcher d-flex bg-light p-1 rounded-3 border mb-3">
                     <button v-for="view in ['week', 'month']" :key="view" 
                         @click="currentView = view" 
-                        class="btn btn-sm flex-fill rounded-2 khmer-font transition-all"
+                        class="btn btn-sm flex-fill rounded-3 khmer-font transition-all"
                         :class="currentView === view ? 'btn-primary text-white shadow-sm' : 'border-0 text-muted'">
                         {{ view === 'week' ? 'សប្តាហ៍' : 'ខែ' }}
                     </button>
