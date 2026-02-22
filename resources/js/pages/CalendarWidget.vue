@@ -108,7 +108,8 @@
                                 </div>
 
                                 <div v-for="event in slot.events" :key="event.id" class="event-card mb-3 p-3 border-start border-4 rounded-3 shadow-sm bg-light" :style="`border-left-color: ${getPriorityColor(event.color_id)} !important;`">
-                                    <div class="d-flex justify-content-between align-items-start">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        
                                         <div class="flex-grow-1">
                                             <div class="small text-muted khmer-font fw-bold mb-2">
                                                 <i class="bi bi-clock me-1" :style="{ color: getPriorityColor(event.color_id) }"></i> 
@@ -131,10 +132,25 @@
                                                     <i class="bi bi-door-open me-1" :style="{ color: getPriorityColor(event.color_id) }"></i> 
                                                     <strong>បន្ទប់៖</strong> {{ event.room }}
                                                 </div>
+                                                <div v-if="event.participants?.length" class="small text-muted khmer-font">
+                                                    <i class="bi bi-person-check me-1" :style="{ color: getPriorityColor(event.color_id) }"></i> 
+                                                    <strong>ដឹកនាំដោយ៖</strong> {{ event.participants.join(', ') }}
+                                                </div>
                                             </div>
+                                        </div>
+
+                                        <div class="d-flex gap-2 ms-3 align-self-center">
+                                            <a v-if="event.link && event.link !== '#'" :href="event.link" target="_blank" class="btn-action shadow-none border d-flex align-items-center justify-content-center" style="width: 35px; height: 35px; border-radius: 8px;" title="ចូលរួមប្រជុំ">
+                                                <i class="bi bi-camera-video-fill text-primary"></i>
+                                            </a>
+                                            
+                                            <a v-if="event.attachmentUrl || event.attachment" :href="event.attachmentUrl || event.attachment" target="_blank" class="btn-action shadow-none border d-flex align-items-center justify-content-center" style="width: 35px; height: 35px; border-radius: 8px;" title="មើលឯកសារ">
+                                                <i class="bi bi-file-earmark-pdf-fill text-danger"></i>
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
+
                             </div>
                         </div>
                     </div>
