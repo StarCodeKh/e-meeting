@@ -346,11 +346,6 @@
     });
 
     // --- UI Computed Properties ---
-    const activeTab = computed(() => {
-        if (!TABS.value.length) return { theme: '#e54d42', gradient: '' };
-        return TABS.value.find(t => t.id === editingItem.value.type) || TABS.value[0];
-    })
-
     const activeTheme = computed(() => {
         const tab = TABS.value.find(t => t.id === editingItem.value.type);
         return tab ? tab.theme : '#6c757d';
