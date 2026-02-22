@@ -1,5 +1,5 @@
 <template>
-    <div class="timeline-surface shadow-sm rounded-4 bg-white overflow-hidden">
+    <div class="timeline-surface shadow-sm rounded-3 bg-white overflow-hidden">
         <div class="timeline-blue-header px-3 py-3 text-white d-flex justify-content-between align-items-center">
             <span class="khmer-font fw-bold">
                 {{ headerDate }} | សូមគោរពជម្រាបជូនថាថ្ងៃនេះមានកិច្ចប្រជុំចំនួន {{ meetings.length }}

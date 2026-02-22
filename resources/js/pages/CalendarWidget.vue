@@ -37,7 +37,7 @@
                         />
                     </template>
                 </Timeline>
-                <div class="calendar-card card border-0 shadow-sm rounded-4 overflow-hidden bg-white mt-3">
+                <div class="calendar-card card border-0 shadow-sm rounded-3 overflow-hidden bg-white">
                     <div class="card-header bg-white border-0 pt-4 px-4">
                         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                             <div>

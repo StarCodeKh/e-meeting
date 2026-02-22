@@ -1,7 +1,7 @@
 <template>
     <div class="side-panel-wrapper">
         <div class="side-panel-container h-100">
-            <div class="featured-card shadow-sm mb-4 overflow-hidden rounded-4 border-0">
+            <div class="featured-card shadow-sm mb-4 overflow-hidden rounded-3 border-0">
                 <Transition name="slide-fade" mode="out-in">
                     <div v-if="selectedDayMeetings.length > 0" :key="currentSlideIndex">
                         <div class="meeting-content">
@@ -50,14 +50,14 @@
                         </div>
                     </div>
 
-                    <div v-else class="empty-state p-5 text-center bg-white rounded-4 border border-dashed">
+                    <div v-else class="empty-state p-5 text-center bg-white rounded-3 border border-dashed">
                         <i class="bi bi-calendar2-x fs-1 text-light mb-3 d-block"></i>
                         <p class="khmer-font text-muted small">មិនមានកិច្ចប្រជុំសម្រាប់ថ្ងៃនេះទេ</p>
                     </div>
                 </Transition>
             </div>
 
-            <div class="calendar-card shadow-sm bg-white p-4 rounded-4 border-0">
+            <div class="calendar-card shadow-sm bg-white p-4 rounded-3 border-0">
                 <div class="calendar-nav d-flex justify-content-between align-items-center mb-4">
                     <div class="khmer-font fw-bold text-dark view-title">
                         {{ viewTitleKhmer }}
