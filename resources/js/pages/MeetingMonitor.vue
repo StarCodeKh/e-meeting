@@ -27,7 +27,7 @@
         </header>
 
         <main class="meeting-viewport container-fluid px-4">
-            <div class="th-row khmer-font py-2 d-none d-lg-flex align-items-center text-white-50 px-3">
+            <div class="th-row khmer-font py-2 d-none d-lg-flex align-items-center text-white px-3">
                 <div class="col-lg-2 fw-bold">ម៉ោងប្រជុំ</div>
                 <div class="col-lg-8 fw-bold border-start border-secondary ps-4">កម្មវត្ថុនៃកិច្ចប្រជុំ និង អ្នកចូលរួម</div>
                 <div class="col-lg-2 fw-bold text-center">ស្ថានភាព</div>
@@ -85,7 +85,7 @@
                     <div class="vr d-none d-md-block"></div>
                     <span class="small d-flex align-items-center">
                         <span class="online-dot me-2"></span> 
-                        <span class="text-muted text-uppercase">Digital Signage System v2.0</span>
+                        <span class="text-muted text-uppercase">ប្រព័ន្ធប្រជុំអេឡិចត្រូនិក</span>
                     </span>
                 </div>
                 <div class="footer-right text-muted small fw-bold">
