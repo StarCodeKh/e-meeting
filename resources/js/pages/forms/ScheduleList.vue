@@ -58,11 +58,12 @@
 
             <div v-else class="row">
                 <div v-for="item in meetings" :key="item.id" class="col-12 col-md-6 col-lg-4 mb-4">
-                    <div class="card border-0 shadow-sm rounded-3 h-100 meeting-card border-start border-4" :class="getBorderClass(item.color_id)">
+                    <div class="card border-0 shadow-sm rounded-3 h-100 meeting-card border-start border-4" 
+                         :style="{ borderLeftColor: getPriorityColor(item.color_id) + ' !important' }">
                         <div class="card-body p-4 d-flex flex-column">
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 <div class="d-flex flex-wrap gap-2 align-items-center">
-                                    <span class="badge rounded-3 px-3 py-2 khmer-font shadow-sm" :class="getBadgeClass(item.color_id)">
+                                    <span class="badge rounded-3 px-3 py-2 khmer-font shadow-sm" :style="getBadgeStyle(item.color_id)">
                                         <i class="bi bi-door-open me-1"></i> {{ item.room }}
                                     </span>
                                     <span class="small text-muted khmer-font fw-bold border-start ps-2">
@@ -93,7 +94,7 @@
 
                             <div class="mb-4 mt-auto">
                                 <div class="small text-muted khmer-font mb-2">
-                                    <i class="bi bi-clock-fill text-primary me-1 opacity-75"></i> 
+                                    <i class="bi bi-clock-fill me-1 opacity-75" :style="{ color: getPriorityColor(item.color_id) }"></i> 
                                     {{ toKhmerNum(item.start_time) }} - {{ toKhmerNum(item.end_time) }}
                                 </div>
                                 <div class="small text-muted khmer-font">
@@ -117,7 +118,6 @@
             <div class="modal fade" id="editMeetingModal" ref="modalElement" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: 650px;">
                     <div class="modal-content border-0 shadow-lg rounded-3 overflow-hidden" :style="{ borderTop: `6px solid ${activeTheme}` }">
-                        
                         <div class="d-flex bg-white border-bottom p-2 gap-2 justify-content-center">
                             <button v-for="tab in TABS" :key="tab.id" class="btn border-0 rounded-3 px-4 py-2 khmer-font transition-all d-flex align-items-center justify-content-center flex-grow-1" :style="editingItem.type === tab.id ? { background: tab.theme, color: 'white' } : { color: '#666', background: 'transparent' }" @click="editingItem.type = tab.id">
                                 <i :class="tab.icon" class="me-2" :style="{ color: editingItem.type === tab.id ? 'white' : tab.theme }"></i> 
@@ -141,9 +141,7 @@
                                                 </template>
                                             </DatePicker>
                                         </div>
-
                                         <div class="vr mx-2 opacity-25 d-none d-md-block" style="height: 20px;"></div>
-                                        
                                         <div class="d-flex align-items-center gap-1 justify-content-between flex-grow-1 w-100 w-md-auto">
                                             <div class="d-flex align-items-center gap-1">
                                                 <input v-model="editingItem.start_time" type="time" class="border-0 bg-transparent fw-bold p-0" style="width: 75px; font-size: 0.9rem;">
@@ -194,7 +192,6 @@
                                         <input v-model="editingItem.location" type="text" class="form-control border-0 bg-transparent shadow-none khmer-font" placeholder="ទីតាំង">
                                     </div>
                                 </div>
-
                                 <div class="col-md-4">
                                     <div class="bg-light rounded-3 border p-1 px-3 d-flex align-items-center h-100">
                                         <i class="bi bi-door-open me-2 transition-all" :style="{ color: editingItem.room ? activeTheme : '#6c757d' }"></i>
@@ -267,26 +264,22 @@
                 <div class="khmer-font text-muted small">
                     ទំព័រទី {{ toKhmerNum(currentPage) }} នៃ {{ toKhmerNum(pagination.last_page) }}
                 </div>
-
                 <ul class="pagination gap-2 mb-0">
                     <li class="page-item" :class="{ disabled: currentPage === 1 }">
                         <button class="page-link rounded-3 border-0 shadow-sm transition-all" @click="changePage(currentPage - 1)">
                             <i class="bi bi-arrow-left"></i>
                         </button>
                     </li>
-
                     <li v-for="page in pagination.links?.slice(1, -1)" :key="page.label" class="page-item d-none d-md-block" :class="{ active: page.active }">
                         <button class="page-link rounded-3 border-0 shadow-sm khmer-font transition-all" :style="page.active ? { background: activeGradient, color: 'white' } : {}" @click="changePage(parseInt(page.label))">
                             {{ toKhmerNum(page.label) }}
                         </button>
                     </li>
-
                     <li class="page-item d-md-none active">
                         <button class="page-link rounded-3 border-0 shadow-sm khmer-font" :style="{ background: activeGradient, color: 'white' }">
                             {{ toKhmerNum(currentPage) }}
                         </button>
                     </li>
-
                     <li class="page-item" :class="{ disabled: currentPage === pagination.last_page }">
                         <button class="page-link rounded-3 border-0 shadow-sm transition-all" @click="changePage(currentPage + 1)">
                             <i class="bi bi-arrow-right"></i>
@@ -526,9 +519,20 @@
     // --- Helpers ---
     const toKhmerNum = (n) => n?.toString().replace(/\d/g, d => ['០','១','២','៣','៤','៥','៦','៧','៨','៩'][d])
     const getAMPM = (t) => t && parseInt(t.split(':')[0]) >= 12 ? 'PM' : 'AM'
-    const getBadgeClass = (c) => ({ 'bg-danger-subtle text-danger': c === 'red', 'bg-warning-subtle text-warning': c === 'yellow', 'bg-success-subtle text-success': c === 'green' })
-    const getBorderClass = (c) => ({ 'border-danger': c === 'red', 'border-warning': c === 'yellow', 'border-success': c === 'green' })
 
+    const getPriorityColor = (colorId) => {
+        const priority = priorities.value.find(p => p.slug === colorId);
+        return priority ? priority.color_hex : '#6c757d'; 
+    };
+
+    const getBadgeStyle = (colorId) => {
+        const hex = getPriorityColor(colorId);
+        return {
+            backgroundColor: `${hex}15`,
+            color: hex,
+            border: `1px solid ${hex}30`
+        };
+    };
     const confirmDelete = async (id) => {
         if (!id) return
         const result = await Swal.fire({
@@ -570,7 +574,6 @@
             scheduleTypes.value = response.types || [];
             priorities.value = response.priorities || [];
 
-            // កែសម្រួល៖ ប្រើ editingItem ជំនួស form ដើម្បីកំណត់តម្លៃ Default
             if (scheduleTypes.value.length > 0 && !editingItem.value.type) {
                 editingItem.value.type = scheduleTypes.value[0].slug;
             }
