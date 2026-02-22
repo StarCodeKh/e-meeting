@@ -299,13 +299,27 @@
 </script>
 
 <style scoped>
-    .transition-all { transition: all 0.2s ease-in-out; }
-    .transition-all:hover { background-color: rgba(0, 123, 255, 0.02); }
-    .x-small { font-size: 0.72rem; }
-    code { font-size: 0.85rem; letter-spacing: 0.5px; }
-    .input-group-text { font-size: 0.9rem; }
+    .transition-all {
+        transition: all 0.2s ease-in-out;
+    }
 
-        .col-hide {
+    .transition-all:hover {
+        background-color: rgba(0, 123, 255, 0.02);
+    }
+
+    .x-small {
+        font-size: 0.72rem;
+    }
+    
+    code {
+        font-size: 0.85rem; letter-spacing: 0.5px;
+    }
+    
+    .input-group-text {
+        font-size: 0.9rem;
+    }
+
+    .col-hide {
         display: none !important;
     }
 
