@@ -12,8 +12,8 @@
             </button>
         </div>
 
-        <div class="border-0 shadow-sm rounded-3 overflow-hidden bg-white">
-            <div class="table-responsive">
+        <div class="border-0 shadow-sm rounded-3 bg-white">
+            <div class="table-responsive shadow-sm rounded-3 bg-white">
                 <table class="table table-hover align-middle mb-0 custom-table">
                     <thead class="bg-light text-nowrap">
                         <tr class="khmer-font text-secondary small text-uppercase">
@@ -350,12 +350,76 @@
 </script>
 
 <style scoped>
-    .khmer-font { font-family: 'Kantumruy Pro', sans-serif; }
-    .transition-all { transition: all 0.25s ease-in-out; }
-    .transition-all:hover { background-color: rgba(var(--bs-primary-rgb), 0.03); }
-    .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-    .pointer-link { cursor: pointer; }
-    .custom-table thead th { font-weight: 600; letter-spacing: 0.5px; }
-    .form-control:focus { border-color: var(--bs-primary); background-color: #fcfcfc; }
-    .modal-header .btn-close { font-size: 0.8rem; }
+
+    .table-responsive {
+        width: 100%;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table-responsive::-webkit-scrollbar {
+        height: 8px;
+        width: 8px;
+    }
+
+    .table-responsive::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    .table-responsive::-webkit-scrollbar-thumb {
+        background: #ced4da;
+        border-radius: 10px;
+        border: 2px solid #f1f1f1;
+    }
+
+    .table-responsive::-webkit-scrollbar-thumb:hover {
+        background: #adb5bd;
+    }
+
+    .table-responsive {
+        scrollbar-width: thin;
+        scrollbar-color: #ced4da #f1f1f1;
+    }
+
+    .custom-table {
+        min-width: 1000px;
+    }
+
+    .transition-all { 
+        transition: all 0.25s ease-in-out; 
+    }
+
+    .transition-all:hover { 
+        background-color: rgba(var(--bs-primary-rgb), 0.03); 
+    }
+    .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+    .pointer-link {
+        cursor: pointer; 
+    }
+    
+    .custom-table thead th {
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+    .form-control:focus {
+        border-color: var(--bs-primary);
+        background-color: #fcfcfc;
+    }
+    
+    .modal-header .btn-close {
+        font-size: 0.8rem;
+    }
+
+    @media (min-width: 760px) {
+        .custom-table {
+            min-width: 100%;
+        }
+    }
 </style>

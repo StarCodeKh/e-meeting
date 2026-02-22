@@ -18,7 +18,7 @@
         <div v-if="activeTab === 'list'" class="animate__animated animate__fadeIn">
             <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
+                    <table class="table table-hover align-middle mb-0 custom-table">
                         <thead class="bg-light">
                             <tr class="khmer-font small text-muted text-uppercase">
                                 <th class="ps-4 py-3">ឈ្មោះតួនាទី</th>
@@ -288,10 +288,75 @@
 </script>
 
 <style scoped>
-    .transition-all { transition: all 0.3s ease; }
-    .nav-link.active { background-color: var(--bs-primary) !important; color: white !important; }
-    .cursor-pointer { cursor: pointer; }
-    .x-small { font-size: 0.75rem; }
-    .shadow-xs { box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-    .form-check-input:checked { background-color: var(--bs-primary); border-color: var(--bs-primary); }
+
+    .table-responsive {
+        width: 100%;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table-responsive::-webkit-scrollbar {
+        height: 8px;
+        width: 8px;
+    }
+
+    .table-responsive::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    .table-responsive::-webkit-scrollbar-thumb {
+        background: #ced4da;
+        border-radius: 10px;
+        border: 2px solid #f1f1f1;
+    }
+
+    .table-responsive::-webkit-scrollbar-thumb:hover {
+        background: #adb5bd;
+    }
+
+    .table-responsive {
+        scrollbar-width: thin;
+        scrollbar-color: #ced4da #f1f1f1;
+    }
+
+    .custom-table {
+        min-width: 1000px;
+    }
+    .custom-table thead th {
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+    
+    .transition-all {
+        transition: all 0.3s ease; 
+    }
+
+    .nav-link.active { 
+        background-color: var(--bs-primary) !important;
+        color: white !important; 
+    }
+
+    .cursor-pointer {
+        cursor: pointer;
+    }
+
+    .x-small {
+        font-size: 0.75rem;
+    }
+    .shadow-xs {
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .form-check-input:checked { 
+        background-color: var(--bs-primary); 
+        border-color: var(--bs-primary);
+    }
+
+    @media (min-width: 760px) {
+        .custom-table {
+            min-width: 100%;
+        }
+    }
 </style>
