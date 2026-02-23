@@ -140,7 +140,7 @@
 
     // --- States ---
     const permissions = ref([]);
-    const meta = ref({ current_page: 1, last_page: 1, per_page: 5, total: 0 }); // បន្ថែម meta
+    const meta = ref({ current_page: 1, last_page: 1, per_page: 5, total: 0 });
     const loading = ref(false);
     const loadingData = ref(false);
     const search = ref('');

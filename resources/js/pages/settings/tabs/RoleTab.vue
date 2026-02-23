@@ -8,8 +8,13 @@
         </li>
         <li class="nav-item">
             <button class="nav-link khmer-font px-4 py-2 transition-all" 
-                :class="{ active: activeTab === 'form' }" @click="switchTab('form')">
-                <i class="bi bi-plus-circle me-2"></i>{{ isEdit ? 'កែប្រែតួនាទី' : 'បង្កើតតួនាទីថ្មី' }}
+                :class="{ 
+                    'active': activeTab === 'form', 
+                    'bg-warning text-dark': isEdit && activeTab === 'form' 
+                }" 
+                @click="switchTab('form')">
+                <i class="bi" :class="isEdit ? 'bi-pencil-square' : 'bi-plus-circle'"></i> 
+                {{ isEdit ? 'កែប្រែតួនាទី' : 'បង្កើតតួនាទីថ្មី' }}
             </button>
         </li>
     </ul>
@@ -147,9 +152,16 @@
 
     // Actions
     const switchTab = (tab) => {
-        if(tab === 'form' && !isEdit.value) resetForm()
-        activeTab.value = tab
-    }
+        if (tab === 'list') {
+            resetForm();
+        }
+        
+        if (tab === 'form' && !isEdit.value) {
+            resetForm();
+        }
+
+        activeTab.value = tab;
+    };
 
     const resetForm = () => {
         selectedId.value = null
