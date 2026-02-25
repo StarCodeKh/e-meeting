@@ -50,19 +50,32 @@ class ScheduleController extends Controller
     }
     
     // បង្ហាញទិន្នន័យជាសាធារណៈ (Public)
+    /**
+     * បង្ហាញទិន្នន័យកិច្ចប្រជុំជាសាធារណៈ (Public - Meetings Only)
+     */
     public function schedulesPublic(Request $request)
     {
         try {
             $date = $request->query('date', Carbon::today()->toDateString());
-            $schedules = Schedule::whereDate('date', $date)->orderBy('start_time', 'asc')->get();
 
-            return ScheduleResource::collection($schedules);
+            $schedules = Schedule::whereDate('date', $date)
+                ->where('type', 'meeting')
+                ->orderBy('start_time', 'asc')
+                ->get();
+
+            return ScheduleResource::collection($schedules)->additional([
+                'status' => 'success',
+                'meta'   => [
+                    'date' => $date,
+                    'count' => $schedules->count()
+                ]
+            ]);
 
         } catch (\Exception $e) {
-            Log::error("❌ Public Schedules Error: " . $e->getMessage());
+            Log::error("❌ Public Meetings Error: " . $e->getMessage());
             return response()->json([
                 'status'  => 'error',
-                'message' => 'មិនអាចទាញយកទិន្នន័យកាលវិភាគបានទេ',
+                'message' => 'មិនអាចទាញយកទិន្នន័យកិច្ចប្រជុំបានទេ',
             ], 500);
         }
     }

@@ -13,13 +13,13 @@
                         <h2 class="khmer-font h6 fw-bold mb-0 text-dark">ព្រះរាជាណាចក្រកម្ពុជា</h2>
                         <h2 class="khmer-font small text-muted mb-1">ជាតិ សាសនា ព្រះមហាក្សត្រ</h2>
                         <div class="header-divider my-1"></div>
-                        <h1 class="khmer-font h3 fw-bold mb-0 text-primary-dark">ក្រសួងសេដ្ឋកិច្ច និងហិរញ្ញវត្ថុ</h1>
+                        <h1 class="khmer-font h3 fw-bold mb-0 text-success-dark">ក្រសួងសេដ្ឋកិច្ច និងហិរញ្ញវត្ថុ</h1>
                         <p class="khmer-font small text-primary mb-0">អគ្គលេខាធិការដ្ឋាន គ.វ.ហ.</p>
                     </div>
                 </div>
                 <div class="col-lg-4 text-end border-start d-none d-lg-block">
                     <div class="khmer-font text-muted small mb-1">{{ currentDateKhmer }}</div>
-                    <div class="khmer-font small digital-clock tabular-nums fw-black display-5 text-primary-dark">
+                    <div class="khmer-font small digital-clock tabular-nums fw-black display-5 text-success-dark">
                         {{ currentTime }}
                     </div>
                 </div>
@@ -220,8 +220,8 @@
         background-size: 30px 30px;
     }
 
-    .text-primary-dark {
-        color: #1e3a8a;
+    .text-success-dark {
+        color: #017827;
     }
 
     .header-divider {

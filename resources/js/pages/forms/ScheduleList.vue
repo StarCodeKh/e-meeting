@@ -120,12 +120,12 @@
                     <div class="modal-content border-0 shadow-lg rounded-3 overflow-hidden" :style="{ borderTop: `6px solid ${activeTheme}` }">
                         <div class="d-flex bg-white border-bottom p-2 gap-2 justify-content-center">
                             <button v-for="tab in TABS" :key="tab.id" class="btn border-0 rounded-3 px-4 py-2 khmer-font transition-all d-flex align-items-center justify-content-center flex-grow-1" :style="editingItem.type === tab.id ? { background: tab.theme, color: 'white' } : { color: '#666', background: 'transparent' }" @click="editingItem.type = tab.id">
-                                <i :class="tab.icon" class="me-2" :style="{ color: editingItem.type === tab.id ? 'white' : tab.theme }"></i> 
+                                <i :class="tab.icon" class="me-2"></i> 
                                 {{ tab.label }}
                             </button>
                         </div>
 
-                        <div class="modal-body p-4 pt-4">
+                        <div class="modal-body p-4">
                             <div class="mb-4">
                                 <input v-model="editingItem.title" type="text" class="form-control khmer-font fs-4 fw-bold border-0 border-bottom bg-transparent rounded-0 px-0 shadow-none pb-2 transition-all" :style="{ borderBottomColor: editingItem.title ? activeTheme : '#eee' }" placeholder="បញ្ចូលចំណងជើង...">
                             </div>
@@ -134,96 +134,88 @@
                                 <div class="col-12">
                                     <div class="bg-light p-2 rounded-3 d-flex flex-column flex-md-row align-items-center px-3 border gap-2">
                                         <div class="d-flex align-items-center w-100 w-md-auto">
-                                            <i class="bi bi-calendar3 me-2 transition-all" :style="{ color: editingItem.date ? activeTheme : '#6c757d' }"></i>
-                                            <DatePicker v-model="editingItem.date" :popover="{ visibility: 'click' }" color="blue">
+                                            <i class="bi bi-calendar3 me-2" :style="{ color: activeTheme }"></i>
+                                            <DatePicker v-model="editingItem.date" :popover="{ visibility: 'click' }">
                                                 <template #default="{ inputValue, inputEvents }">
-                                                    <input class="form-control form-control-sm border-0 bg-transparent shadow-none khmer-font p-0" :value="inputValue" v-on="inputEvents" readonly placeholder="ជ្រើសរើសថ្ងៃ..." />
+                                                    <input class="form-control form-control-sm border-0 bg-transparent shadow-none khmer-font p-0" :value="inputValue" v-on="inputEvents" readonly />
                                                 </template>
                                             </DatePicker>
                                         </div>
                                         <div class="vr mx-2 opacity-25 d-none d-md-block" style="height: 20px;"></div>
-                                        <div class="d-flex align-items-center gap-1 justify-content-between flex-grow-1 w-100 w-md-auto">
-                                            <div class="d-flex align-items-center gap-1">
-                                                <input v-model="editingItem.start_time" type="time" class="border-0 bg-transparent fw-bold p-0" style="width: 75px; font-size: 0.9rem;">
-                                                <span class="badge rounded-3 px-2 py-1 transition-all" :style="{ background: activeTheme, fontSize: '0.7rem' }">{{ getAMPM(editingItem.start_time) }}</span>
-                                            </div>
-                                            <span class="mx-1 text-muted small">-</span>
-                                            <div class="d-flex align-items-center gap-1">
-                                                <input v-model="editingItem.end_time" type="time" class="border-0 bg-transparent fw-bold p-0" style="width: 75px; font-size: 0.9rem;">
-                                                <span class="badge rounded-3 px-2 py-1 transition-all" :style="{ background: activeTheme, fontSize: '0.7rem' }">{{ getAMPM(editingItem.end_time) }}</span>
-                                            </div>
+                                        <div class="d-flex align-items-center gap-2 flex-grow-1">
+                                            <input v-model="editingItem.start_time" type="time" class="border-0 bg-transparent fw-bold small">
+                                            <span class="badge rounded-2" :style="{ background: activeTheme }">{{ getAMPM(editingItem.start_time) }}</span>
+                                            <span class="mx-1 text-muted">-</span>
+                                            <input v-model="editingItem.end_time" type="time" class="border-0 bg-transparent fw-bold small">
+                                            <span class="badge rounded-2" :style="{ background: activeTheme }">{{ getAMPM(editingItem.end_time) }}</span>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="col-12 position-relative">
-                                    <div class="input-group bg-light rounded-3 border pill-multiselect-header cursor-pointer transition-all" @click="toggleDropdown">
-                                        <span class="input-group-text border-0 bg-transparent">
-                                            <i class="bi bi-people transition-all" :style="{ color: editingItem.participants?.length ? activeTheme : '#6c757d' }"></i>
-                                        </span>
-                                        <div class="form-control khmer-font border-0 bg-transparent shadow-none py-2 d-flex align-items-center overflow-hidden">
-                                            <span class="text-truncate" :class="{ 'text-muted': !editingItem.participants?.length }">
-                                                {{ participantDisplayNames }}
-                                            </span>
+                                    <div class="input-group bg-light rounded-3 border pill-multiselect-header cursor-pointer" @click="toggleDropdown">
+                                        <span class="input-group-text border-0 bg-transparent"><i class="bi bi-people" :style="{ color: activeTheme }"></i></span>
+                                        <div class="form-control khmer-font border-0 bg-transparent shadow-none py-2 text-truncate">
+                                            {{ participantDisplayNames || 'ជ្រើសរើសអ្នកចូលរួម...' }}
                                         </div>
-                                        <i class="bi px-3 transition-all" :class="showUserDropdown ? 'bi-chevron-up' : 'bi-chevron-down'" style="font-size: 0.8rem; color: #6c757d"></i>
+                                        <i class="bi px-3" :class="showUserDropdown ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
                                     </div>
-                                    
-                                    <div v-if="showUserDropdown" class="bg-white rounded-3 border mt-1 w-100 overflow-hidden shadow-sm position-absolute z-3">
+                                    <div v-if="showUserDropdown" class="bg-white rounded-3 border mt-1 w-100 shadow-sm position-absolute z-3 overflow-hidden">
                                         <div class="p-2 border-bottom bg-light">
-                                            <input v-model="userSearchQuery" type="text" class="form-control form-control-sm khmer-font shadow-none" placeholder="ស្វែងរកឈ្មោះ..." @click.stop>
+                                            <input v-model="userSearchQuery" type="text" class="form-control form-control-sm khmer-font" placeholder="ស្វែងរក..." @click.stop>
                                         </div>
                                         <div class="overflow-auto" style="max-height: 200px;">
-                                            <div v-for="user in filteredUsers" :key="user.id" class="d-flex align-items-center px-3 py-2 border-bottom-faint cursor-pointer hover-bg-light transition-all" @click.stop="toggleUserSelection(user)">
-                                                <div class="rounded-circle d-flex align-items-center justify-content-center me-2 flex-shrink-0 transition-all" 
-                                                    :style="{ width: '30px', height: '30px', background: isUserSelected(user) ? activeTheme : '#eee', color: isUserSelected(user) ? 'white' : '#666' }">
+                                            <div v-for="user in filteredUsers" :key="user.id" class="d-flex align-items-center px-3 py-2 border-bottom-faint cursor-pointer hover-bg-light" @click.stop="toggleUserSelection(user)">
+                                                <div class="rounded-circle me-2 d-flex align-items-center justify-content-center" :style="{ width: '30px', height: '30px', background: isUserSelected(user) ? activeTheme : '#eee', color: isUserSelected(user) ? 'white' : '#666' }">
                                                     {{ user.name?.charAt(0) }}
                                                 </div>
-                                                <div class="flex-grow-1 khmer-font small fw-bold text-truncate" :style="isUserSelected(user) ? { color: activeTheme } : {}">{{ user.name }}</div>
+                                                <div class="flex-grow-1 khmer-font small">{{ user.name }}</div>
                                                 <i v-if="isUserSelected(user)" class="bi bi-check-lg" :style="{ color: activeTheme }"></i>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="col-md-8">
+                                <div :class="editingItem.type === 'meeting' ? 'col-md-8' : 'col-12'">
                                     <div class="bg-light rounded-3 border p-1 px-3 d-flex align-items-center h-100">
-                                        <i class="bi bi-geo-alt me-2 transition-all" :style="{ color: editingItem.location ? activeTheme : '#6c757d' }"></i>
+                                        <i class="bi bi-geo-alt me-2" :style="{ color: activeTheme }"></i>
                                         <input v-model="editingItem.location" type="text" class="form-control border-0 bg-transparent shadow-none khmer-font" placeholder="ទីតាំង">
                                     </div>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-4" v-if="editingItem.type === 'meeting'">
                                     <div class="bg-light rounded-3 border p-1 px-3 d-flex align-items-center h-100">
-                                        <i class="bi bi-door-open me-2 transition-all" :style="{ color: editingItem.room ? activeTheme : '#6c757d' }"></i>
+                                        <i class="bi bi-door-open me-2" :style="{ color: activeTheme }"></i>
                                         <input v-model="editingItem.room" type="text" class="form-control border-0 bg-transparent shadow-none khmer-font" placeholder="បន្ទប់">
                                     </div>
                                 </div>
 
                                 <div class="col-12">
                                     <div class="bg-light rounded-3 border p-1 px-3 d-flex align-items-start">
-                                        <i class="bi bi-card-text mt-2 me-2 transition-all" :style="{ color: editingItem.description ? activeTheme : '#6c757d' }"></i>
-                                        <textarea v-model="editingItem.description" rows="2" class="form-control khmer-font border-0 bg-transparent shadow-none py-2" placeholder="ពណ៌នាការងារលម្អិត..."></textarea>
+                                        <i class="bi bi-card-text mt-2 me-2" :style="{ color: activeTheme }"></i>
+                                        <textarea v-model="editingItem.description" rows="2" class="form-control khmer-font border-0 bg-transparent shadow-none py-2" placeholder="ពណ៌នាការងារ..."></textarea>
                                     </div>
                                 </div>
 
-                                <div class="col-md-6">
-                                    <div class="bg-light rounded-3 border p-1 px-3 d-flex align-items-center h-100">
-                                        <i class="bi bi-link-45deg me-2 transition-all" :style="{ color: editingItem.link ? activeTheme : '#6c757d' }"></i>
-                                        <input v-model="editingItem.link" type="url" class="form-control border-0 bg-transparent shadow-none small" placeholder="លីងតំណភ្ជាប់">
+                                <template v-if="editingItem.type === 'meeting'">
+                                    <div class="col-md-6">
+                                        <div class="bg-light rounded-3 border p-1 px-3 d-flex align-items-center h-100">
+                                            <i class="bi bi-link-45deg me-2" :style="{ color: activeTheme }"></i>
+                                            <input v-model="editingItem.link" type="url" class="form-control border-0 bg-transparent shadow-none small" placeholder="លីងតំណភ្ជាប់">
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="bg-light rounded-3 border p-1 px-3 d-flex align-items-center h-100 transition-all" :style="selectedFile ? { borderColor: activeTheme, backgroundColor: '#fff' } : {}">
-                                        <i class="bi bi-file-earmark-pdf me-2 transition-all" :style="{ color: selectedFile || editingItem.attachment ? activeTheme : '#6c757d' }"></i>
-                                        <label class="form-control border-0 bg-transparent shadow-none mb-0 flex-grow-1 cursor-pointer khmer-font text-muted p-0 small text-truncate">
-                                            <span v-if="selectedFile" :style="{ color: activeTheme }">{{ selectedFile.name }}</span>
-                                            <span v-else-if="editingItem.attachment" class="text-dark">{{ editingItem.attachment.split('/').pop() }}</span>
-                                            <span v-else>ភ្ជាប់ PDF...</span>
-                                            <input type="file" class="d-none" @change="handleFileChange" accept=".pdf">
-                                        </label>
-                                        <i v-if="selectedFile" class="bi bi-x-circle text-danger ms-1 cursor-pointer" @click.stop="selectedFile = null"></i>
+                                    <div class="col-md-6">
+                                        <div class="bg-light rounded-3 border p-1 px-3 d-flex align-items-center h-100 transition-all" :style="selectedFile ? { borderColor: activeTheme, backgroundColor: '#fff' } : {}">
+                                            <i class="bi bi-file-earmark-pdf me-2" :style="{ color: (selectedFile || editingItem.attachment) ? activeTheme : '#6c757d' }"></i>
+                                            <label class="form-control border-0 bg-transparent shadow-none mb-0 flex-grow-1 cursor-pointer khmer-font text-muted p-0 small text-truncate">
+                                                <span v-if="selectedFile" :style="{ color: activeTheme }">{{ selectedFile.name }}</span>
+                                                <span v-else-if="editingItem.attachment" class="text-dark">{{ editingItem.attachment.split('/').pop() }}</span>
+                                                <span v-else>ភ្ជាប់ PDF...</span>
+                                                <input type="file" class="d-none" @change="handleFileChange" accept=".pdf">
+                                            </label>
+                                            <i v-if="selectedFile" class="bi bi-x-circle text-danger ms-1 cursor-pointer" @click.stop="selectedFile = null"></i>
+                                        </div>
                                     </div>
-                                </div>
+                                </template>
 
                                 <div class="col-12 mt-2">
                                     <div class="p-3 border rounded-3 bg-white">
@@ -242,17 +234,14 @@
                                         </div>
                                     </div>
                                 </div>
+
                             </div>
                         </div>
 
                         <div class="p-4 d-flex justify-content-between align-items-center border-top bg-white">
-                            <button type="button" class="btn btn-link text-decoration-none text-muted khmer-font p-0" data-bs-dismiss="modal">
-                                <i class="bi bi-x-circle me-1"></i> បោះបង់
-                            </button>
-                            <button class="btn khmer-font px-5 py-2 rounded-3 shadow-sm text-white border-0 transition-all" 
-                                    :disabled="isSaving" @click="updateMeeting" :style="{ background: activeGradient }">
-                                <i v-if="!isSaving" class="bi bi-check2-circle me-2"></i>
-                                <span v-else class="spinner-border spinner-border-sm me-2"></span>
+                            <button type="button" class="btn btn-link text-decoration-none text-muted khmer-font p-0" data-bs-dismiss="modal">បោះបង់</button>
+                            <button class="btn khmer-font px-5 py-2 rounded-3 text-white border-0 shadow-sm transition-all" :disabled="isSaving" @click="updateMeeting" :style="{ background: activeGradient, opacity: isSaving ? 0.7 : 1 }">
+                                <span v-if="isSaving" class="spinner-border spinner-border-sm me-2"></span>
                                 {{ isSaving ? 'កំពុងរក្សាទុក...' : 'រក្សាទុកទិន្នន័យ' }}
                             </button>
                         </div>

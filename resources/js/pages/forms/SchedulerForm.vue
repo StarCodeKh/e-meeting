@@ -4,14 +4,18 @@
             <div class="custom-modal shadow-lg" :style="{ borderColor: activeTheme }">
                 
                 <div class="modal-tabs">
-                    <button v-for="tab in TABS" :key="tab.id" class="tab-item khmer-font" :style="form.type === tab.id ? { background: tab.theme, color: 'white' } : {}" @click="form.type = tab.id">
+                    <button v-for="tab in TABS" :key="tab.id" class="tab-item khmer-font" 
+                        :style="form.type === tab.id ? { background: tab.theme, color: 'white' } : {}" 
+                        @click="form.type = tab.id">
                         <i :class="tab.icon" class="me-1"></i> {{ tab.label }}
                     </button>
                 </div>
             
                 <form @submit.prevent="handleSave" class="modal-inner">
                     <div class="mb-4">
-                        <input v-model="form.title" type="text" class="form-control khmer-font fs-4 fw-bold border-0 border-bottom bg-transparent rounded-0 px-0 shadow-none pb-2 transition-all" :style="{ borderBottomColor: form.title ? activeTheme : '#eee' }" placeholder="បញ្ចូលចំណងជើង..." required>
+                        <input v-model="form.title" type="text" class="form-control khmer-font fs-4 fw-bold border-0 border-bottom bg-transparent rounded-0 px-0 shadow-none pb-2 transition-all" 
+                            :style="{ borderBottomColor: form.title ? activeTheme : '#eee' }" 
+                            placeholder="បញ្ចូលចំណងជើង..." required>
                     </div>
 
                     <div class="modal-body p-0">
@@ -76,7 +80,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-8">
+                            <div :class="form.type === 'meeting' ? 'col-md-8' : 'col-12'">
                                 <div class="bg-light rounded-3 border p-1 px-3 d-flex align-items-center h-100">
                                     <i class="bi bi-geo-alt me-2 transition-all" :style="{ color: form.location ? activeTheme : '#6c757d' }"></i>
                                     <input v-model="form.location" type="text" class="form-control border-0 bg-transparent shadow-none khmer-font" placeholder="ទីតាំង">
@@ -97,25 +101,27 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-6">
-                                <div class="bg-light rounded-3 border p-1 px-3 d-flex align-items-center h-100">
-                                    <i class="bi bi-link-45deg me-2 transition-all" :style="{ color: form.link ? activeTheme : '#6c757d' }"></i>
-                                    <input v-model="form.link" type="url" class="form-control border-0 bg-transparent shadow-none small" placeholder="លីងតំណភ្ជាប់">
+                            <template v-if="form.type === 'meeting'">
+                                <div class="col-md-6">
+                                    <div class="bg-light rounded-3 border p-1 px-3 d-flex align-items-center h-100">
+                                        <i class="bi bi-link-45deg me-2 transition-all" :style="{ color: form.link ? activeTheme : '#6c757d' }"></i>
+                                        <input v-model="form.link" type="url" class="form-control border-0 bg-transparent shadow-none small" placeholder="លីងតំណភ្ជាប់">
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="col-md-6">
-                                <div class="bg-light rounded-3 border p-1 px-3 d-flex align-items-center h-100 transition-all" :style="selectedFileName ? { borderColor: activeTheme, backgroundColor: '#fff' } : {}">
-                                    <i class="bi bi-file-earmark-pdf me-2 transition-all" :style="{ color: selectedFileName ? activeTheme : '#6c757d' }"></i>
-                                    <label class="form-control border-0 bg-transparent shadow-none mb-0 flex-grow-1 cursor-pointer khmer-font text-muted p-0 small text-truncate">
-                                        <input type="file" class="d-none" @change="handleFileChange" accept=".pdf">
-                                        <span v-if="selectedFileName" :style="{ color: activeTheme }">{{ selectedFileName }}</span>
-                                        <span v-else>ភ្ជាប់ PDF...</span>
-                                    </label>
-                                    <i v-if="selectedFileName" class="bi bi-x-circle text-danger ms-1 cursor-pointer" @click.stop="removeFile"></i>
+                                <div class="col-md-6">
+                                    <div class="bg-light rounded-3 border p-1 px-3 d-flex align-items-center h-100 transition-all" :style="selectedFileName ? { borderColor: activeTheme, backgroundColor: '#fff' } : {}">
+                                        <i class="bi bi-file-earmark-pdf me-2 transition-all" :style="{ color: selectedFileName ? activeTheme : '#6c757d' }"></i>
+                                        <label class="form-control border-0 bg-transparent shadow-none mb-0 flex-grow-1 cursor-pointer khmer-font text-muted p-0 small text-truncate">
+                                            <input type="file" class="d-none" @change="handleFileChange" accept=".pdf" id="fileInput">
+                                            <span v-if="selectedFileName" :style="{ color: activeTheme }">{{ selectedFileName }}</span>
+                                            <span v-else>ភ្ជាប់ PDF...</span>
+                                        </label>
+                                        <i v-if="selectedFileName" class="bi bi-x-circle text-danger ms-1 cursor-pointer" @click.stop="removeFile"></i>
+                                    </div>
+                                    <small v-if="fileError" class="text-danger khmer-font small mt-1 d-block">{{ fileError }}</small>
                                 </div>
-                                <small v-if="fileError" class="text-danger khmer-font small mt-1 d-block">{{ fileError }}</small>
-                            </div>
+                            </template>
 
                             <div class="col-12">
                                 <div class="p-3 border rounded-3 bg-white mt-2">
@@ -137,42 +143,38 @@
                         </div>
                     </div>
 
-                    <div class="modal-footer border-top-0 px-4 pt-0 d-flex justify-content-between align-items-center">
+                    <div class="modal-footer border-top-0 px-4 pt-3 d-flex justify-content-between align-items-center">
                         <button type="button" class="btn btn-link text-decoration-none text-muted khmer-font p-0" @click="closeModal">
                             <i class="bi bi-x-circle me-1"></i> បោះបង់
                         </button>
 
-                        <button type="submit" class="btn khmer-font px-5 py-2 rounded-3 shadow-sm text-white border-0 transition-all" :disabled="loading" :style="{ background: activeGradient, transition: 'all 0.3s' }">
+                        <button type="submit" class="btn khmer-font px-5 py-2 rounded-3 shadow-sm text-white border-0 transition-all" :disabled="loading" :style="{ background: activeGradient }">
                             <template v-if="!loading">
                                 <i class="bi bi-check2-circle me-2"></i> រក្សាទុកទិន្នន័យ
                             </template>
-                            
                             <template v-else>
-                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                <span class="spinner-border spinner-border-sm me-2"></span>
                                 <span>កំពុងរក្សាទុក...</span>
                             </template>
                         </button>
                     </div>
                 </form>
-
             </div>
         </div>
     </Transition>
 </template>
 
 <script setup>
-    import { ref, reactive, computed, onMounted } from 'vue'
+    import { ref, reactive, computed, onMounted, watch } from 'vue'
     import { getScheduleFormOptions } from '@/services/ScheduleTypes';
     import { DatePicker } from 'v-calendar';
     import 'v-calendar/dist/style.css';
     import api from '@/api/axios'
     import { alertStore } from '@/stores/alert'
 
-    // --- Props & Emits ---
     const props = defineProps({ modelValue: Boolean })
     const emit = defineEmits(['update:modelValue', 'refresh'])
 
-    // --- State Management ---
     const loading = ref(false)
     const showUserDropdown = ref(false)
     const userSearch = ref('')
@@ -184,7 +186,6 @@
     const fileError = ref('')
     const selectedFile = ref(null)
 
-    // --- Helpers for Initialization ---
     const getCurrentTime = (addHours = 0) => {
         const now = new Date();
         now.setHours(now.getHours() + addHours);
@@ -195,7 +196,7 @@
         type: '',
         title: '', 
         description: '',
-        date: new Date().toISOString().split('T')[0],
+        date: new Date(),
         start_time: getCurrentTime(), 
         end_time: getCurrentTime(1),
         participants: [],
@@ -207,77 +208,49 @@
 
     const form = reactive(getInitialForm())
 
-    // --- API Methods ---
+    watch(() => form.type, (newType) => {
+        if (newType !== 'meeting') {
+            form.link = '';
+            form.room = '';
+            removeFile();
+        }
+    })
+
     const fetchUsers = async () => {
         try {
             const res = await api.get('/participants?per_page=100');
-            users.value = res.data.data.map(u => ({
-                name: u.name,
-                email: u.email
-            }));
-        } catch (err) {
-            console.error("Fetch users error:", err);
-        }
+            users.value = res.data.data.map(u => ({ name: u.name, email: u.email }));
+        } catch (err) { console.error(err) }
     }
 
-    // --- Computed Properties ---
-    const TABS = computed(() => {
-        if (!scheduleTypes.value.length) return [];
-        return scheduleTypes.value.map(type => ({
-            id: type.slug,
-            label: type.name,
-            theme: type.color_hex,
-            gradient: type.color_gradient,
-            icon: type.icon
-        }));
-    });
+    const TABS = computed(() => scheduleTypes.value.map(type => ({
+        id: type.slug, label: type.name, theme: type.color_hex, gradient: type.color_gradient, icon: type.icon
+    })));
 
-    const COLOR_OPTIONS = computed(() => {
-        if (!priorities.value.length) return [];
-        return priorities.value.map(p => ({
-            id: p.slug,
-            hex: p.color_hex,
-            label: p.name
-        }));
-    });
+    const COLOR_OPTIONS = computed(() => priorities.value.map(p => ({
+        id: p.slug, hex: p.color_hex, label: p.name
+    })));
 
-    const activeTab = computed(() => {
-        if (!TABS.value.length) return { theme: '#e54d42', gradient: '' };
-        return TABS.value.find(t => t.id === form.type) || TABS.value[0];
-    })
-
+    const activeTab = computed(() => TABS.value.find(t => t.id === form.type) || { theme: '#e54d42', gradient: '' });
     const activeTheme = computed(() => activeTab.value.theme)
     const activeGradient = computed(() => activeTab.value.gradient)
 
     const filteredUsers = computed(() => {
         const s = userSearch.value.toLowerCase().trim();
-        return users.value.filter(u => 
-            u.name.toLowerCase().includes(s) || u.email.toLowerCase().includes(s)
-        );
+        return users.value.filter(u => u.name.toLowerCase().includes(s) || u.email.toLowerCase().includes(s));
     })
 
-    // --- Lifecycle Logic ---
     onMounted(async () => {
         fetchUsers(); 
         try {
             const response = await getScheduleFormOptions(); 
             scheduleTypes.value = response.types || [];
             priorities.value = response.priorities || [];
-
-            // កំណត់តម្លៃ Default ពី Database ឱ្យ Form
-            if (scheduleTypes.value.length > 0 && !form.type) {
-                form.type = scheduleTypes.value[0].slug;
-            }
-            if (priorities.value.length > 0 && !form.color_id) {
-                const defaultColor = priorities.value.find(p => p.slug === 'green') || priorities.value[0];
-                form.color_id = defaultColor.slug;
-            }
-        } catch (err) {
-            console.error("Failed to load options:", err);
-        }
+            if (scheduleTypes.value.length > 0) form.type = scheduleTypes.value[0].slug;
+            if (priorities.value.length > 0) form.color_id = priorities.value[0].slug;
+        } catch (err) { console.error(err) }
     });
 
-    // --- Interaction Methods ---
     const getAMPM = (timeStr) => {
         if (!timeStr) return '--';
         const hour = parseInt(timeStr.split(':')[0]);
@@ -286,11 +259,8 @@
 
     const toggleUser = (user) => {
         const index = selectedUsers.value.findIndex(u => u.email === user.email);
-        if (index === -1) { 
-            selectedUsers.value.push(user); 
-        } else { 
-            selectedUsers.value.splice(index, 1); 
-        }
+        if (index === -1) selectedUsers.value.push(user); 
+        else selectedUsers.value.splice(index, 1);
         form.participants = selectedUsers.value.map(u => u.email);
     }
 
@@ -300,14 +270,8 @@
         const file = event.target.files[0];
         fileError.value = '';
         if (file) {
-            if (file.type !== 'application/pdf') {
-                fileError.value = 'សូមជ្រើសរើសតែឯកសារប្រភេទ PDF ប៉ុណ្ណោះ!';
-                return;
-            }
-            if (file.size > 5 * 1024 * 1024) {
-                fileError.value = 'ឯកសារមិនអាចធំជាង 5MB ឡើយ!';
-                return;
-            }
+            if (file.type !== 'application/pdf') return fileError.value = 'សូមជ្រើសរើសតែ PDF!';
+            if (file.size > 5 * 1024 * 1024) return fileError.value = 'ឯកសារធំជាង 5MB!';
             selectedFile.value = file;
             selectedFileName.value = file.name;
         }
@@ -325,16 +289,14 @@
         emit('update:modelValue', false);
     }
 
-    // --- Submit Logic ---
     const handleSave = async () => {
         loading.value = true;
         try {
             const formData = new FormData();
-            
             Object.keys(form).forEach(key => {
                 if (key === 'date') {
-                    const formattedDate = form.date instanceof Date ? form.date.toISOString().split('T')[0] : form.date;
-                    formData.append(key, formattedDate);
+                    const d = form.date instanceof Date ? form.date.toISOString().split('T')[0] : form.date;
+                    formData.append(key, d);
                 } else if (key === 'participants') {
                     form.participants.forEach(email => formData.append('participants[]', email));
                 } else {
@@ -342,27 +304,17 @@
                 }
             });
 
-            if (selectedFile.value) {
-                formData.append('attachment', selectedFile.value);
-            }
+            if (selectedFile.value) formData.append('attachment', selectedFile.value);
 
             await api.post('/schedules', formData);
-
             alertStore.show('រក្សាទុកជោគជ័យ', 'success');
             emit('refresh');
             closeModal();
-            
-            // Reset state ក្រោយជោគជ័យ
             Object.assign(form, getInitialForm());
             selectedUsers.value = [];
-            removeFile();
-
         } catch (err) {
-            const msg = err.response?.data?.message || 'បរាជ័យក្នុងការរក្សាទុក';
-            alertStore.show(msg, 'error');
-        } finally {
-            loading.value = false;
-        }
+            alertStore.show(err.response?.data?.message || 'បរាជ័យ', 'error');
+        } finally { loading.value = false; }
     }
 </script>
 
