@@ -1,7 +1,7 @@
 /* ក្នុងឯកសារ style.css */
 @font-face {
     font-family: 'Kantumruy Pro';
-    src: url('/assets/fonts/KantumruyPro-Regular.ttf') format('truetype');
+    src: url('@fonts/KantumruyPro-Regular.ttf') format('truetype');
     font-weight: 400;
     font-style: normal;
     font-display: swap;
@@ -9,7 +9,7 @@
 
 @font-face {
     font-family: 'Kantumruy Pro';
-    src: url('/assets/fonts/KantumruyPro-SemiBold.ttf') format('truetype');
+    src: url('@fonts/KantumruyPro-SemiBold.ttf') format('truetype');
     font-weight: 600;
     font-style: normal;
     font-display: swap;
@@ -17,7 +17,7 @@
 
 @font-face {
     font-family: 'Kantumruy Pro';
-    src: url('/assets/fonts/KantumruyPro-Bold.ttf') format('truetype');
+    src: url('@fonts/KantumruyPro-Bold.ttf') format('truetype');
     font-weight: 700;
     font-style: normal;
     font-display: swap;
