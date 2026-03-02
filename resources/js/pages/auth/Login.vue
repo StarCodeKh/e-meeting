@@ -35,13 +35,6 @@
                         </span>
                     </div>
                 </button>
-
-                <p class="footer-text text-center khmer-font mt-2">
-                    មិនទាន់មានគណនី?
-                    <RouterLink to="auth/register" class="text-primary-link text-decoration-none fw-bold">
-                        ចុះឈ្មោះនៅទីនេះ
-                    </RouterLink>
-                </p>
             </form>
         </div>
     </div>
