@@ -6,12 +6,12 @@ use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\API\ScheduleController;
 use App\Http\Controllers\API\UserController;
-use App\Http\Controllers\Api\RolePermissionController;
-use App\Http\Controllers\Api\ModuleController;
-use App\Http\Controllers\Api\ActionController;
-use App\Http\Controllers\Api\ScheduleTypeController;
-use App\Http\Controllers\Api\NotificationSettingController;
-use App\Http\Controllers\Api\AnalyticsController;
+use App\Http\Controllers\API\RolePermissionController;
+use App\Http\Controllers\API\ModuleController;
+use App\Http\Controllers\API\ActionController;
+use App\Http\Controllers\API\ScheduleTypeController;
+use App\Http\Controllers\API\NotificationSettingController;
+use App\Http\Controllers\API\AnalyticsController;
 
     // Endpoint to get RSA public key
     Route::get('/public-key', function () {

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\API;
 
 use Spatie\Permission\PermissionRegistrar;
 use Spatie\Permission\Models\Permission;
