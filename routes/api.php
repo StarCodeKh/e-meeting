@@ -2,8 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
-use App\Http\Controllers\Api\RoleController;
-use App\Http\Controllers\Api\PermissionController;
+use App\Http\Controllers\API\RoleController;
+use App\Http\Controllers\API\PermissionController;
 use App\Http\Controllers\API\ScheduleController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\RolePermissionController;
