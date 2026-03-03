@@ -1,40 +1,22 @@
 import api from '@/api/axios';
 
-/**
- * Configuration Constants
- * ដាក់នៅខាងក្រៅ Class/Object ដើម្បីកាត់បន្ថយការប្រើប្រាស់ Memory និងងាយស្រួលកែសម្រួល
- */
 const CONFIG = {
-    COLORS: {
-        red: 'bg-coral',
-        yellow: 'bg-orange',
-        green: 'bg-success',
-    },
-    TAGS: {
-        red: 'tag-red',
-        yellow: 'tag-yellow',
-        green: 'tag-green',
-    },
     DEFAULTS: {
-        TIME: '០០:០០',
+        TIME: '00:00',
+        END_TIME: '--:--',
         NO_DATA: 'មិនមាន',
-        UNKNOWN: 'មិនមានបញ្ជាក់'
+        UNKNOWN: 'មិនមានបញ្ជាក់',
+        LOCATION: 'សាលប្រជុំ'
     }
 };
 
 export const MeetingMonitor = {
-    /**
-     * ទាញយក និងរៀបចំទិន្នន័យកិច្ចប្រជុំ (Main Method)
-     * @param {string} date - ទម្រង់កាលបរិច្ឆេទ YYYY-MM-DD
-     */
     async getMeetingsByDate(date) {
         try {
             const response = await api.get('/schedules/public', { params: { date } });
-            const rawData = response?.data?.data;
+            const rawData = response?.data?.data || response?.data;
 
-            if (!Array.isArray(rawData)) {
-                return [];
-            }
+            if (!Array.isArray(rawData)) return [];
 
             return this._normalizeData(rawData);
         } catch (error) {
@@ -43,60 +25,40 @@ export const MeetingMonitor = {
         }
     },
 
-    /**
-     * បំប្លែងទិន្នន័យពី API ឱ្យទៅជាទម្រង់ Standard សម្រាប់ UI
-     */
     _normalizeData(rawData) {
-        const normalized = rawData.map((item) => {
-            const participants = Array.isArray(item.participants) ? item.participants : [];
-            
+        return rawData.map((item) => {
+            const start = item.startTime || item.start_time || CONFIG.DEFAULTS.TIME;
+            const end = item.endTime || item.end_time || CONFIG.DEFAULTS.END_TIME;
+
+            const participantsArray = Array.isArray(item.participants) ? item.participants : [];
+            const participantsString = participantsArray.length > 0 
+                ? participantsArray.join(', ') 
+                : null;
+
             return {
                 id: item.id,
-                title: item.title ?? 'គ្មានចំណងជើង',
-                startTime: item.start_time ?? '00:00',
-                endTime: item.end_time ?? '--:--',
+                title: item.title || 'គ្មានចំណងជើង',
+                startTime: start,
+                endTime: end,
                 
-                link: item.link ?? null, 
-                hasLink: !!item.link,
+                attachment: item.attachment || item.file_path || null,
+                floor: item.floor || null,
+                room: item.room || null,
                 
-                attachmentUrl: item.attachment ?? null,
-                hasAttachment: !!item.attachment,
+                leader: item.leader || item.participantsDisplay || participantsString || CONFIG.DEFAULTS.UNKNOWN,
                 
-                participantsRaw: participants,
-                participantsDisplay: participants.length > 0 ? participants.join(', ') : CONFIG.DEFAULTS.NO_DATA,
-                host: participants[0] ?? CONFIG.DEFAULTS.UNKNOWN,
+                creator_name: item.creator_name || (item.user ? item.user.name : 'រដ្ឋបាល'),
                 
-                location: item.location ?? CONFIG.DEFAULTS.UNKNOWN,
-                room: item.room ?? 'N/A',
-                description: item.description ?? 'មិនមានការពិពណ៌នា',
+                location: item.location || CONFIG.DEFAULTS.LOCATION,
+                description: item.description || '',
                 
-                color_id: item.color_id,
-                colorClass: CONFIG.COLORS[item.color_id] ?? CONFIG.COLORS.green,
-                tagClass: CONFIG.TAGS[item.color_id] ?? CONFIG.TAGS.green,
-                
-                rawStartTime: item.start_time ?? '00:00'
+                color_id: item.color_id || item.priority_id,
+                rawStartTime: start
             };
-        });
-
-        return this._sortMeetings(normalized);
+        }).sort((a, b) => a.rawStartTime.localeCompare(b.rawStartTime));
     },
 
-    /**
-     * តម្រៀបបញ្ជីកិច្ចប្រជុំតាមម៉ោង (Helper method)
-     */
-    _sortMeetings(meetings) {
-        return meetings.sort((a, b) => a.rawStartTime.localeCompare(b.rawStartTime));
-    },
-
-    /**
-     * គ្រប់គ្រង Error តាមបទដ្ឋាន Standard (Error Handler)
-     */
     _handleError(error) {
-        const message = error.response 
-            ? `Server Error [${error.response.status}]` 
-            : error.request 
-            ? 'Network Error (No Response)' 
-            : `Request Error: ${error.message}`;
-        console.error(`❌ MeetingMonitor: ${message}`);
+        console.error("❌ MeetingMonitor Error:", error.response?.data || error.message);
     }
 };

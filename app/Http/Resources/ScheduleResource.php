@@ -35,6 +35,7 @@ class ScheduleResource extends JsonResource
             'floor'        => $this->floor,
             'room'         => $this->room,
             'color_id'     => $this->color_id,
+            'creator_name' => $this->user->name ?? 'រដ្ឋបាល',
             'attachment'   => $this->attachment ? asset('storage/' . $this->attachment) : null,
             'created_at'   => $this->created_at?->format('Y-m-d H:i:s'),
         ];

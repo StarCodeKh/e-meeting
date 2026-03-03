@@ -470,10 +470,8 @@
         isFetchingUsers.value = true
         try {
             const res = await api.get('/users?per_page=100')
-            // កែសម្រួលដើម្បីចាប់យក avatar_url ទុកសម្រាប់បង្ហាញរូបភាព
             allUsers.value = (res.data?.data || []).map(u => ({
                 ...u,
-                // បើសិនជា API បោះមកក្នុង Key ផ្សេង បងអាចដូរនៅទីនេះ
                 image: u.avatar_url || u.image || null 
             }))
         } catch (error) {
@@ -522,7 +520,7 @@
 
         if (allUsers.value.length === 0) fetchApiUsers();
         showUserDropdown.value = false;
-        userSearchQuery.value = ''; // Clear search when opening
+        userSearchQuery.value = '';
 
         if (!modalInstance && modalElement.value) {
             modalInstance = new Modal(modalElement.value);

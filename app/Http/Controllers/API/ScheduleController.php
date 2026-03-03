@@ -119,7 +119,8 @@ class ScheduleController extends Controller
     {
         try {
             $user = auth()->user();
-            $query = Schedule::query();
+            
+            $query = Schedule::query()->with(['user:id,name']);
 
             if (!$user->hasRole('admin')) {
                 $query->where('user_id', $user->id);
@@ -142,7 +143,11 @@ class ScheduleController extends Controller
             }
 
             $perPage = $request->integer('per_page', 15);
-            $schedules = $query->orderBy('date', 'desc')->orderBy('start_time', 'asc')->paginate($perPage)->withQueryString();
+            
+            $schedules = $query->orderBy('date', 'desc')
+                            ->orderBy('start_time', 'asc')
+                            ->paginate($perPage)
+                            ->withQueryString();
 
             return ScheduleResource::collection($schedules)->additional([
                 'status' => 'success'
