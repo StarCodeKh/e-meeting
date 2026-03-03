@@ -275,7 +275,7 @@
                                                 :style="editingItem.color_id === color.id ? { background: color.hex + '15' } : {}"
                                                 @click="editingItem.color_id = color.id">
                                                 <div class="rounded-circle me-2 d-flex align-items-center justify-content-center transition-all" 
-                                                    :style="{ width: '18px', height: '18px', backgroundColor: color.hex }">
+                                                    :style="{ width: '14px', height: '14px', backgroundColor: color.hex }">
                                                     <i v-if="editingItem.color_id === color.id" class="bi bi-check text-white" style="font-size: 0.8rem;"></i>
                                                 </div>
                                                 <span class="khmer-font small transition-all" :style="editingItem.color_id === color.id ? { color: color.hex, fontWeight: 'bold' } : { color: '#666' }">{{ color.label }}</span>
