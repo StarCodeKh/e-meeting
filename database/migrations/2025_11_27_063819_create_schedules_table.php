@@ -20,6 +20,7 @@ return new class extends Migration
             $table->time('end_time');
             $table->json('participants')->nullable(); 
             $table->string('location')->nullable();
+            $table->string('floor')->nullable()->after('location');
             $table->string('room')->nullable();
             $table->text('link')->nullable();
             $table->string('color_id')->nullable(); 

@@ -151,51 +151,87 @@
                                         </div>
                                     </div>
                                 </div>
-
+  
                                 <div class="col-12 position-relative">
-                                    <div class="input-group bg-light rounded-3 border pill-multiselect-header cursor-pointer" @click="toggleDropdown">
-                                        <span class="input-group-text border-0 bg-transparent"><i class="bi bi-people" :style="{ color: activeTheme }"></i></span>
+                                    <div class="input-group bg-light rounded-3 border pill-multiselect-header cursor-pointer transition-all" @click="toggleDropdown">
+                                        <span class="input-group-text border-0 bg-transparent">
+                                            <i class="bi bi-people transition-all" :style="{ color: editingItem.participants?.length ? activeTheme : '#6c757d' }"></i>
+                                        </span>
                                         <div class="form-control khmer-font border-0 bg-transparent shadow-none py-2 text-truncate">
-                                            {{ participantDisplayNames || 'ជ្រើសរើសអ្នកចូលរួម...' }}
+                                            {{ participantDisplayNames }}
                                         </div>
-                                        <i class="bi px-3" :class="showUserDropdown ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+                                        <i class="bi px-3 transition-all" :class="showUserDropdown ? 'bi-chevron-up' : 'bi-chevron-down'" style="font-size: 0.8rem; color: #6c757d"></i>
                                     </div>
-                                    <div v-if="showUserDropdown" class="bg-white rounded-3 border mt-1 w-100 shadow-sm position-absolute z-3 overflow-hidden">
+
+                                    <div v-if="showUserDropdown" class="bg-white rounded-3 border mt-1 w-100 shadow-sm position-absolute z-3 overflow-hidden animate__animated animate__fadeIn animate__faster">
                                         <div class="p-2 border-bottom bg-light">
-                                            <input v-model="userSearchQuery" type="text" class="form-control form-control-sm khmer-font" placeholder="ស្វែងរក..." @click.stop>
+                                            <input v-model="userSearchQuery" type="text" class="form-control form-control-sm khmer-font shadow-none border-0 bg-white" placeholder="ស្វែងរកឈ្មោះ ឬអ៊ីមែល..." @click.stop>
                                         </div>
-                                        <div class="overflow-auto" style="max-height: 200px;">
+
+                                        <div class="px-3 py-2 border-bottom bg-light d-flex align-items-center justify-content-between cursor-pointer hover-bg-light transition-all" @click.stop="toggleSelectAll">
+                                            <div class="d-flex align-items-center">
+                                                <div class="rounded-circle d-flex align-items-center justify-content-center me-2 transition-all" 
+                                                    :style="{ 
+                                                        width: '24px', 
+                                                        height: '24px', 
+                                                        background: isAllSelected ? activeTheme : '#eee', 
+                                                        color: isAllSelected ? 'white' : '#666' 
+                                                    }">
+                                                    <i v-if="isAllSelected" class="bi bi-check-all"></i>
+                                                    <i v-else class="bi bi-people-fill" style="font-size: 0.7rem;"></i>
+                                                </div>
+                                                <span class="khmer-font small fw-bold" :style="isAllSelected ? { color: activeTheme } : { color: '#666' }">
+                                                    {{ isAllSelected ? 'ដកចេញទាំងអស់' : 'ជ្រើសរើសទាំងអស់' }}
+                                                </span>
+                                            </div>
+                                            <span class="badge rounded-pill bg-secondary opacity-75" style="font-size: 0.65rem;">{{ filteredUsers.length }} នាក់</span>
+                                        </div>
+
+                                        <div class="overflow-auto custom-scrollbar" style="max-height: 200px;">
                                             <div v-for="user in filteredUsers" :key="user.id" 
-                                                class="d-flex align-items-center px-3 py-2 border-bottom-faint cursor-pointer hover-bg-light" 
+                                                class="d-flex align-items-center px-3 py-2 border-bottom-faint cursor-pointer hover-bg-light transition-all" 
                                                 @click.stop="toggleUserSelection(user)">
                                                 
-                                                <div class="rounded-circle me-2 d-flex align-items-center justify-content-center" 
+                                                <div class="rounded-circle me-2 d-flex align-items-center justify-content-center overflow-hidden flex-shrink-0 transition-all" 
                                                     :style="{ 
-                                                        width: '30px', 
-                                                        height: '30px', 
-                                                        background: isUserSelected(user) ? activeTheme : '#eee', 
-                                                        color: isUserSelected(user) ? 'white' : '#666' 
+                                                        width: '32px', 
+                                                        height: '32px', 
+                                                        background: isUserSelected(user) ? activeTheme : '#f0f0f0', 
+                                                        color: isUserSelected(user) ? 'white' : '#666',
+                                                        border: isUserSelected(user) ? `2px solid ${activeTheme}` : '2px solid transparent'
                                                     }">
-                                                    {{ user.name?.charAt(0) }}
+                                                    <img v-if="user.image" :src="user.image" class="w-100 h-100 object-fit-cover" @error="user.image = null">
+                                                    <span v-else class="fw-bold" style="font-size: 0.8rem;">{{ user.name?.charAt(0) }}</span>
                                                 </div>
 
-                                                <div class="flex-grow-1 khmer-font small text-dark">
+                                                <div class="flex-grow-1 khmer-font small text-dark fw-bold text-truncate" :style="isUserSelected(user) ? { color: activeTheme } : {}">
                                                     {{ user.name }}
+                                                    <div class="text-muted fw-normal" style="font-size: 0.7rem;">{{ user.email }}</div>
                                                 </div>
 
-                                                <i v-if="isUserSelected(user)" class="bi bi-check-lg" :style="{ color: activeTheme }"></i>
+                                                <i v-if="isUserSelected(user)" class="bi bi-check-lg ms-2" :style="{ color: activeTheme }"></i>
+                                            </div>
+
+                                            <div v-if="filteredUsers.length === 0" class="p-4 text-center text-muted khmer-font small">
+                                                <i class="bi bi-search d-block fs-4 mb-2"></i>
+                                                រកមិនឃើញអ្នកប្រើប្រាស់ឡើយ
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-
-                                <div :class="editingItem.type === 'meeting' ? 'col-md-8' : 'col-12'">
+                                <div :class="editingItem.type === 'meeting' ? 'col-md-6' : 'col-12'">
                                     <div class="bg-light rounded-3 border p-1 px-3 d-flex align-items-center h-100">
                                         <i class="bi bi-geo-alt me-2" :style="{ color: activeTheme }"></i>
                                         <input v-model="editingItem.location" type="text" class="form-control border-0 bg-transparent shadow-none khmer-font" placeholder="ទីតាំង">
                                     </div>
                                 </div>
-                                <div class="col-md-4" v-if="editingItem.type === 'meeting'">
+                                <div class="col-md-3" v-if="editingItem.type === 'meeting'">
+                                    <div class="bg-light rounded-3 border p-1 px-3 d-flex align-items-center h-100">
+                                        <i class="bi bi-layers me-2" :style="{ color: activeTheme }"></i>
+                                        <input v-model="editingItem.floor" type="text" class="form-control border-0 bg-transparent shadow-none khmer-font" placeholder="ជាន់">
+                                    </div>
+                                </div>
+                                <div class="col-md-3" v-if="editingItem.type === 'meeting'">
                                     <div class="bg-light rounded-3 border p-1 px-3 d-flex align-items-center h-100">
                                         <i class="bi bi-door-open me-2" :style="{ color: activeTheme }"></i>
                                         <input v-model="editingItem.room" type="text" class="form-control border-0 bg-transparent shadow-none khmer-font" placeholder="បន្ទប់">
@@ -294,7 +330,7 @@
 </template>
 
 <script setup>
-    import { ref, computed, onMounted, onUnmounted } from 'vue'
+    import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
     import { ScheduleService } from '@/services/ScheduleService'
     import { getScheduleFormOptions } from '@/services/ScheduleTypes';
     import DashboardLayout from '@/components/layouts/DashboardLayout.vue'
@@ -361,7 +397,10 @@
     const filteredUsers = computed(() => {
         if (!allUsers.value) return []
         const query = userSearchQuery.value.toLowerCase().trim()
-        return allUsers.value.filter(u => u.name?.toLowerCase().includes(query))
+        return allUsers.value.filter(u => 
+            u.name?.toLowerCase().includes(query) || 
+            u.email?.toLowerCase().includes(query)
+        )
     })
 
     const participantDisplayNames = computed(() => {
@@ -371,6 +410,31 @@
             return found ? found.name : email;
         }).join(', ');
     });
+
+    // --- Check All Logic ---
+    const isAllSelected = computed(() => {
+        if (filteredUsers.value.length === 0) return false;
+        return filteredUsers.value.every(user => isUserSelected(user));
+    });
+
+    const toggleSelectAll = () => {
+        if (!editingItem.value.participants) editingItem.value.participants = [];
+
+        if (isAllSelected.value) {
+            // ដកចេញទាំងអស់ (តែក្នុងចំណោមអ្នកដែលកំពុង Filter ឃើញប៉ុណ្ណោះ)
+            const filteredEmails = filteredUsers.value.map(u => u.email);
+            editingItem.value.participants = editingItem.value.participants.filter(
+                email => !filteredEmails.includes(email)
+            );
+        } else {
+            // បន្ថែមចូលទាំងអស់
+            filteredUsers.value.forEach(user => {
+                if (!isUserSelected(user)) {
+                    editingItem.value.participants.push(user.email);
+                }
+            });
+        }
+    };
 
     // --- Core Methods ---
     const fetchMeetings = async (page = 1) => {
@@ -406,7 +470,12 @@
         isFetchingUsers.value = true
         try {
             const res = await api.get('/users?per_page=100')
-            allUsers.value = res.data?.data || []
+            // កែសម្រួលដើម្បីចាប់យក avatar_url ទុកសម្រាប់បង្ហាញរូបភាព
+            allUsers.value = (res.data?.data || []).map(u => ({
+                ...u,
+                // បើសិនជា API បោះមកក្នុង Key ផ្សេង បងអាចដូរនៅទីនេះ
+                image: u.avatar_url || u.image || null 
+            }))
         } catch (error) {
             console.error("User Fetch Error:", error)
         } finally {
@@ -423,9 +492,7 @@
         if (!editingItem.value.participants) {
             editingItem.value.participants = [];
         }
-
         const index = editingItem.value.participants.indexOf(user.email);
-
         if (index > -1) {
             editingItem.value.participants.splice(index, 1);
         } else {
@@ -437,7 +504,6 @@
         return editingItem.value.participants?.includes(user.email);
     };
 
-    
     const openEditModal = (item) => {
         editingItem.value = JSON.parse(JSON.stringify(item));
         selectedFile.value = null;
@@ -456,6 +522,7 @@
 
         if (allUsers.value.length === 0) fetchApiUsers();
         showUserDropdown.value = false;
+        userSearchQuery.value = ''; // Clear search when opening
 
         if (!modalInstance && modalElement.value) {
             modalInstance = new Modal(modalElement.value);
@@ -548,6 +615,7 @@
             border: `1px solid ${hex}30`
         };
     };
+
     const confirmDelete = async (id) => {
         if (!id) return
         const result = await Swal.fire({

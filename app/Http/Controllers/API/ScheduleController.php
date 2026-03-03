@@ -159,11 +159,21 @@ class ScheduleController extends Controller
 
     public function participants(Request $request)
     {
-        $users = User::select('id', 'name', 'email')
+        $users = User::select('id', 'name', 'email', 'avatar')
             ->when($request->search, function ($query, $search) {
                 $query->where('name', 'LIKE', "%{$search}%")
                 ->orWhere('email', 'LIKE', "%{$search}%");
-            })->orderBy('name', 'asc')->limit(100)->get();
+            })
+            ->orderBy('name', 'asc')
+            ->limit(100)
+            ->get();
+
+        $users->transform(function($user) {
+            $user->avatar_url = $user->avatar 
+                ? asset('storage/' . $user->avatar) 
+                : null;
+            return $user;
+        });
 
         return response()->json([
             'status' => 'success',

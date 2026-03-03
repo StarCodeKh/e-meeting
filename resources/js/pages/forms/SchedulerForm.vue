@@ -60,18 +60,37 @@
                                     </div>
                                     <i class="bi px-3 transition-all" :class="showUserDropdown ? 'bi-chevron-up' : 'bi-chevron-down'" style="font-size: 0.8rem; color: #6c757d"></i>
                                 </div>
-                                
+
                                 <div v-if="showUserDropdown" class="bg-white rounded-3 border mt-1 w-100 overflow-hidden shadow-sm position-absolute z-3">
                                     <div class="p-2 border-bottom bg-light">
                                         <input v-model="userSearch" type="text" class="form-control form-control-sm khmer-font shadow-none" placeholder="ស្វែងរកឈ្មោះ..." @click.stop>
                                     </div>
+
+                                    <div class="px-3 py-2 border-bottom bg-light d-flex align-items-center justify-content-between cursor-pointer" @click.stop="toggleSelectAll">
+                                        <div class="d-flex align-items-center">
+                                            <div class="rounded-circle d-flex align-items-center justify-content-center me-2 flex-shrink-0 transition-all" 
+                                                :style="{ width: '24px', height: '24px', background: isAllSelected ? activeTheme : '#eee', color: isAllSelected ? 'white' : '#666' }">
+                                                <i v-if="isAllSelected" class="bi bi-check-all"></i>
+                                                <i v-else class="bi bi-people-fill" style="font-size: 0.7rem;"></i>
+                                            </div>
+                                            <span class="khmer-font small fw-bold" :class="{ 'text-primary': isAllSelected }" :style="isAllSelected ? { color: activeTheme } : {}">
+                                                {{ isAllSelected ? 'ដកចេញទាំងអស់' : 'ជ្រើសរើសទាំងអស់' }}
+                                            </span>
+                                        </div>
+                                        <span class="badge rounded-pill bg-secondary" style="font-size: 0.65rem;">{{ filteredUsers.length }} នាក់</span>
+                                    </div>
+
                                     <div class="overflow-auto" style="max-height: 200px;">
                                         <div v-for="user in filteredUsers" :key="user.email" 
                                             class="d-flex align-items-center px-3 py-2 border-bottom-faint cursor-pointer hover-bg-light transition-all" 
                                             @click.stop="toggleUser(user)">
-                                            <div class="rounded-circle d-flex align-items-center justify-content-center me-2 flex-shrink-0 transition-all" 
-                                                :style="{ width: '30px', height: '30px', background: isUserSelected(user) ? activeTheme : '#eee', color: isUserSelected(user) ? 'white' : '#666' }">
-                                                {{ user.name?.charAt(0) }}
+                                           <div class="rounded-circle d-flex align-items-center justify-content-center me-2 flex-shrink-0 overflow-hidden" 
+                                                style="width: 30px; height: 30px; background: #eee;">
+                                                
+                                                <img v-if="user.image" 
+                                                    :src="user.image" 
+                                                    class="w-100 h-100 object-fit-cover"
+                                                    @error="user.image = null"> <span v-else>{{ user.name?.charAt(0) }}</span>
                                             </div>
                                             <div class="flex-grow-1 khmer-font small fw-bold text-truncate" :style="isUserSelected(user) ? { color: activeTheme } : {}">{{ user.name }}</div>
                                             <i v-if="isUserSelected(user)" class="bi bi-check-lg" :style="{ color: activeTheme }"></i>
@@ -80,14 +99,21 @@
                                 </div>
                             </div>
 
-                            <div :class="form.type === 'meeting' ? 'col-md-8' : 'col-12'">
+                            <div :class="form.type === 'meeting' ? 'col-md-6' : 'col-12'">
                                 <div class="bg-light rounded-3 border p-1 px-3 d-flex align-items-center h-100">
                                     <i class="bi bi-geo-alt me-2 transition-all" :style="{ color: form.location ? activeTheme : '#6c757d' }"></i>
                                     <input v-model="form.location" type="text" class="form-control border-0 bg-transparent shadow-none khmer-font" placeholder="ទីតាំង">
                                 </div>
                             </div>
 
-                            <div class="col-md-4" v-if="form.type === 'meeting'">
+                            <div class="col-md-3" v-if="form.type === 'meeting'">
+                                <div class="bg-light rounded-3 border p-1 px-3 d-flex align-items-center h-100">
+                                    <i class="bi bi-layers me-2 transition-all" :style="{ color: form.floor ? activeTheme : '#6c757d' }"></i>
+                                    <input v-model="form.floor" type="text" class="form-control border-0 bg-transparent shadow-none khmer-font" placeholder="ជាន់">
+                                </div>
+                            </div>
+
+                            <div class="col-md-3" v-if="form.type === 'meeting'">
                                 <div class="bg-light rounded-3 border p-1 px-3 d-flex align-items-center h-100">
                                     <i class="bi bi-door-open me-2 transition-all" :style="{ color: form.room ? activeTheme : '#6c757d' }"></i>
                                     <input v-model="form.room" type="text" class="form-control border-0 bg-transparent shadow-none khmer-font" placeholder="បន្ទប់">
@@ -201,6 +227,7 @@
         end_time: getCurrentTime(1),
         participants: [],
         location: '', 
+        floor: '',
         room: '', 
         link: '', 
         color_id: '' 
@@ -208,6 +235,27 @@
 
     const form = reactive(getInitialForm())
 
+    // --- Logic សម្រាប់ Check All ---
+    const isAllSelected = computed(() => {
+        if (filteredUsers.value.length === 0) return false;
+        return filteredUsers.value.every(user => isUserSelected(user));
+    });
+
+    const toggleSelectAll = () => {
+        if (isAllSelected.value) {
+            const filteredEmails = filteredUsers.value.map(u => u.email);
+            selectedUsers.value = selectedUsers.value.filter(u => !filteredEmails.includes(u.email));
+        } else {
+            filteredUsers.value.forEach(user => {
+                if (!isUserSelected(user)) {
+                    selectedUsers.value.push(user);
+                }
+            });
+        }
+        form.participants = selectedUsers.value.map(u => u.email);
+    };
+
+    // --- ចប់ Logic Check All ---
     watch(() => form.type, (newType) => {
         if (newType !== 'meeting') {
             form.link = '';
@@ -219,8 +267,24 @@
     const fetchUsers = async () => {
         try {
             const res = await api.get('/participants?per_page=100');
-            users.value = res.data.data.map(u => ({ name: u.name, email: u.email }));
-        } catch (err) { console.error(err) }
+            
+            users.value = res.data.data.map(u => {
+                let photo = u.avatar_url || u.image || null;
+                
+                if (photo) {
+                    photo = encodeURI(photo); 
+                }
+
+                return { 
+                    name: u.name,
+                    email: u.email,
+                    image: photo
+                };
+            });
+
+        } catch (err) { 
+            console.error(err);
+        }
     }
 
     const TABS = computed(() => scheduleTypes.value.map(type => ({
@@ -286,6 +350,7 @@
 
     const closeModal = () => {
         showUserDropdown.value = false;
+        userSearch.value = ''; // សម្អាតការស្វែងរកពេលបិទ
         emit('update:modelValue', false);
     }
 
@@ -293,12 +358,21 @@
         loading.value = true;
         try {
             const formData = new FormData();
+            
+            // បញ្ជូនទិន្នន័យ form
             Object.keys(form).forEach(key => {
                 if (key === 'date') {
-                    const d = form.date instanceof Date ? form.date.toISOString().split('T')[0] : form.date;
-                    formData.append(key, d);
+                    // ការពារបញ្ហា Timezone ដោយប្រើ Local Date Format
+                    const d = form.date;
+                    const formattedDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                    formData.append(key, formattedDate);
                 } else if (key === 'participants') {
-                    form.participants.forEach(email => formData.append('participants[]', email));
+                    // បញ្ជូន Participants ជា Array
+                    if (form.participants.length > 0) {
+                        form.participants.forEach(email => formData.append('participants[]', email));
+                    } else {
+                        formData.append('participants[]', '');
+                    }
                 } else {
                     formData.append(key, form[key] || '');
                 }
@@ -308,10 +382,15 @@
 
             await api.post('/schedules', formData);
             alertStore.show('រក្សាទុកជោគជ័យ', 'success');
+            
             emit('refresh');
             closeModal();
+            
+            // Reset ព័ត៌មានក្នុង Form
             Object.assign(form, getInitialForm());
             selectedUsers.value = [];
+            removeFile();
+            
         } catch (err) {
             alertStore.show(err.response?.data?.message || 'បរាជ័យ', 'error');
         } finally { loading.value = false; }

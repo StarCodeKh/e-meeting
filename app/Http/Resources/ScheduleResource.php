@@ -32,6 +32,7 @@ class ScheduleResource extends JsonResource
             'description'  => $this->description ?? 'មិនមានការពិពណ៌នា',
             'link'         => $this->link,
             'date'         => $this->date ? Carbon::parse($this->date)->format('Y-m-d') : null,
+            'floor'        => $this->floor,
             'room'         => $this->room,
             'color_id'     => $this->color_id,
             'attachment'   => $this->attachment ? asset('storage/' . $this->attachment) : null,

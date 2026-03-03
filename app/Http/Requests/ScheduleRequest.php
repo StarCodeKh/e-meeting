@@ -26,6 +26,7 @@ class ScheduleRequest extends FormRequest
             'participants'   => 'nullable|array',
             'participants.*' => 'email', 
             'location'       => 'nullable|string',
+            'floor'          => 'nullable|string',
             'room'           => 'nullable|string',
             'description'    => 'nullable|string',
             'attachment'     => 'sometimes|nullable|file|mimes:pdf|max:5120',
