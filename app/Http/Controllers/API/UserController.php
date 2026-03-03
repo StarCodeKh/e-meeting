@@ -58,9 +58,12 @@ class UserController extends Controller implements HasMiddleware
         DB::beginTransaction();
         try {
             $data = $request->validated();
+
+            $roleName = $request->role;
+            unset($data['role']); 
+
             $data['password'] = Hash::make($request->password);
 
-            // Handle Avatar
             if ($request->hasFile('avatar')) {
                 $file = $request->file('avatar');
                 $filename = time() . '_' . $file->getClientOriginalName();
@@ -69,19 +72,25 @@ class UserController extends Controller implements HasMiddleware
 
             $user = User::create($data);
 
-            // Sync Spatie Role
-            if ($request->filled('role')) {
-                $roleName = is_array($request->role) ? $request->role[0] : $request->role;
-                $user->assignRole($roleName);
+            if ($roleName) {
+                $actualRole = is_array($roleName) ? $roleName[0] : $roleName;
+                $user->assignRole($actualRole); 
             }
 
             DB::commit();
-            return response()->json(['status' => 'success', 'message' => 'បង្កើតជោគជ័យ', 'data' => new UserResource($user)], 201);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'បង្កើតអ្នកប្រើប្រាស់ជោគជ័យ',
+                'data' => new UserResource($user->load('roles'))
+            ], 201);
 
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("User Store Error: " . $e->getMessage());
-            return response()->json(['status' => 'error', 'message' => 'Internal Error'], 500);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'មានបញ្ហាបច្ចេកទេស៖ ' . $e->getMessage()
+            ], 500);
         }
     }
 

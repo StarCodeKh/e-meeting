@@ -26,15 +26,19 @@ class ScheduleController extends Controller
     {
         try {
             $user = auth()->user();
-            $date = $request->query('date', Carbon::today()->toDateString());
+            $date = $request->query('date', now()->toDateString());
 
-            $query = Schedule::whereDate('date', $date);
+            $schedules = Schedule::whereDate('date', $date)
+                ->where(function ($query) use ($user) {
+                    if ($user->hasRole('admin')) {
+                        return $query; 
+                    }
 
-            if (!$user->hasRole('admin')) {
-                $query->where('user_id', $user->id);
-            }
-
-            $schedules = $query->orderBy('start_time', 'asc')->get();
+                    $query->where('user_id', $user->id)
+                        ->orWhereJsonContains('participants', $user->email);
+                })
+                ->orderBy('start_time', 'asc')
+                ->get();
 
             return ScheduleResource::collection($schedules)->additional([
                 'status' => 'success'
@@ -44,7 +48,7 @@ class ScheduleController extends Controller
             Log::error("❌ Schedule Index Error: " . $e->getMessage());
             return response()->json([
                 'status'  => 'error',
-                'message' => 'មិនអាចទាញយកទិន្នន័យបានទេ',
+                'message' => 'មានបញ្ហាក្នុងការទាញយកទិន្នន័យ',
             ], 500);
         }
     }
@@ -246,14 +250,20 @@ class ScheduleController extends Controller
         $this->authorize('update', $schedule);
 
         return DB::transaction(function () use ($request, $schedule) {
-            $oldPath = $schedule->attachment; 
-            
             try {
                 $data = $request->validated();
 
+                if ($request->has('participants')) {
+                    $data['participants'] = is_array($request->participants) 
+                        ? $request->participants 
+                        : json_decode($request->participants, true);
+                } else {
+                    $data['participants'] = []; 
+                }
+
                 if ($request->hasFile('attachment')) {
-                    if ($oldPath && Storage::disk('public')->exists($oldPath)) {
-                        Storage::disk('public')->delete($oldPath);
+                    if ($schedule->attachment && Storage::disk('public')->exists($schedule->attachment)) {
+                        Storage::disk('public')->delete($schedule->attachment);
                     }
 
                     $file = $request->file('attachment');
@@ -274,15 +284,14 @@ class ScheduleController extends Controller
                 return response()->json([
                     'status'  => 'success',
                     'message' => 'កែប្រែបានជោគជ័យ!',
-                    'data'    => new ScheduleResource($schedule->load('user'))
+                    'data'    => new ScheduleResource($schedule->load(['user', 'color']))
                 ], 200);
 
             } catch (\Exception $e) {
                 Log::error("❌ Update Error: " . $e->getMessage());
-                
                 return response()->json([
                     'status'  => 'error',
-                    'message' => 'មានបញ្ហាបច្ចេកទេស មិនអាចកែប្រែបានទេ!',
+                    'message' => 'មានបញ្ហាបច្ចេកទេស៖ ' . $e->getMessage(),
                 ], 500);
             }
         });

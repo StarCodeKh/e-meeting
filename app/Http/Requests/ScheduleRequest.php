@@ -21,15 +21,15 @@ class ScheduleRequest extends FormRequest
             'title'          => 'required|string|max:255',
             'link'           => 'nullable|url',
             'date'           => 'required|date',
-            'start_time'     => 'required',
-            'end_time'       => 'required|after:start_time',
+            'start_time'     => 'required|string', 
+            'end_time'       => 'required|string|after:start_time',
             'participants'   => 'nullable|array',
-            'participants.*' => 'nullable|email',
+            'participants.*' => 'email', 
             'location'       => 'nullable|string',
             'room'           => 'nullable|string',
             'description'    => 'nullable|string',
-            'attachment'     => 'nullable|file|mimes:pdf|max:5120',
-            'color_id'       => 'nullable|string',
+            'attachment'     => 'sometimes|nullable|file|mimes:pdf|max:5120',
+            'color_id'       => 'nullable|string', 
         ];
     }
 }

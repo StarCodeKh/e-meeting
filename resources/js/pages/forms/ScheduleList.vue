@@ -165,11 +165,24 @@
                                             <input v-model="userSearchQuery" type="text" class="form-control form-control-sm khmer-font" placeholder="ស្វែងរក..." @click.stop>
                                         </div>
                                         <div class="overflow-auto" style="max-height: 200px;">
-                                            <div v-for="user in filteredUsers" :key="user.id" class="d-flex align-items-center px-3 py-2 border-bottom-faint cursor-pointer hover-bg-light" @click.stop="toggleUserSelection(user)">
-                                                <div class="rounded-circle me-2 d-flex align-items-center justify-content-center" :style="{ width: '30px', height: '30px', background: isUserSelected(user) ? activeTheme : '#eee', color: isUserSelected(user) ? 'white' : '#666' }">
+                                            <div v-for="user in filteredUsers" :key="user.id" 
+                                                class="d-flex align-items-center px-3 py-2 border-bottom-faint cursor-pointer hover-bg-light" 
+                                                @click.stop="toggleUserSelection(user)">
+                                                
+                                                <div class="rounded-circle me-2 d-flex align-items-center justify-content-center" 
+                                                    :style="{ 
+                                                        width: '30px', 
+                                                        height: '30px', 
+                                                        background: isUserSelected(user) ? activeTheme : '#eee', 
+                                                        color: isUserSelected(user) ? 'white' : '#666' 
+                                                    }">
                                                     {{ user.name?.charAt(0) }}
                                                 </div>
-                                                <div class="flex-grow-1 khmer-font small">{{ user.name }}</div>
+
+                                                <div class="flex-grow-1 khmer-font small text-dark">
+                                                    {{ user.name }}
+                                                </div>
+
                                                 <i v-if="isUserSelected(user)" class="bi bi-check-lg" :style="{ color: activeTheme }"></i>
                                             </div>
                                         </div>
@@ -407,8 +420,12 @@
     }
 
     const toggleUserSelection = (user) => {
-        if (!editingItem.value.participants) editingItem.value.participants = [];
+        if (!editingItem.value.participants) {
+            editingItem.value.participants = [];
+        }
+
         const index = editingItem.value.participants.indexOf(user.email);
+
         if (index > -1) {
             editingItem.value.participants.splice(index, 1);
         } else {
@@ -416,32 +433,42 @@
         }
     };
 
-    const isUserSelected = (user) => editingItem.value.participants?.includes(user.email)
+    const isUserSelected = (user) => {
+        return editingItem.value.participants?.includes(user.email);
+    };
 
-    // --- Modal & Form Actions ---
+    
     const openEditModal = (item) => {
         editingItem.value = JSON.parse(JSON.stringify(item));
         selectedFile.value = null;
 
-        if (editingItem.value.date) {
+        if (editingItem.value.date && typeof editingItem.value.date === 'string') {
             const [year, month, day] = editingItem.value.date.split('-').map(Number);
             editingItem.value.date = new Date(year, month - 1, day);
         }
 
-        editingItem.value.participants = item.participant_emails && Array.isArray(item.participant_emails) 
-            ? [...item.participant_emails] 
-            : [];
+        const rawParticipants = item.participant_emails || item.participants || [];
         
+        editingItem.value.participants = Array.isArray(rawParticipants)
+            ? rawParticipants.map(p => (typeof p === 'object' ? p.email : p)) 
+                            .filter(e => e && e.includes('@')) 
+            : [];
+
+        if (allUsers.value.length === 0) fetchApiUsers();
         showUserDropdown.value = false;
-        if (!modalInstance && modalElement.value) modalInstance = new Modal(modalElement.value);
+
+        if (!modalInstance && modalElement.value) {
+            modalInstance = new Modal(modalElement.value);
+        }
         modalInstance?.show();
     };
+
 
     const updateMeeting = async () => {
         isSaving.value = true
         try {
             const data = new FormData()
-            data.append('_method', 'PUT')
+            data.append('_method', 'PUT') 
 
             Object.keys(editingItem.value).forEach(key => {
                 let value = editingItem.value[key]
@@ -451,36 +478,40 @@
                     const day = String(value.getDate()).padStart(2, '0');
                     value = `${year}-${month}-${day}`;
                 }
-                if (!['attachment', 'participants', 'participant_emails'].includes(key) && value !== null) {
+                const skipKeys = ['attachment', 'participants', 'participant_emails', 'created_at', 'updated_at'];
+                if (!skipKeys.includes(key) && value !== null && value !== undefined) {
                     data.append(key, value)
                 }
             })
-
-            if (editingItem.value.participants?.length > 0) {
-                editingItem.value.participants.forEach(email => data.append('participant_emails[]', email))
+            
+            if (editingItem.value.participants && editingItem.value.participants.length > 0) {
+                editingItem.value.participants.forEach((email) => {
+                    data.append('participants[]', email); 
+                });
             } else {
-                data.append('participant_emails[]', '')
+                data.append('participants[]', ''); 
             }
 
-            if (selectedFile.value) data.append('attachment', selectedFile.value)
+            if (selectedFile.value) {
+                data.append('attachment', selectedFile.value)
+            }
 
             await ScheduleService.update(editingItem.value.id, data)
+            
             modalInstance?.hide()
             await fetchMeetings(currentPage.value)
 
             Swal.fire({
                 icon: 'success',
-                title: 'រក្សាទុកជោគជ័យ',
+                title: 'កែប្រែទិន្នន័យជោគជ័យ',
                 toast: true,
                 position: 'top-end',
-                showConfirmButton: false,
                 timer: 2500,
-                timerProgressBar: true,
                 customClass: { popup: 'khmer-font' }
             })
 
         } catch (error) {
-            console.error("Update Error:", error)
+            console.error("❌ Update Error Detail:", error.response?.data || error)
         } finally {
             isSaving.value = false
         }
