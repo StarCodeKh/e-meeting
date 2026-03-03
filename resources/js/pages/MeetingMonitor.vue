@@ -3,24 +3,30 @@
         <div class="bg-gradient-overlay"></div>
         <div class="glass-mesh"></div>
 
-        <header class="main-header shadow-lg mx-3 mt-3 mb-4 rounded-3 bg-light">
-            <div class="row w-100 align-items-center py-3 px-4 mx-0">
-                <div class="col-lg-8 d-flex align-items-center">
+        <header class="main-header shadow-lg mx-3 mt-3 mb-4 rounded-4 bg-white overflow-hidden">
+            <div class="row w-100 align-items-center py-3 px-4 mx-0 border-bottom border-success border-5">
+                <div class="col-lg-7 d-flex align-items-center">
                     <div class="logo-area me-4">
-                        <img :src="logo" alt="MEF Logo" class="official-logo" />
+                        <img :src="logo" alt="MEF Logo" style="width: 90px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));" />
                     </div>
                     <div class="title-area">
                         <h2 class="khmer-font h6 fw-bold mb-0 text-dark">ព្រះរាជាណាចក្រកម្ពុជា</h2>
                         <h2 class="khmer-font small text-muted mb-1">ជាតិ សាសនា ព្រះមហាក្សត្រ</h2>
                         <div class="header-divider my-1"></div>
-                        <h1 class="khmer-font h3 fw-bold mb-0 text-success-dark">ក្រសួងសេដ្ឋកិច្ច និងហិរញ្ញវត្ថុ</h1>
-                        <p class="khmer-font small text-primary mb-0">អគ្គលេខាធិការដ្ឋាន គ.វ.ហ.</p>
+                        <h1 class="khmer-font h3 fw-bold mb-0 text-success-dark">អគ្គលេខាធិការដ្ឋានគណៈកម្មាធិការដឹកនាំការងារកែទម្រង់ការ</h1>
+                        <p class="khmer-font small text-primary mb-0">គ្រប់គ្រងហិរញ្ញវត្ថុសាធារណៈ</p>
                     </div>
                 </div>
-                <div class="col-lg-4 text-end border-start d-none d-lg-block">
-                    <div class="khmer-font text-muted small mb-1">{{ currentDateKhmer }}</div>
-                    <div class="khmer-font small digital-clock tabular-nums fw-black display-5 text-success-dark">
-                        {{ currentTime }}
+
+                <div class="col-lg-5 text-end border-start ps-4 d-none d-lg-block">
+                    <div class="khmer-font mb-2">
+                        <div class="fw-bold text-dark" style="font-size: 0.95rem;">{{ currentDateKhmer.lunar }}</div>
+                        <div class="text-muted" style="font-size: 0.85rem;">{{ currentDateKhmer.solar }}</div>
+                    </div>
+                    <div class="clock-box d-inline-block px-4 py-1 rounded-3 shadow-inner">
+                        <span class="khmer-font digital-clock tabular-nums fw-black display-5 text-success">
+                            {{ currentTime }}
+                        </span>
                     </div>
                 </div>
             </div>
@@ -180,15 +186,13 @@
     // --- Data Fetching: ទាញយកទិន្នន័យពី API ---
     const fetchAllData = async () => {
         try {
-            // ១. ទាញយក Option នៃ Priority សម្រាប់ពណ៌
+
             const options = await getScheduleFormOptions();
             if (options?.priorities) priorities.value = options.priorities;
 
-            // ២. ទាញយកទិន្នន័យកិច្ចប្រជុំថ្ងៃនេះ
             const today = new Date().toISOString().split('T')[0]
             const data = await MeetingMonitor.getMeetingsByDate(today)
             
-            // ៣. Mapping ទិន្នន័យឱ្យត្រូវជាមួយ UI
             meetings.value = (data || []).map(m => {
                 const statusInfo = calculateStatus(m.startTime, m.endTime)
                 
@@ -197,21 +201,16 @@
                     status: statusInfo.code,
                     statusText: statusInfo.text,
 
-                    // បន្ថែមជាន់ និង បន្ទប់ (ធានាថាបំប្លែងជាលេខខ្មែរក្នុង UI)
                     floor: m.floor || m.location_floor || null,
                     room: m.room || m.location_room || null,
 
-                    // ឈ្មោះអ្នកបញ្ចូល (ទាញពី Relation user)
                     creator_name: m.creator_name || m.user?.name || 'រដ្ឋបាល',
 
-                    // ឯកសារភ្ជាប់ (PDF)
                     attachment: m.attachment || m.file_path || m.pdf_file || null,
 
-                    // ទម្រង់បង្ហាញម៉ោងជាខ្មែរ
                     displayStartTime: toKhmerNumeral(m.startTime || '00:00'),
                     displayEndTime: toKhmerNumeral(m.endTime || '--:--'),
                     
-                    // បែងចែកពេលព្រឹក/រសៀល
                     period: parseInt(m.startTime) < 12 ? 'ព្រឹក' : 'រសៀល'
                 }
             })
@@ -231,19 +230,54 @@
     // --- Logic: ម៉ោងឌីជីថល (Digital Clock) ---
     const updateTime = () => {
         const now = new Date();
+        const year = now.getFullYear();
+        const month = now.getMonth();
+        const date = now.getDate();
+
+        // --- ១. ផ្នែកសុរិយគតិ (Solar) ---
         const days = ['អាទិត្យ', 'ច័ន្ទ', 'អង្គារ', 'ពុធ', 'ព្រហស្បតិ៍', 'សុក្រ', 'សៅរ៍'];
-        const months = ['មករា', 'កុម្ភៈ', 'មីនា', 'មេសា', 'ឧសភា', 'មិថុនា', 'កក្កដា', 'សីហា', 'កញ្ញា', 'តុលា', 'វិច្ឆិកា', 'ធ្នូ'];
+        const monthsSolar = ['មករា', 'កម្ភៈ', 'មីនា', 'មេសា', 'ឧសភា', 'មិថុនា', 'កក្កដា', 'សីហា', 'កញ្ញា', 'តុលា', 'វិច្ឆិកា', 'ធ្នូ'];
+        const solarPart = `រាជធានីភ្នំពេញ ថ្ងៃទី${toKhmerNumeral(date)} ខែ${monthsSolar[month]} ឆ្នាំ${toKhmerNumeral(year)}`;
+
+        // --- ២. ផ្នែកចន្ទគតិ (Lunar Logic) ---
+        const animals = ['មមី', 'មមែ', 'វក', 'រកា', 'ច', 'កុរ', 'ជូត', 'ឆ្លូវ', 'ខាល', 'ថោះ', 'រោង', 'ម្សាញ់'];
+        const saks = ['ឆស័ក', 'សប្តស័ក', 'អដ្ឋស័ក', 'នព្វស័ក', 'សម្រឹទ្ធស័ក', 'ឯកស័ក', 'ទោស័ក', 'ត្រីស័ក', 'ចត្វាស័ក', 'បញ្ចស័ក'];
+        const monthsLunar = ['មិគសិរ', 'បុស្ស', 'មាឃ', 'ផល្គុន', 'ចេត្រ', 'ពិសាខ', 'ជេស្ឋ', 'អាសាឍ', 'ស្រាពណ៍', 'ភទ្របទ', 'អស្សុជ', 'កត្តិក'];
+
+        // គណនាឆ្នាំសត្វ និង ស័ក
+        const animalYear = animals[year % 12];
+        const sak = saks[(year + 2) % 10];
+        let beYear = year + 543;
+        if (month > 4 || (month === 4 && date >= 12)) beYear += 1;
+
+        const baseDate = new Date(2026, 0, 1); 
+        const diffDays = Math.floor((now - baseDate) / (1000 * 60 * 60 * 24));
         
-        currentDateKhmer.value = `ថ្ងៃ${days[now.getDay()]} ទី${toKhmerNumeral(now.getDate())} ${months[now.getMonth()]} ${toKhmerNumeral(now.getFullYear())}`;
+        let totalLunarDays = diffDays + 13;
+        let lunarDateNum = (totalLunarDays % 30);
         
+        let phase = "";
+        let dayNum = 0;
+        if (lunarDateNum <= 15) {
+            phase = "កើត";
+            dayNum = lunarDateNum === 0 ? 15 : lunarDateNum;
+        } else {
+            phase = "រោច";
+            dayNum = lunarDateNum - 15;
+        }
+
+        let monthIndex = Math.floor(totalLunarDays / 29.53) + 1;
+        const currentMonthLunar = monthsLunar[monthIndex % 12];
+
+        const lunarPart = `ថ្ងៃ${days[now.getDay()]} ${toKhmerNumeral(dayNum)}${phase} ខែ${currentMonthLunar} ឆ្នាំ${animalYear} ${sak} ព.ស. ${toKhmerNumeral(beYear)}`;
+
+        // --- ៣. Update State ---
+        currentDateKhmer.value = { lunar: lunarPart, solar: solarPart };
         currentTime.value = toKhmerNumeral(now.toLocaleTimeString('en-GB', { 
-            hour: '2-digit', 
-            minute: '2-digit', 
-            second: '2-digit', 
-            hour12: false 
+            hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false 
         }));
     }
-
+    
     // --- Lifecycle Hooks ---
     onMounted(() => { 
         updateTime(); 
