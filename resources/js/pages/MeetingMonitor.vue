@@ -27,85 +27,81 @@
         </header>
 
         <main class="meeting-viewport container-fluid px-4">
-    <div class="th-row khmer-font py-2 d-none d-lg-flex align-items-center text-white px-3 mb-2 opacity-75">
-        <div class="col-lg-2 fw-bold">ម៉ោងប្រជុំ</div>
-        <div class="col-lg-8 fw-bold border-start border-white border-opacity-25 ps-4">កម្មវត្ថុនៃកិច្ចប្រជុំ និង ព័ត៌មានលម្អិត</div>
-        <div class="col-lg-2 fw-bold text-center">ស្ថានភាព</div>
-    </div>
+            <div class="th-row khmer-font py-2 d-none d-lg-flex align-items-center text-white px-3 mb-2 opacity-75">
+                <div class="col-lg-2 fw-bold">ម៉ោងប្រជុំ</div>
+                <div class="col-lg-8 fw-bold border-start border-white border-opacity-25 ps-4">កម្មវត្ថុនៃកិច្ចប្រជុំ និង ព័ត៌មានលម្អិត</div>
+                <div class="col-lg-2 fw-bold text-center">ស្ថានភាព</div>
+            </div>
 
-    <div v-if="isLoading" class="d-flex flex-column align-items-center justify-content-center py-5 khmer-font text-white">
-        <div class="spinner-border text-light mb-3" role="status"></div>
-        <span>កំពុងទាញយកទិន្នន័យ...</span>
-    </div>
+            <div v-if="isLoading" class="d-flex flex-column align-items-center justify-content-center py-5 khmer-font text-white">
+                <div class="spinner-border text-light mb-3" role="status"></div>
+                <span>កំពុងទាញយកទិន្នន័យ...</span>
+            </div>
     
-    <div v-else class="card-stack d-flex flex-column gap-3 pb-5">
-        <div v-for="(m, index) in sortedMeetings" :key="index" 
-            class="meeting-card row mx-0 align-items-center shadow-sm py-4 rounded-3 bg-light" 
-            :style="{ borderLeft: `12px solid ${getPriorityColor(m.color_id)}` }">
-        
-            <div class="col-12 col-lg-2 khmer-font mb-3 mb-lg-0">
-                <div class="time-start display-6 fw-bold tabular-nums" :style="{ color: getPriorityColor(m.color_id) }">
-                    {{ m.displayStartTime }}
-                </div>
-                <div class="time-range small d-flex gap-2 align-items-center mt-1">
-                    <span class="text-muted">ដល់ {{ m.displayEndTime }}</span>
-                    <span class="badge bg-light text-dark border fw-normal">{{ m.period }}</span>
-                </div>
-            </div>
-
-            <div class="col-12 col-lg-8 border-start-lg ps-lg-4 mb-3 mb-lg-0">
-                <h2 class="khmer-font h4 fw-bold mb-1 text-dark">{{ m.title }}</h2>
-
-                <div v-if="m.description" class="description-area mb-2">
-                    <p class="khmer-font text-muted small mb-0 opacity-75" style="line-height: 1.5;">
-                        {{ m.description }}
-                    </p>
-                </div>
-
-                <div class="meta-info khmer-font d-flex flex-wrap gap-x-4 gap-y-2 mt-2">
-                    
-                    <div class="d-flex align-items-center text-muted small">
-                        <i class="bi bi-geo-alt-fill me-2" :style="{ color: getPriorityColor(m.color_id) }"></i>
-                        <span class="fw-bold text-dark">{{ m.location || 'សាលប្រជុំ' }}</span>
-                        <span v-if="m.floor" class="ms-2 badge bg-primary bg-opacity-10 text-primary border-0">ជាន់ទី {{ toKhmerNumeral(m.floor) }}</span>
-                        <span v-if="m.room" class="ms-1 badge bg-danger bg-opacity-10 text-danger border-0">បន្ទប់ {{ toKhmerNumeral(m.room) }}</span>
+            <div v-else class="card-stack d-flex flex-column gap-3 pb-5">
+                <div v-for="(m, index) in sortedMeetings" :key="index" 
+                    class="meeting-card row mx-0 align-items-center shadow-sm py-4 rounded-3 bg-light" 
+                    :style="{ borderLeft: `12px solid ${getPriorityColor(m.color_id)}` }">
+                
+                    <div class="col-12 col-lg-2 khmer-font mb-3 mb-lg-0">
+                        <div class="time-start display-6 fw-bold tabular-nums" :style="{ color: getPriorityColor(m.color_id) }">
+                            {{ m.displayStartTime }}
+                        </div>
+                        <div class="time-range small d-flex gap-2 align-items-center mt-1">
+                            <span class="text-muted">ដល់ {{ m.displayEndTime }}</span>
+                            <span class="badge bg-light text-dark border fw-normal">{{ m.period }}</span>
+                        </div>
                     </div>
 
-                    <div class="d-flex align-items-center text-muted small">
-                        <i class="bi bi-person-fill me-2 text-primary"></i>
-                        <span>ដឹកនាំ៖ <b class="text-dark">{{ m.participantsDisplay || m.leader }}</b></span>
-                    </div>
+                    <div class="col-12 col-lg-8 border-start-lg ps-lg-4 mb-3 mb-lg-0">
+                        <h2 class="khmer-font h4 fw-bold mb-1 text-dark">{{ m.title }}</h2>
 
-                    <div class="d-flex align-items-center text-muted small">
-                        <i class="bi bi-pencil-square me-2 text-success"></i>
-                        <span>បញ្ចូលដោយ៖ <b class="text-dark">{{ m.creator_name || 'រដ្ឋបាល' }}</b></span>
-                    </div>
+                        <div v-if="m.description" class="description-area mb-2">
+                            <p class="khmer-font text-muted small mb-0 opacity-75" style="line-height: 1.5;">
+                                {{ m.description }}
+                            </p>
+                        </div>
 
-                    <div v-if="m.attachment" class="d-flex align-items-center">
-                        <a :href="m.attachment" 
-                        target="_blank" 
-                        class="text-decoration-none cursor-pointer">
-                        
-                            <div class="badge bg-danger text-white px-2 py-1 rounded-1 d-flex align-items-center shadow-sm animate-pulse">
-                                <i class="bi bi-file-earmark-pdf-fill me-1"></i>
-                                <span style="font-size: 0.7rem;">ចុចដើម្បីមើលឯកសារ</span>
-                            </div>
+                        <div class="meta-info khmer-font d-flex flex-wrap gap-x-4 gap-y-2 mt-2">
                             
-                        </a>
+                            <div class="d-flex align-items-center text-muted me-2 small">
+                                <i class="bi bi-geo-alt-fill me-2" :style="{ color: getPriorityColor(m.color_id) }"></i>
+                                <span class="fw-bold text-dark">{{ m.location || 'សាលប្រជុំ' }}</span>
+                                <span v-if="m.floor" class="ms-2 badge bg-primary bg-opacity-10 text-primary border-0">ជាន់ទី {{ toKhmerNumeral(m.floor) }}</span>
+                                <span v-if="m.room" class="ms-1 badge bg-danger bg-opacity-10 text-danger border-0">បន្ទប់ {{ toKhmerNumeral(m.room) }}</span>
+                            </div>
+
+                            <div class="d-flex align-items-center text-muted me-2 small">
+                                <i class="bi bi-person-fill me-2 text-primary"></i>
+                                <span>ដឹកនាំ៖ <b class="text-dark">{{ m.participantsDisplay || m.leader }}</b></span>
+                            </div>
+
+                            <div class="d-flex align-items-center text-muted me-2 small">
+                                <i class="bi bi-pencil-square me-2 text-success"></i>
+                                <span>បញ្ចូលដោយ៖ <b class="text-dark">{{ m.creator_name || 'រដ្ឋបាល' }}</b></span>
+                            </div>
+
+                            <div v-if="m.attachment" class="d-flex align-items-center">
+                                <a :href="m.attachment" target="_blank" class="text-decoration-none cursor-pointer">
+                                    <div class="badge bg-danger text-white px-2 py-1 rounded-1 d-flex align-items-center shadow-sm animate-pulse">
+                                        <i class="bi bi-file-earmark-pdf-fill me-1"></i>
+                                        <span style="font-size: 0.7rem;">ចុចដើម្បីមើលឯកសារ</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-2 text-center">
+                        <div class="status-box d-flex align-items-center justify-content-center gap-1 py-2 rounded-3 fw-bold shadow-sm" 
+                            :style="getStatusBoxStyle(m)">
+                            <div v-if="m.status === 'active'" class="pulse-dot"></div>
+                            <span class="khmer-font fw-bold">{{ m.statusText }}</span>
+                        </div>
                     </div>
                 </div>
             </div>
-
-            <div class="col-12 col-lg-2 text-center">
-                <div class="status-box d-flex align-items-center justify-content-center gap-2 py-3 rounded-pill fw-bold shadow-sm" 
-                    :style="getStatusBoxStyle(m)">
-                    <div v-if="m.status === 'active'" class="pulse-dot"></div>
-                    <span class="khmer-font fw-bold">{{ m.statusText }}</span>
-                </div>
-            </div>
-        </div>
-    </div>
-</main>
+        </main>
 
         <footer class="main-footer bg-light py-3 px-4 border-top mt-auto shadow-lg position-relative">
             <div class="container-fluid d-flex justify-content-between align-items-center khmer-font">
